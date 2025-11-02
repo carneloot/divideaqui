@@ -8,7 +8,8 @@ export type Person = {
 export type Item = {
   id: string;
   name: string;
-  amount: number;
+  amount: number; // Quantity
+  price: number; // Unit price
   type: ItemType;
   appliesToEveryone: boolean;
   selectedPeople: string[]; // Person IDs

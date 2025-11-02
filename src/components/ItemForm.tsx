@@ -27,10 +27,11 @@ const maskOptions = maskitoNumberOptionsGenerator({
 export function ItemForm({ people, onAddItem }: ItemFormProps) {
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
+  const [price, setPrice] = useState('');
   const [appliesToEveryone, setAppliesToEveryone] = useState(true);
   const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
 
-  const amountInputRef = useMaskito({ options: maskOptions });
+  const priceInputRef = useMaskito({ options: maskOptions });
 
   const handleTogglePerson = (personId: string) => {
     setSelectedPeople(prev =>
@@ -41,8 +42,9 @@ export function ItemForm({ people, onAddItem }: ItemFormProps) {
   };
 
   const handleAddItem = (itemType: ItemType) => {
-    const numAmount = parseFloat(amount.replace(/[^0-9.]/g, '')) || parseFloat(amount.slice(1));
-    if (name.trim() && !isNaN(numAmount) && numAmount > 0) {
+    const numAmount = parseFloat(amount.replace(/[^0-9.]/g, '')) || 0;
+    const numPrice = parseFloat(price.replace(/[^0-9.]/g, '')) || parseFloat(price.slice(1)) || 0;
+    if (name.trim() && !isNaN(numAmount) && numAmount > 0 && !isNaN(numPrice) && numPrice > 0) {
       if (!appliesToEveryone && selectedPeople.length === 0) {
         alert('Please select at least one person when using custom selection.');
         return;
@@ -51,6 +53,7 @@ export function ItemForm({ people, onAddItem }: ItemFormProps) {
         id: crypto.randomUUID(),
         name: name.trim(),
         amount: numAmount,
+        price: numPrice,
         type: itemType,
         appliesToEveryone,
         selectedPeople: appliesToEveryone ? [] : selectedPeople,
@@ -58,6 +61,7 @@ export function ItemForm({ people, onAddItem }: ItemFormProps) {
       // Reset form
       setName('');
       setAmount('');
+      setPrice('');
       setAppliesToEveryone(true);
       setSelectedPeople([]);
     }
@@ -70,7 +74,9 @@ export function ItemForm({ people, onAddItem }: ItemFormProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
+          <Label htmlFor="name">Item Name</Label>
           <Input
+            id="name"
             type="text"
             placeholder="Item name (e.g., 'Pizza', '10% discount')"
             value={name}
@@ -79,14 +85,28 @@ export function ItemForm({ people, onAddItem }: ItemFormProps) {
           />
         </div>
         <div>
+          <Label htmlFor="amount">Quantity</Label>
           <Input
-            ref={amountInputRef}
+            id="amount"
             type="text"
-            placeholder="Amount"
+            placeholder="Quantity (e.g., 2)"
             inputMode="numeric"
             required
             value={amount}
-            onInput={(e: React.FormEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)}
+          />
+        </div>
+        <div>
+          <Label htmlFor="price">Unit Price</Label>
+          <Input
+            id="price"
+            ref={priceInputRef}
+            type="text"
+            placeholder="Unit price"
+            inputMode="numeric"
+            required
+            value={price}
+            onInput={(e: React.FormEvent<HTMLInputElement>) => setPrice(e.currentTarget.value)}
           />
         </div>
         <div>

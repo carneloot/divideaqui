@@ -46,7 +46,10 @@ export function ItemsList({ items, people, onRemoveItem }: ItemsListProps) {
                   </div>
                   <div className="text-2xl font-bold mb-2">
                     {item.type === 'discount' ? '-' : '+'}
-                    ${item.amount.toFixed(2)}
+                    ${(item.amount * item.price).toFixed(2)}
+                  </div>
+                  <div className="text-sm text-muted-foreground mb-1">
+                    {item.amount} × ${item.price.toFixed(2)} = ${(item.amount * item.price).toFixed(2)}
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {item.appliesToEveryone ? (

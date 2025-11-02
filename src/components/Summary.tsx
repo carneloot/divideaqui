@@ -17,7 +17,8 @@ export function Summary({ group }: SummaryProps) {
 
     // Calculate each person's share
     group.items.forEach(item => {
-      const amount = item.type === 'expense' ? item.amount : -item.amount;
+      const totalValue = item.amount * item.price;
+      const amount = item.type === 'expense' ? totalValue : -totalValue;
       const applicablePeople = item.appliesToEveryone
         ? group.people
         : group.people.filter(p => item.selectedPeople.includes(p.id));
@@ -33,10 +34,10 @@ export function Summary({ group }: SummaryProps) {
     // Calculate totals for validation
     const totalExpenses = group.items
       .filter(item => item.type === 'expense')
-      .reduce((sum, item) => sum + item.amount, 0);
+      .reduce((sum, item) => sum + (item.amount * item.price), 0);
     const totalDiscounts = group.items
       .filter(item => item.type === 'discount')
-      .reduce((sum, item) => sum + item.amount, 0);
+      .reduce((sum, item) => sum + (item.amount * item.price), 0);
     const netTotal = totalExpenses - totalDiscounts;
     const sumOfShares = Object.values(totals).reduce((sum, val) => sum + val, 0);
 
