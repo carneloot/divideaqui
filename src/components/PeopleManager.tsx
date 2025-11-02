@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
 import type { Person } from '../types';
 
 interface PeopleManagerProps {
@@ -27,36 +31,48 @@ export function PeopleManager({ people, onAddPerson, onRemovePerson }: PeopleMan
   };
 
   return (
-    <div className="people-manager">
-      <h2>People</h2>
-      <div className="add-person-form">
-        <input
-          type="text"
-          placeholder="Enter person's name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyPress={handleKeyPress}
-        />
-        <button onClick={handleAdd}>Add Person</button>
-      </div>
-      <div className="people-list">
-        {people.length === 0 ? (
-          <p className="empty-state">No people added yet. Add someone to get started!</p>
-        ) : (
-          [...people].sort((a, b) => a.name.localeCompare(b.name)).map(person => (
-            <div key={person.id} className="person-item">
-              <span>{person.name}</span>
-              <button
-                onClick={() => onRemovePerson(person.id)}
-                className="remove-btn"
-                aria-label={`Remove ${person.name}`}
+    <Card>
+      <CardHeader>
+        <CardTitle>People</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex gap-2">
+          <Input
+            type="text"
+            placeholder="Enter person's name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={handleKeyPress}
+            className="flex-1"
+          />
+          <Button onClick={handleAdd}>Add Person</Button>
+        </div>
+        <div className="space-y-2">
+          {people.length === 0 ? (
+            <p className="text-muted-foreground text-center py-4 italic">
+              No people added yet. Add someone to get started!
+            </p>
+          ) : (
+            [...people].sort((a, b) => a.name.localeCompare(b.name)).map(person => (
+              <div
+                key={person.id}
+                className="flex items-center justify-between p-3 bg-card border rounded-md"
               >
-                ×
-              </button>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
+                <span>{person.name}</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onRemovePerson(person.id)}
+                  aria-label={`Remove ${person.name}`}
+                  className="h-8 w-8"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

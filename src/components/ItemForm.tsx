@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import { useMaskito } from '@maskito/react';
 import { maskitoNumberOptionsGenerator } from '@maskito/kit';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import type { Item, Person, ItemType } from '../types';
 
 interface ItemFormProps {
   people: Person[];
   onAddItem: (item: Item) => void;
 }
+
 const maskOptions = maskitoNumberOptionsGenerator({
   min: 0,
   max: 999999.99,
@@ -24,7 +31,7 @@ export function ItemForm({ people, onAddItem }: ItemFormProps) {
   const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
 
   const amountInputRef = useMaskito({ options: maskOptions });
-  
+
   const handleTogglePerson = (personId: string) => {
     setSelectedPeople(prev =>
       prev.includes(personId)
@@ -57,80 +64,90 @@ export function ItemForm({ people, onAddItem }: ItemFormProps) {
   };
 
   return (
-    <form className="item-form">
-      <h2>Add Item</h2>
-      <div className="form-row">
-        <input
-          type="text"
-          placeholder="Item name (e.g., 'Pizza', '10% discount')"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-      </div>
-      <div className="form-row">
-        <input
-          ref={amountInputRef}
-          type="text"
-          placeholder="Amount"
-          inputMode="numeric"
-          required
-          value={amount}
-          onInput={(e) => setAmount(e.currentTarget.value)}
-        />
-      </div>
-      <div className="form-row">
-        <label>
-          <input
-            type="radio"
-            checked={appliesToEveryone}
-            onChange={() => setAppliesToEveryone(true)}
+    <Card>
+      <CardHeader>
+        <CardTitle>Add Item</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Input
+            type="text"
+            placeholder="Item name (e.g., 'Pizza', '10% discount')"
+            value={name}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+            required
           />
-          Everyone
-        </label>
-        <label>
-          <input
-            type="radio"
-            checked={!appliesToEveryone}
-            onChange={() => setAppliesToEveryone(false)}
-          />
-          Custom
-        </label>
-      </div>
-      {!appliesToEveryone && (
-        <div className="people-checkboxes">
-          {people.length === 0 ? (
-            <p className="warning">Add people first before selecting custom</p>
-          ) : (
-            [...people].sort((a, b) => a.name.localeCompare(b.name)).map(person => (
-              <label key={person.id} className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={selectedPeople.includes(person.id)}
-                  onChange={() => handleTogglePerson(person.id)}
-                />
-                {person.name}
-              </label>
-            ))
-          )}
         </div>
-      )}
-      <div className="form-buttons">
-        <button
-          type="button"
-          onClick={() => handleAddItem('expense')}
-          className="add-expense-btn"
-        >
-          Add Expense
-        </button>
-        <button
-          type="button"
-          onClick={() => handleAddItem('discount')}
-          className="add-discount-btn"
-        >
-          Add Discount
-        </button>
-      </div>
-    </form>
+        <div>
+          <Input
+            ref={amountInputRef}
+            type="text"
+            placeholder="Amount"
+            inputMode="numeric"
+            required
+            value={amount}
+            onInput={(e: React.FormEvent<HTMLInputElement>) => setAmount(e.currentTarget.value)}
+          />
+        </div>
+        <div>
+          <RadioGroup
+            value={appliesToEveryone ? 'everyone' : 'custom'}
+            onValueChange={(value: string) => setAppliesToEveryone(value === 'everyone')}
+            className="flex gap-6"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="everyone" id="everyone" />
+              <Label htmlFor="everyone">Everyone</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="custom" id="custom" />
+              <Label htmlFor="custom">Custom</Label>
+            </div>
+          </RadioGroup>
+        </div>
+        {!appliesToEveryone && (
+          <div className="space-y-2 p-4 border rounded-md">
+            {people.length === 0 ? (
+              <p className="text-sm text-yellow-600 italic">
+                Add people first before selecting custom
+              </p>
+            ) : (
+              [...people].sort((a, b) => a.name.localeCompare(b.name)).map(person => (
+                <div key={person.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={person.id}
+                    checked={selectedPeople.includes(person.id)}
+                    onCheckedChange={() => handleTogglePerson(person.id)}
+                  />
+                  <Label
+                    htmlFor={person.id}
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    {person.name}
+                  </Label>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+        <div className="flex gap-3 pt-2">
+          <Button
+            type="button"
+            onClick={() => handleAddItem('expense')}
+            className="flex-1"
+          >
+            Add Expense
+          </Button>
+          <Button
+            type="button"
+            variant="default"
+            onClick={() => handleAddItem('discount')}
+            className="flex-1 bg-green-600 hover:bg-green-700"
+          >
+            Add Discount
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

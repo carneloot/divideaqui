@@ -1,8 +1,16 @@
 import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import type { ExpenseGroup } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { GroupManager } from './components/GroupManager';
-import './App.css';
 
 function App() {
   const { groups, addGroup, updateGroup, deleteGroup } = useLocalStorage();
@@ -24,30 +32,40 @@ function App() {
   const selectedGroup = groups.find(g => g.id === selectedGroupId);
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>💰 Divide Aqui</h1>
-        <p className="subtitle">Split expenses with your friends</p>
+    <div className="min-h-screen bg-background">
+      <header className="border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="container mx-auto px-4 py-8 text-center">
+          <h1 className="text-4xl font-bold mb-2">💰 Divide Aqui</h1>
+          <p className="text-lg opacity-90">Split expenses with your friends</p>
+        </div>
       </header>
-      <main className="app-main">
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
         {groups.length > 0 && (
-          <div className="groups-selector">
-            <label htmlFor="group-select">Select Group:</label>
-            <select
-              id="group-select"
-              value={selectedGroupId || ''}
-              onChange={(e) => setSelectedGroupId(e.target.value)}
-            >
-              {groups.map(group => (
-                <option key={group.id} value={group.id}>
-                  {group.name}
-                </option>
-              ))}
-            </select>
-            <button onClick={handleCreateGroup} className="new-group-btn">
-              + New Group
-            </button>
-          </div>
+          <Card className="mb-6">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <label htmlFor="group-select" className="font-medium">Select Group:</label>
+                <Select
+                  value={selectedGroupId || ''}
+                  onValueChange={(value) => setSelectedGroupId(value)}
+                >
+                  <SelectTrigger id="group-select" className="flex-1">
+                    <SelectValue placeholder="Select a group" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {groups.map(group => (
+                      <SelectItem key={group.id} value={group.id}>
+                        {group.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button onClick={handleCreateGroup}>
+                  + New Group
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
         {selectedGroup ? (
           <GroupManager
@@ -64,13 +82,19 @@ function App() {
             }}
           />
         ) : (
-          <div className="welcome-screen">
-            <h2>Welcome! 👋</h2>
-            <p>Create your first expense group to get started.</p>
-            <button onClick={handleCreateGroup} className="create-first-group-btn">
-              Create Your First Group
-            </button>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center text-2xl">Welcome! 👋</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4 py-8">
+              <p className="text-muted-foreground text-lg">
+                Create your first expense group to get started.
+              </p>
+              <Button onClick={handleCreateGroup} size="lg">
+                Create Your First Group
+              </Button>
+            </CardContent>
+          </Card>
         )}
       </main>
     </div>

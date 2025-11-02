@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
 import type { ExpenseGroup, Person, Item } from '../types';
 import { PeopleManager } from './PeopleManager';
 import { ItemForm } from './ItemForm';
@@ -53,26 +57,27 @@ export function GroupManager({ group, onUpdateGroup, onDeleteGroup }: GroupManag
   };
 
   return (
-    <div className="group-manager">
-      <div className="group-header">
-        <input
+    <Card>
+      <div className="flex items-center justify-between p-6 border-b bg-muted/50">
+        <Input
           type="text"
           value={groupName}
           onChange={(e) => setGroupName(e.target.value)}
           onBlur={handleUpdateName}
-          onKeyPress={(e) => e.key === 'Enter' && handleUpdateName()}
-          className="group-name-input"
+          onKeyDown={(e) => e.key === 'Enter' && handleUpdateName()}
+          className="text-2xl font-semibold border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0 max-w-md"
         />
-        <button
+        <Button
+          variant="destructive"
           onClick={() => onDeleteGroup(group.id)}
-          className="delete-group-btn"
           aria-label="Delete group"
         >
+          <Trash2 className="h-4 w-4 mr-2" />
           Delete Group
-        </button>
+        </Button>
       </div>
-      <div className="group-content">
-        <div className="left-column">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+        <div className="space-y-6">
           <PeopleManager
             people={group.people}
             onAddPerson={handleAddPerson}
@@ -80,7 +85,7 @@ export function GroupManager({ group, onUpdateGroup, onDeleteGroup }: GroupManag
           />
           <ItemForm people={group.people} onAddItem={handleAddItem} />
         </div>
-        <div className="right-column">
+        <div className="space-y-6">
           <ItemsList
             items={group.items}
             people={group.people}
@@ -89,6 +94,6 @@ export function GroupManager({ group, onUpdateGroup, onDeleteGroup }: GroupManag
           <Summary group={group} />
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

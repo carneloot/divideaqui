@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { ExpenseGroup } from '../types';
 
 interface SummaryProps {
@@ -50,50 +51,60 @@ export function Summary({ group }: SummaryProps) {
   }, [group]);
 
   return (
-    <div className="summary">
-      <h2>Summary</h2>
-      {group.people.length === 0 ? (
-        <p className="empty-state">Add people to see the summary</p>
-      ) : group.items.length === 0 ? (
-        <p className="empty-state">Add items to see the summary</p>
-      ) : (
-        <>
-          <div className="summary-table">
-            <div className="summary-header">
-              <span>Person</span>
-              <span>Amount Owed</span>
-            </div>
-            {[...group.people].sort((a, b) => a.name.localeCompare(b.name)).map(person => (
-              <div key={person.id} className="summary-row">
-                <span>{person.name}</span>
-                <span className={calculations.totals[person.id] >= 0 ? 'positive' : 'negative'}>
-                  ${Math.abs(calculations.totals[person.id]).toFixed(2)}
-                  {calculations.totals[person.id] < 0 && ' (credit)'}
-                </span>
+    <Card>
+      <CardHeader>
+        <CardTitle>Summary</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {group.people.length === 0 ? (
+          <p className="text-muted-foreground text-center py-4 italic">
+            Add people to see the summary
+          </p>
+        ) : group.items.length === 0 ? (
+          <p className="text-muted-foreground text-center py-4 italic">
+            Add items to see the summary
+          </p>
+        ) : (
+          <>
+            <div className="border rounded-md overflow-hidden">
+              <div className="grid grid-cols-2 bg-primary text-primary-foreground p-2 font-semibold">
+                <span>Person</span>
+                <span className="text-right">Amount Owed</span>
               </div>
-            ))}
-          </div>
-          <div className="summary-totals">
-            <div className="total-row">
-              <span>Total Expenses:</span>
-              <span>${calculations.totalExpenses.toFixed(2)}</span>
+              {[...group.people].sort((a, b) => a.name.localeCompare(b.name)).map(person => (
+                <div key={person.id} className="grid grid-cols-2 p-2 border-t">
+                  <span>{person.name}</span>
+                  <span className={`text-right font-semibold ${
+                    calculations.totals[person.id] >= 0 ? 'text-blue-600' : 'text-green-600'
+                  }`}>
+                    ${Math.abs(calculations.totals[person.id]).toFixed(2)}
+                    {calculations.totals[person.id] < 0 && ' (credit)'}
+                  </span>
+                </div>
+              ))}
             </div>
-            <div className="total-row">
-              <span>Total Discounts:</span>
-              <span>${calculations.totalDiscounts.toFixed(2)}</span>
+            <div className="space-y-2 p-4 bg-muted rounded-md">
+              <div className="flex justify-between">
+                <span>Total Expenses:</span>
+                <span className="font-semibold">${calculations.totalExpenses.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Total Discounts:</span>
+                <span className="font-semibold">${calculations.totalDiscounts.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t font-bold text-lg">
+                <span>Net Total:</span>
+                <span>${calculations.netTotal.toFixed(2)}</span>
+              </div>
             </div>
-            <div className="total-row net-total">
-              <span>Net Total:</span>
-              <span>${calculations.netTotal.toFixed(2)}</span>
-            </div>
-          </div>
-          {!calculations.isValid && (
-            <div className="validation-error">
-              ⚠️ Warning: Calculation mismatch detected. Please check your items.
-            </div>
-          )}
-        </>
-      )}
-    </div>
+            {!calculations.isValid && (
+              <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-md font-medium">
+                ⚠️ Warning: Calculation mismatch detected. Please check your items.
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
