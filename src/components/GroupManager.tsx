@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { Trash2 } from 'lucide-react';
 import type { ExpenseGroup, Person, Item } from '../types';
 import { PeopleManager } from './PeopleManager';
@@ -17,6 +18,13 @@ interface GroupManagerProps {
 
 export function GroupManager({ group, onUpdateGroup, onDeleteGroup }: GroupManagerProps) {
   const [groupName, setGroupName] = useState(group.name);
+  const [tipPercentage, setTipPercentage] = useState(group.tipPercentage?.toString() || '');
+
+  // Sync local state with group prop changes
+  useEffect(() => {
+    setGroupName(group.name);
+    setTipPercentage(group.tipPercentage?.toString() || '');
+  }, [group.name, group.tipPercentage]);
 
   const handleUpdateName = () => {
     if (groupName.trim()) {
@@ -41,6 +49,13 @@ export function GroupManager({ group, onUpdateGroup, onDeleteGroup }: GroupManag
     onUpdateGroup(group.id, {
       people: updatedPeople,
       items: updatedItems,
+    });
+  };
+
+  const handleUpdateTipPercentage = () => {
+    const tipValue = tipPercentage.trim() === '' ? undefined : parseFloat(tipPercentage);
+    onUpdateGroup(group.id, {
+      tipPercentage: tipValue !== undefined && !isNaN(tipValue) && tipValue >= 0 ? tipValue : undefined,
     });
   };
 
@@ -83,6 +98,38 @@ export function GroupManager({ group, onUpdateGroup, onDeleteGroup }: GroupManag
             onAddPerson={handleAddPerson}
             onRemovePerson={handleRemovePerson}
           />
+          <Card>
+            <CardHeader>
+              <CardTitle>Tip Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="tip-percentage">Tip Percentage</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="tip-percentage"
+                    type="number"
+                    placeholder="Enter tip % (optional)"
+                    value={tipPercentage}
+                    onChange={(e) => setTipPercentage(e.target.value)}
+                    onBlur={handleUpdateTipPercentage}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleUpdateTipPercentage();
+                      }
+                    }}
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    className="flex-1"
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  The tip will be calculated on the total bill and split equally among all people.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
           <ItemForm people={group.people} onAddItem={handleAddItem} />
         </div>
         <div className="space-y-6">

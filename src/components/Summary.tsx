@@ -9,10 +9,14 @@ interface SummaryProps {
 export function Summary({ group }: SummaryProps) {
   const calculations = useMemo(() => {
     const totals: Record<string, number> = {};
+    const tips: Record<string, number> = {};
+    const totalsWithTips: Record<string, number> = {};
 
     // Initialize all people with 0
     group.people.forEach(person => {
       totals[person.id] = 0;
+      tips[person.id] = 0;
+      totalsWithTips[person.id] = 0;
     });
 
     // Calculate each person's share
@@ -39,14 +43,39 @@ export function Summary({ group }: SummaryProps) {
       .filter(item => item.type === 'discount')
       .reduce((sum, item) => sum + (item.amount * item.price), 0);
     const netTotal = totalExpenses - totalDiscounts;
+
+    // Calculate global tip on net total and split equally among all people
+    let totalTipAmount = 0;
+    let tipPerPerson = 0;
+    if (group.tipPercentage !== undefined && group.tipPercentage !== null && netTotal > 0 && group.people.length > 0) {
+      totalTipAmount = netTotal * (group.tipPercentage / 100);
+      tipPerPerson = totalTipAmount / group.people.length;
+      
+      // Assign tip to each person
+      group.people.forEach(person => {
+        tips[person.id] = tipPerPerson;
+        totalsWithTips[person.id] = (totals[person.id] || 0) + tipPerPerson;
+      });
+    } else {
+      // No tip, so totalsWithTips equals totals
+      group.people.forEach(person => {
+        totalsWithTips[person.id] = totals[person.id] || 0;
+      });
+    }
+
     const sumOfShares = Object.values(totals).reduce((sum, val) => sum + val, 0);
+    const sumOfSharesWithTips = Object.values(totalsWithTips).reduce((sum, val) => sum + val, 0);
 
     return {
       totals,
+      tips,
+      totalsWithTips,
       totalExpenses,
       totalDiscounts,
       netTotal,
       sumOfShares,
+      totalTips: totalTipAmount,
+      sumOfSharesWithTips,
       isValid: Math.abs(netTotal - sumOfShares) < 0.01, // Allow small floating point differences
     };
   }, [group]);
@@ -72,17 +101,31 @@ export function Summary({ group }: SummaryProps) {
                 <span>Person</span>
                 <span className="text-right">Amount Owed</span>
               </div>
-              {[...group.people].sort((a, b) => a.name.localeCompare(b.name)).map(person => (
-                <div key={person.id} className="grid grid-cols-2 p-2 border-t">
-                  <span>{person.name}</span>
-                  <span className={`text-right font-semibold ${
-                    calculations.totals[person.id] >= 0 ? 'text-blue-600' : 'text-green-600'
-                  }`}>
-                    ${Math.abs(calculations.totals[person.id]).toFixed(2)}
-                    {calculations.totals[person.id] < 0 && ' (credit)'}
-                  </span>
-                </div>
-              ))}
+              {[...group.people].sort((a, b) => a.name.localeCompare(b.name)).map(person => {
+                const baseTotal = calculations.totals[person.id] || 0;
+                const tip = calculations.tips[person.id] || 0;
+                const totalWithTip = calculations.totalsWithTips[person.id] || 0;
+                const hasTip = tip > 0 && group.tipPercentage !== undefined && group.tipPercentage !== null;
+
+                return (
+                  <div key={person.id} className="grid grid-cols-2 p-2 border-t">
+                    <div>
+                      <div className="font-medium">{person.name}</div>
+                      {hasTip && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Base: ${Math.abs(baseTotal).toFixed(2)} + Tip (${group.tipPercentage}%): ${tip.toFixed(2)}
+                        </div>
+                      )}
+                    </div>
+                    <span className={`text-right font-semibold ${
+                      totalWithTip >= 0 ? 'text-blue-600' : 'text-green-600'
+                    }`}>
+                      ${Math.abs(totalWithTip).toFixed(2)}
+                      {totalWithTip < 0 && ' (credit)'}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
             <div className="space-y-2 p-4 bg-muted rounded-md">
               <div className="flex justify-between">
@@ -93,9 +136,19 @@ export function Summary({ group }: SummaryProps) {
                 <span>Total Discounts:</span>
                 <span className="font-semibold">${calculations.totalDiscounts.toFixed(2)}</span>
               </div>
+              <div className="flex justify-between">
+                <span>Net Total (before tips):</span>
+                <span className="font-semibold">${calculations.netTotal.toFixed(2)}</span>
+              </div>
+              {calculations.totalTips > 0 && (
+                <div className="flex justify-between">
+                  <span>Total Tips:</span>
+                  <span className="font-semibold">${calculations.totalTips.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between pt-2 border-t font-bold text-lg">
-                <span>Net Total:</span>
-                <span>${calculations.netTotal.toFixed(2)}</span>
+                <span>Grand Total:</span>
+                <span>${calculations.sumOfSharesWithTips.toFixed(2)}</span>
               </div>
             </div>
             {!calculations.isValid && (

@@ -20,4 +20,5 @@ export type ExpenseGroup = {
   name: string;
   people: Person[];
   items: Item[];
+  tipPercentage?: number; // Optional global tip percentage (e.g., 15 for 15%)
 };
