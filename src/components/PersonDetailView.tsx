@@ -103,7 +103,9 @@ export function PersonDetailView({
 					) : (
 						<>
 							<div className="space-y-3">
-								<h3 className="text-lg font-semibold text-slate-900">Items breakdown</h3>
+								<h3 className="text-lg font-semibold text-slate-900">
+									Items breakdown
+								</h3>
 								<div className="grid grid-cols-1 gap-4">
 									{applicableItems.map(
 										({ item, applicablePeople, perPerson }) => (
@@ -119,20 +121,27 @@ export function PersonDetailView({
 													<div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
 														<div>
 															<p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">
-																{item.type === 'expense' ? 'Expense' : 'Discount'}
+																{item.type === 'expense'
+																	? 'Expense'
+																	: 'Discount'}
 															</p>
 															<h4 className="mt-2 text-lg font-semibold text-slate-900">
 																{item.name}
 															</h4>
 															<p className="text-sm text-slate-600">
-																{item.amount} × {currencyFormatter.format(item.price)} ={' '}
-																{currencyFormatter.format(item.amount * item.price)}
+																{item.amount} ×{' '}
+																{currencyFormatter.format(item.price)} ={' '}
+																{currencyFormatter.format(
+																	item.amount * item.price
+																)}
 															</p>
 														</div>
 														<div className="text-right">
 															<p
 																className={`text-lg font-semibold ${
-																	perPerson >= 0 ? 'text-indigo-600' : 'text-emerald-600'
+																	perPerson >= 0
+																		? 'text-indigo-600'
+																		: 'text-emerald-600'
 																}`}
 															>
 																{perPerson >= 0 ? '+' : '-'}
@@ -140,15 +149,21 @@ export function PersonDetailView({
 															</p>
 															<p className="text-xs text-slate-500">
 																Split among {applicablePeople.length}{' '}
-																{applicablePeople.length === 1 ? 'person' : 'people'}
+																{applicablePeople.length === 1
+																	? 'person'
+																	: 'people'}
 															</p>
 														</div>
 													</div>
 													{applicablePeople.length > 1 && (
 														<div className="flex flex-wrap gap-2 rounded-xl bg-white/70 px-3 py-2 text-xs text-slate-500">
-															<span className="font-medium text-slate-600">Shared with:</span>
+															<span className="font-medium text-slate-600">
+																Shared with:
+															</span>
 															{applicablePeople
-																.map((p) => (p.id === person.id ? 'you' : p.name))
+																.map((p) =>
+																	p.id === person.id ? 'you' : p.name
+																)
 																.sort((a, b) => {
 																	if (a === 'you') return -1
 																	if (b === 'you') return 1
@@ -168,7 +183,11 @@ export function PersonDetailView({
 									<span>Base total (items)</span>
 									<span className="font-semibold text-slate-900">
 										{currencyFormatter.format(Math.abs(baseTotal))}
-										{baseTotal < 0 && <span className="ml-1 text-xs uppercase text-emerald-600">credit</span>}
+										{baseTotal < 0 && (
+											<span className="ml-1 text-xs uppercase text-emerald-600">
+												credit
+											</span>
+										)}
 									</span>
 								</div>
 								{tip > 0 && (
@@ -180,14 +199,18 @@ export function PersonDetailView({
 									</div>
 								)}
 								<div className="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-4">
-									<span className="text-base font-semibold text-slate-900">Total amount</span>
+									<span className="text-base font-semibold text-slate-900">
+										Total amount
+									</span>
 									<span
 										className={`text-xl font-semibold ${
 											totalWithTip >= 0 ? 'text-indigo-600' : 'text-emerald-600'
 										}`}
 									>
 										{currencyFormatter.format(Math.abs(totalWithTip))}
-										{totalWithTip < 0 && <span className="ml-1 text-xs uppercase">credit</span>}
+										{totalWithTip < 0 && (
+											<span className="ml-1 text-xs uppercase">credit</span>
+										)}
 									</span>
 								</div>
 							</div>

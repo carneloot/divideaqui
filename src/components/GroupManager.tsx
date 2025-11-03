@@ -50,8 +50,7 @@ export function GroupManager() {
 	}
 
 	const handleUpdateTipPercentage = () => {
-		const tipValue =
-			tipPercentage.trim() === '' ? 0 : parseFloat(tipPercentage)
+		const tipValue = tipPercentage.trim() === '' ? 0 : parseFloat(tipPercentage)
 		updateGroup({
 			id: group.id,
 			tipPercentage:
@@ -150,7 +149,9 @@ export function GroupManager() {
 							<p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
 								{label}
 							</p>
-							<p className="mt-1 text-base font-semibold text-slate-900">{value}</p>
+							<p className="mt-1 text-base font-semibold text-slate-900">
+								{value}
+							</p>
 						</div>
 					</div>
 				))}
@@ -164,12 +165,16 @@ export function GroupManager() {
 								Tip settings
 							</CardTitle>
 							<p className="text-sm text-slate-500">
-								Apply a percentage once, we’ll distribute fairly across everyone.
+								Apply a percentage once, we’ll distribute fairly across
+								everyone.
 							</p>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							<div className="space-y-2">
-								<Label htmlFor="tip-percentage" className="text-sm font-medium text-slate-700">
+								<Label
+									htmlFor="tip-percentage"
+									className="text-sm font-medium text-slate-700"
+								>
 									Tip percentage
 								</Label>
 								<div className="flex flex-col gap-3 sm:flex-row">
@@ -193,7 +198,8 @@ export function GroupManager() {
 									<div className="flex items-center text-sm text-slate-500">
 										{totalTipAmount > 0 ? (
 											<span>
-												Adds {currencyFormatter.format(totalTipAmount)} to the bill
+												Adds {currencyFormatter.format(totalTipAmount)} to the
+												bill
 											</span>
 										) : (
 											<span>No tip added yet</span>
@@ -201,7 +207,8 @@ export function GroupManager() {
 									</div>
 								</div>
 								<p className="text-xs leading-relaxed text-slate-500">
-									Calculated on the net total and shared equally among all members.
+									Calculated on the net total and shared equally among all
+									members.
 								</p>
 							</div>
 						</CardContent>

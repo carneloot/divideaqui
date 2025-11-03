@@ -63,7 +63,7 @@ export const pixKeyAtom = Atom.writable(
 	},
 	(ctx, pixKey: string | null) => {
 		const currentSettings = ctx.get(settingsAtom)
-		ctx.set(settingsAtom, { ...currentSettings, pixKey: pixKey ?? undefined })
+		ctx.set(settingsAtom, { ...currentSettings, pixKey: pixKey?.trim() ?? undefined })
 	}
 )
 

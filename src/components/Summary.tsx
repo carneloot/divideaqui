@@ -108,7 +108,10 @@ export function Summary() {
 	const currency = useAtomValue(currencyAtom)
 	const pixKey = useAtomValue(pixKeyAtom)
 	const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
-	const [pixPerson, setPixPerson] = useState<{ person: Person; amount: number } | null>(null)
+	const [pixPerson, setPixPerson] = useState<{
+		person: Person
+		amount: number
+	} | null>(null)
 	const [showPixError, setShowPixError] = useState(false)
 	const currencyFormatter = useMemo(
 		() => new Intl.NumberFormat('en-US', { style: 'currency', currency }),
@@ -156,22 +159,28 @@ export function Summary() {
 											Grand total
 										</p>
 										<p className="mt-2 text-3xl font-semibold text-slate-900">
-											{currencyFormatter.format(calculations.sumOfSharesWithTips)}
+											{currencyFormatter.format(
+												calculations.sumOfSharesWithTips
+											)}
 										</p>
 									</div>
 									<div className="grid gap-1 text-sm text-slate-600 sm:text-right">
 										<span>
-											Expenses: {currencyFormatter.format(calculations.totalExpenses)}
+											Expenses:{' '}
+											{currencyFormatter.format(calculations.totalExpenses)}
 										</span>
 										<span>
-											Discounts: {currencyFormatter.format(calculations.totalDiscounts)}
+											Discounts:{' '}
+											{currencyFormatter.format(calculations.totalDiscounts)}
 										</span>
 										<span>
-											Net before tip: {currencyFormatter.format(calculations.netTotal)}
+											Net before tip:{' '}
+											{currencyFormatter.format(calculations.netTotal)}
 										</span>
 										{calculations.totalTips > 0 && (
 											<span>
-												Tips added: {currencyFormatter.format(calculations.totalTips)}
+												Tips added:{' '}
+												{currencyFormatter.format(calculations.totalTips)}
 											</span>
 										)}
 									</div>
@@ -201,16 +210,21 @@ export function Summary() {
 												className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-t border-slate-200/70 px-4 py-4 text-sm"
 											>
 												<div className="space-y-1">
-													<p className="font-medium text-slate-900">{person.name}</p>
+													<p className="font-medium text-slate-900">
+														{person.name}
+													</p>
 													{hasTip && (
 														<p className="text-xs text-slate-500">
-															Base {currencyFormatter.format(baseTotal)} · Tip {currencyFormatter.format(tip)}
+															Base {currencyFormatter.format(baseTotal)} · Tip{' '}
+															{currencyFormatter.format(tip)}
 														</p>
 													)}
 												</div>
 												<div
 													className={`text-right text-base font-semibold ${
-														totalWithTip >= 0 ? 'text-indigo-600' : 'text-emerald-600'
+														totalWithTip >= 0
+															? 'text-indigo-600'
+															: 'text-emerald-600'
 													}`}
 												>
 													{currencyFormatter.format(Math.abs(totalWithTip))}
@@ -225,7 +239,9 @@ export function Summary() {
 														<Button
 															variant="ghost"
 															size="icon"
-															onClick={() => handlePixClick(person, totalWithTip)}
+															onClick={() =>
+																handlePixClick(person, totalWithTip)
+															}
 															aria-label={`Generate PIX for ${person.name}`}
 															className="h-8 w-8 rounded-full text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-600"
 														>
@@ -248,7 +264,8 @@ export function Summary() {
 							</div>
 							{!calculations.isValid && (
 								<div className="rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm font-medium text-amber-700">
-									⚠️ Calculation mismatch detected. Double-check your item splits.
+									⚠️ Calculation mismatch detected. Double-check your item
+									splits.
 								</div>
 							)}
 						</>
@@ -285,7 +302,8 @@ export function Summary() {
 							PIX Key Not Set
 						</DialogTitle>
 						<DialogDescription className="text-sm text-slate-500">
-							Please configure your PIX key in settings before generating payment requests.
+							Please configure your PIX key in settings before generating
+							payment requests.
 						</DialogDescription>
 					</DialogHeader>
 					<div className="py-4">
