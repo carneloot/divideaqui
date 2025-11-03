@@ -1,6 +1,7 @@
 import { Atom, useAtomValue } from '@effect-atom/atom-react'
 import { Eye, QrCode } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -103,6 +104,7 @@ const groupCalculationsAtom = Atom.make((get) => {
 })
 
 export function Summary() {
+	const { t, i18n } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
 	const calculations = useAtomValue(groupCalculationsAtom)
 	const currency = useAtomValue(currencyAtom)
@@ -114,8 +116,8 @@ export function Summary() {
 	} | null>(null)
 	const [showPixError, setShowPixError] = useState(false)
 	const currencyFormatter = useMemo(
-		() => new Intl.NumberFormat('en-US', { style: 'currency', currency }),
-		[currency]
+		() => new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, { style: 'currency', currency }),
+		[currency, i18n.language]
 	)
 
 	const handlePixClick = (person: Person, amount: number) => {
@@ -132,66 +134,66 @@ export function Summary() {
 
 	return (
 		<>
-			<Card className="border-none bg-white/90 shadow-lg ring-1 ring-slate-200/60 backdrop-blur">
-				<CardHeader className="space-y-1">
-					<CardTitle className="text-xl font-semibold text-slate-900">
-						Summary
-					</CardTitle>
-					<p className="text-sm text-slate-500">
-						See who owes what, including discounts and tip adjustments.
+		<Card className="border-none bg-white/90 shadow-lg ring-1 ring-slate-200/60 backdrop-blur">
+			<CardHeader className="space-y-1">
+				<CardTitle className="text-xl font-semibold text-slate-900">
+					{t('summary.title')}
+				</CardTitle>
+				<p className="text-sm text-slate-500">
+					{t('summary.subtitle')}
+				</p>
+			</CardHeader>
+			<CardContent className="space-y-5">
+				{group.people.length === 0 ? (
+					<p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 py-6 text-center text-sm font-medium text-slate-500">
+						{t('summary.addPeople')}
 					</p>
-				</CardHeader>
-				<CardContent className="space-y-5">
-					{group.people.length === 0 ? (
-						<p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 py-6 text-center text-sm font-medium text-slate-500">
-							Add people to unlock the summary view.
-						</p>
-					) : group.items.length === 0 ? (
-						<p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 py-6 text-center text-sm font-medium text-slate-500">
-							Add items to calculate balances for everyone.
-						</p>
-					) : (
-						<>
-							<div className="rounded-2xl bg-linear-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 p-5 ring-1 ring-inset ring-indigo-200/50">
-								<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-									<div>
-										<p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">
-											Grand total
-										</p>
-										<p className="mt-2 text-3xl font-semibold text-slate-900">
-											{currencyFormatter.format(
-												calculations.sumOfSharesWithTips
-											)}
-										</p>
-									</div>
-									<div className="grid gap-1 text-sm text-slate-600 sm:text-right">
-										<span>
-											Expenses:{' '}
-											{currencyFormatter.format(calculations.totalExpenses)}
-										</span>
-										<span>
-											Discounts:{' '}
-											{currencyFormatter.format(calculations.totalDiscounts)}
-										</span>
-										<span>
-											Net before tip:{' '}
-											{currencyFormatter.format(calculations.netTotal)}
-										</span>
-										{calculations.totalTips > 0 && (
-											<span>
-												Tips added:{' '}
-												{currencyFormatter.format(calculations.totalTips)}
-											</span>
+				) : group.items.length === 0 ? (
+					<p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 py-6 text-center text-sm font-medium text-slate-500">
+						{t('summary.addItems')}
+					</p>
+				) : (
+					<>
+						<div className="rounded-2xl bg-linear-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 p-5 ring-1 ring-inset ring-indigo-200/50">
+							<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+								<div>
+									<p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">
+										{t('summary.grandTotal')}
+									</p>
+									<p className="mt-2 text-3xl font-semibold text-slate-900">
+										{currencyFormatter.format(
+											calculations.sumOfSharesWithTips
 										)}
-									</div>
+									</p>
+								</div>
+								<div className="grid gap-1 text-sm text-slate-600 sm:text-right">
+									<span>
+										{t('summary.expenses')}:{' '}
+										{currencyFormatter.format(calculations.totalExpenses)}
+									</span>
+									<span>
+										{t('summary.discounts')}:{' '}
+										{currencyFormatter.format(calculations.totalDiscounts)}
+									</span>
+									<span>
+										{t('summary.netBeforeTip')}:{' '}
+										{currencyFormatter.format(calculations.netTotal)}
+									</span>
+									{calculations.totalTips > 0 && (
+										<span>
+											{t('summary.tipsAdded')}:{' '}
+											{currencyFormatter.format(calculations.totalTips)}
+										</span>
+									)}
 								</div>
 							</div>
-							<div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
-								<div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-b border-slate-200/80 bg-slate-50 px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.35em] text-slate-500">
-									<span>Person</span>
-									<span className="text-right">Amount</span>
-									<span className="text-right">Actions</span>
-								</div>
+						</div>
+						<div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+							<div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-b border-slate-200/80 bg-slate-50 px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.35em] text-slate-500">
+								<span>{t('summary.person')}</span>
+								<span className="text-right">{t('summary.amount')}</span>
+								<span className="text-right">{t('summary.actions')}</span>
+							</div>
 								{[...group.people]
 									.sort((a, b) => a.name.localeCompare(b.name))
 									.map((person) => {
@@ -215,7 +217,7 @@ export function Summary() {
 													</p>
 													{hasTip && (
 														<p className="text-xs text-slate-500">
-															Base {currencyFormatter.format(baseTotal)} · Tip{' '}
+															{t('summary.base')} {currencyFormatter.format(baseTotal)} · {t('summary.tip')}{' '}
 															{currencyFormatter.format(tip)}
 														</p>
 													)}
@@ -230,7 +232,7 @@ export function Summary() {
 													{currencyFormatter.format(Math.abs(totalWithTip))}
 													{totalWithTip < 0 && (
 														<span className="ml-1 text-xs uppercase tracking-wide text-emerald-600">
-															credit
+															{t('summary.credit')}
 														</span>
 													)}
 												</div>
@@ -242,7 +244,7 @@ export function Summary() {
 															onClick={() =>
 																handlePixClick(person, totalWithTip)
 															}
-															aria-label={`Generate PIX for ${person.name}`}
+															aria-label={t('summary.generatePix', { name: person.name })}
 															className="h-8 w-8 rounded-full text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-600"
 														>
 															<QrCode className="h-4 w-4" />
@@ -252,7 +254,7 @@ export function Summary() {
 														variant="ghost"
 														size="icon"
 														onClick={() => setSelectedPerson(person)}
-														aria-label={`View details for ${person.name}`}
+														aria-label={t('summary.viewDetails', { name: person.name })}
 														className="h-8 w-8 rounded-full text-slate-400 transition hover:bg-indigo-50 hover:text-indigo-600"
 													>
 														<Eye className="h-4 w-4" />
@@ -264,8 +266,7 @@ export function Summary() {
 							</div>
 							{!calculations.isValid && (
 								<div className="rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm font-medium text-amber-700">
-									⚠️ Calculation mismatch detected. Double-check your item
-									splits.
+									⚠️ {t('summary.calculationMismatch')}
 								</div>
 							)}
 						</>
@@ -299,11 +300,10 @@ export function Summary() {
 				<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
 					<DialogHeader>
 						<DialogTitle className="text-xl font-semibold text-slate-900">
-							PIX Key Not Set
+							{t('pix.keyNotSet')}
 						</DialogTitle>
 						<DialogDescription className="text-sm text-slate-500">
-							Please configure your PIX key in settings before generating
-							payment requests.
+							{t('pix.configurePixKey')}
 						</DialogDescription>
 					</DialogHeader>
 					<div className="py-4">
@@ -311,7 +311,7 @@ export function Summary() {
 							onClick={() => setShowPixError(false)}
 							className="w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800"
 						>
-							OK
+							{t('item.ok')}
 						</Button>
 					</div>
 				</DialogContent>

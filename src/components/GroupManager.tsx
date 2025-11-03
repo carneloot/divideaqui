@@ -1,6 +1,7 @@
 import { useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { Percent, PiggyBank, Receipt, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -25,6 +26,7 @@ import { PeopleManager } from './PeopleManager'
 import { Summary } from './Summary'
 
 export function GroupManager() {
+	const { t, i18n } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
 	const deleteGroup = useAtomSet(deleteGroupAtom)
 	const updateGroup = useAtomSet(updateGroupAtom)
@@ -36,8 +38,8 @@ export function GroupManager() {
 	const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false)
 	const currency = useAtomValue(currencyAtom)
 	const currencyFormatter = useMemo(
-		() => new Intl.NumberFormat('en-US', { style: 'currency', currency }),
-		[currency]
+		() => new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, { style: 'currency', currency }),
+		[currency, i18n.language]
 	)
 
 	// Sync local state with group when it changes
@@ -85,26 +87,26 @@ export function GroupManager() {
 
 	const stats = [
 		{
-			label: 'People',
+			label: t('stats.people'),
 			value: group.people.length.toString(),
 			icon: Users,
 		},
 		{
-			label: 'Items tracked',
+			label: t('stats.itemsTracked'),
 			value: group.items.length.toString(),
 			icon: Receipt,
 		},
 		{
-			label: 'Net total',
+			label: t('stats.netTotal'),
 			value: currencyFormatter.format(netTotal),
 			icon: PiggyBank,
 		},
 		{
-			label: 'Tip setting',
+			label: t('stats.tipSetting'),
 			value:
 				group.tipPercentage !== undefined && group.tipPercentage !== null
 					? `${group.tipPercentage}% · ${currencyFormatter.format(totalTipAmount)}`
-					: 'No tip applied',
+					: t('stats.noTip'),
 			icon: Percent,
 		},
 	]
@@ -118,7 +120,7 @@ export function GroupManager() {
 					<div className="w-full max-w-xl space-y-4">
 						<div>
 							<p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/70">
-								Group name
+								{t('group.name')}
 							</p>
 							<Input
 								type="text"
@@ -127,21 +129,21 @@ export function GroupManager() {
 								onBlur={handleUpdateName}
 								onKeyDown={(e) => e.key === 'Enter' && handleUpdateName()}
 								className="mt-2 h-14 rounded-xl border border-white/20 bg-white/15 px-5 text-lg font-semibold text-white placeholder:text-white/50 focus-visible:ring-white/60"
-								placeholder="Dinner crew, weekend trip..."
+								placeholder={t('group.placeholder')}
 							/>
 						</div>
 						<p className="text-sm text-white/80">
-							Rename anytime — everyone in this group stays synced.
+							{t('group.renameHint')}
 						</p>
 					</div>
 					<Button
 						variant="outline"
 						onClick={() => setShowDeleteConfirmDialog(true)}
-						aria-label="Delete group"
+						aria-label={t('group.deleteGroup')}
 						className="h-11 rounded-lg border-white/40 bg-white/10 text-white transition hover:bg-white/20 hover:text-white"
 					>
 						<Trash2 className="mr-2 h-4 w-4" />
-						Delete group
+						{t('group.deleteGroup')}
 					</Button>
 				</div>
 			</div>
@@ -171,11 +173,10 @@ export function GroupManager() {
 					<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60">
 						<CardHeader className="space-y-1">
 							<CardTitle className="text-xl font-semibold text-slate-900">
-								Tip settings
+								{t('tip.title')}
 							</CardTitle>
 							<p className="text-sm text-slate-500">
-								Apply a percentage once, we’ll distribute fairly across
-								everyone.
+								{t('tip.subtitle')}
 							</p>
 						</CardHeader>
 						<CardContent className="space-y-4">
@@ -184,13 +185,13 @@ export function GroupManager() {
 									htmlFor="tip-percentage"
 									className="text-sm font-medium text-slate-700"
 								>
-									Tip percentage
+									{t('tip.percentage')}
 								</Label>
 								<div className="flex flex-col gap-3 sm:flex-row">
 									<Input
 										id="tip-percentage"
 										type="number"
-										placeholder="Enter tip % (optional)"
+										placeholder={t('tip.placeholder')}
 										value={tipPercentage}
 										onChange={(e) => setTipPercentage(e.target.value)}
 										onBlur={handleUpdateTipPercentage}
@@ -207,17 +208,15 @@ export function GroupManager() {
 									<div className="flex items-center text-sm text-slate-500">
 										{totalTipAmount > 0 ? (
 											<span>
-												Adds {currencyFormatter.format(totalTipAmount)} to the
-												bill
+												{t('tip.adds', { amount: currencyFormatter.format(totalTipAmount) })}
 											</span>
 										) : (
-											<span>No tip added yet</span>
+											<span>{t('tip.notAdded')}</span>
 										)}
 									</div>
 								</div>
 								<p className="text-xs leading-relaxed text-slate-500">
-									Calculated on the net total and shared equally among all
-									members.
+									{t('tip.calculationHint')}
 								</p>
 							</div>
 						</CardContent>
@@ -234,12 +233,10 @@ export function GroupManager() {
 				<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
 					<DialogHeader>
 						<DialogTitle className="text-xl font-semibold text-slate-900">
-							Delete Group
+							{t('group.confirmDelete')}
 						</DialogTitle>
 						<DialogDescription className="text-sm text-slate-500">
-							Are you sure you want to delete "{group.name}"? This action
-							cannot be undone and all associated data (people, items, and
-							calculations) will be permanently deleted.
+							{t('group.confirmDeleteMessage', { name: group.name })}
 						</DialogDescription>
 					</DialogHeader>
 					<DialogFooter className="flex gap-2">
@@ -248,7 +245,7 @@ export function GroupManager() {
 							variant="outline"
 							className="rounded-xl"
 						>
-							Cancel
+							{t('group.cancel')}
 						</Button>
 						<Button
 							onClick={() => {
@@ -257,7 +254,7 @@ export function GroupManager() {
 							}}
 							className="rounded-xl bg-red-600 text-white hover:bg-red-700"
 						>
-							Delete
+							{t('group.delete')}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

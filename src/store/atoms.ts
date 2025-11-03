@@ -23,6 +23,7 @@ const runtimeAtom = Atom.runtime(runtimeLayer)
 export const SettingsSchema = Schema.Struct({
 	currency: Schema.String,
 	pixKey: Schema.optional(Schema.String),
+	language: Schema.optional(Schema.String),
 })
 
 export type Settings = Schema.Schema.Type<typeof SettingsSchema>
@@ -45,7 +46,7 @@ export const settingsAtom = Atom.kvs({
 	runtime: runtimeAtom,
 	key: 'settings',
 	schema: SettingsSchema,
-	defaultValue: (): Settings => ({ currency: 'USD' }),
+	defaultValue: (): Settings => ({ currency: 'BRL' }),
 })
 
 // Derived atom for currency (for backward compatibility and convenience)
@@ -66,6 +67,21 @@ export const pixKeyAtom = Atom.writable(
 		ctx.set(settingsAtom, {
 			...currentSettings,
 			pixKey: pixKey?.trim() ?? undefined,
+		})
+	}
+)
+
+// Derived atom for language
+export const languageAtom = Atom.writable(
+	(get) => {
+		const settings = get(settingsAtom)
+		return settings.language ?? 'pt-BR'
+	},
+	(ctx, language: string) => {
+		const currentSettings = ctx.get(settingsAtom)
+		ctx.set(settingsAtom, {
+			...currentSettings,
+			language,
 		})
 	}
 )
@@ -233,6 +249,7 @@ export const importDataAtom = runtimeAtom.fn(
 		get.set(groupsAtom, validated.groups)
 		get.set(settingsAtom, {
 			currency: validated.settings.currency,
+			language: validated.settings.language,
 			pixKey: currentSettings.pixKey, // Preserve existing pixKey
 		})
 

@@ -7,6 +7,7 @@ import {
 	Settings as SettingsIcon,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -31,6 +32,7 @@ import {
 	currencyAtom,
 	exportDataAtom,
 	importDataAtom,
+	languageAtom,
 	pixKeyAtom,
 } from '../store/atoms'
 
@@ -49,8 +51,15 @@ const CURRENCIES = [
 	{ code: 'SGD', name: 'Singapore Dollar (SGD)' },
 ]
 
+const LANGUAGES = [
+	{ code: 'pt-BR', name: 'Português' },
+	{ code: 'en', name: 'English' },
+]
+
 export function SettingsModal() {
+	const { t } = useTranslation()
 	const [currency, setCurrency] = useAtom(currencyAtom)
+	const [language, setLanguage] = useAtom(languageAtom)
 	const [pixKey, setPixKey] = useAtom(pixKeyAtom)
 	const [open, setOpen] = useState(false)
 	const [importText, setImportText] = useState<string>('')
@@ -72,34 +81,37 @@ export function SettingsModal() {
 			prevCurrencyRef.current !== currency &&
 			prevCurrencyRef.current !== ''
 		) {
-			toast.success('Currency updated', {
-				description: `Currency changed to ${currency}`,
+			toast.success(t('settings.currencyUpdated'), {
+				description: t('settings.currencyChangedTo', { currency }),
 				id: 'settings:currency-updated',
 			})
 		}
 		prevCurrencyRef.current = currency
-	}, [currency])
+	}, [currency, t])
 
 	useEffect(() => {
 		if (prevPixKeyRef.current !== pixKey && prevPixKeyRef.current !== null) {
-			toast.success('PIX key updated', {
-				description: pixKey ? 'PIX key saved' : 'PIX key cleared',
+			toast.success(t('settings.pixKeyUpdated'), {
+				description: pixKey
+					? t('settings.pixKeySaved')
+					: t('settings.pixKeyCleared'),
 				id: 'settings:pix-key-updated',
 			})
 		}
 		prevPixKeyRef.current = pixKey
-	}, [pixKey])
+	}, [pixKey, t])
 
 	const handleExport = () => {
 		try {
 			exportData(undefined)
-			toast.success('Export data generated', {
-				description: 'Export text is ready to copy',
+			toast.success(t('settings.dataGenerated'), {
+				description: t('settings.readyToCopy'),
 				id: 'settings:export-data-generated',
 			})
 		} catch (error) {
 			setErrorMessage(
-				'Failed to export data: ' +
+				t('settings.failedToExport') +
+					': ' +
 					(error instanceof Error ? error.message : 'Unknown error')
 			)
 			setShowErrorDialog(true)
@@ -108,7 +120,7 @@ export function SettingsModal() {
 
 	const handleImport = () => {
 		if (!importText.trim()) {
-			setErrorMessage('Please paste the export text to import')
+			setErrorMessage(t('settings.pasteExportText'))
 			setShowErrorDialog(true)
 			return
 		}
@@ -119,8 +131,8 @@ export function SettingsModal() {
 	const confirmImport = () => {
 		try {
 			importData({ dataString: importText.trim() })
-			toast.success('Data imported', {
-				description: 'Your data has been imported successfully',
+			toast.success(t('settings.dataImported'), {
+				description: t('settings.importSuccess'),
 				id: 'settings:data-imported',
 			})
 			setImportText('')
@@ -128,7 +140,8 @@ export function SettingsModal() {
 			setShowImportConfirmDialog(false)
 		} catch (error) {
 			setErrorMessage(
-				'Failed to import data: ' +
+				t('settings.failedToImport') +
+					': ' +
 					(error instanceof Error ? error.message : 'Unknown error')
 			)
 			setShowErrorDialog(true)
@@ -142,8 +155,8 @@ export function SettingsModal() {
 			await navigator.clipboard.writeText(exportDataResult.value)
 			setCopied(true)
 			setTimeout(() => setCopied(false), 2000)
-			toast.success('Copied to clipboard', {
-				description: 'Export text copied',
+			toast.success(t('settings.copiedToClipboard'), {
+				description: t('settings.exportTextCopied'),
 			})
 		} catch {
 			console.error('Failed to copy export text to clipboard')
@@ -174,26 +187,49 @@ export function SettingsModal() {
 				<DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
 					<DialogHeader className="shrink-0">
 						<DialogTitle className="text-xl font-semibold text-slate-900">
-							Settings
+							{t('settings.title')}
 						</DialogTitle>
 						<DialogDescription className="text-sm text-slate-500">
-							Customize your app preferences
+							{t('settings.subtitle')}
 						</DialogDescription>
 					</DialogHeader>
 					<div className="space-y-6 py-4 overflow-y-auto flex-1 min-h-0">
 						<div className="space-y-2">
 							<Label
+								htmlFor="language"
+								className="text-sm font-medium text-slate-700"
+							>
+								{t('app.language')}
+							</Label>
+							<Select value={language} onValueChange={setLanguage}>
+								<SelectTrigger
+									id="language"
+									className="h-12 rounded-xl border border-slate-200 bg-white text-left text-base font-medium text-slate-800 shadow-sm hover:border-slate-300"
+								>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent className="rounded-xl border border-slate-200/80 bg-white/95 shadow-lg">
+									{LANGUAGES.map((lang) => (
+										<SelectItem key={lang.code} value={lang.code}>
+											{lang.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="space-y-2">
+							<Label
 								htmlFor="currency"
 								className="text-sm font-medium text-slate-700"
 							>
-								Currency
+								{t('settings.currency')}
 							</Label>
 							<Select value={currency} onValueChange={setCurrency}>
 								<SelectTrigger
 									id="currency"
 									className="h-12 rounded-xl border border-slate-200 bg-white text-left text-base font-medium text-slate-800 shadow-sm hover:border-slate-300"
 								>
-									<SelectValue placeholder="Select currency" />
+									<SelectValue placeholder={t('settings.selectCurrency')} />
 								</SelectTrigger>
 								<SelectContent className="rounded-xl border border-slate-200/80 bg-white/95 shadow-lg">
 									{CURRENCIES.map((curr) => (
@@ -204,7 +240,7 @@ export function SettingsModal() {
 								</SelectContent>
 							</Select>
 							<p className="text-xs text-slate-500">
-								This will update all currency displays throughout the app
+								{t('settings.currencyHint')}
 							</p>
 						</div>
 
@@ -213,29 +249,27 @@ export function SettingsModal() {
 								htmlFor="pixKey"
 								className="text-sm font-medium text-slate-700"
 							>
-								PIX Key
+								{t('settings.pixKey')}
 							</Label>
 							<Input
 								id="pixKey"
 								type="text"
 								value={pixKey || ''}
 								onChange={(e) => setPixKey(e.target.value || null)}
-								placeholder="Enter your PIX key (CPF, email, phone, or random key)"
+								placeholder={t('settings.pixKeyPlaceholder')}
 								className="h-12 rounded-xl border-slate-200"
 							/>
 							<p className="text-xs text-slate-500">
-								Your PIX key will be used to generate payment requests. It will
-								not be exported with your data.
+								{t('settings.pixKeyHint')}
 							</p>
 						</div>
 
 						<div className="border-t border-slate-200 pt-4">
 							<Label className="text-sm font-medium text-slate-700">
-								Data Management
+								{t('settings.dataManagement')}
 							</Label>
 							<p className="text-xs text-slate-500 mb-4">
-								Export your data as a compressed text string or import
-								previously exported data by pasting the text.
+								{t('settings.dataManagementHint')}
 							</p>
 
 							{/* Export Section */}
@@ -245,13 +279,13 @@ export function SettingsModal() {
 									disabled={exportDataResult.waiting}
 									className="w-full h-10 rounded-xl bg-slate-900 text-white hover:bg-slate-800"
 								>
-									Generate Export Text
+									{t('settings.generateExport')}
 								</Button>
 								{Result.isSuccess(exportDataResult) && (
 									<div className="space-y-2">
 										<div className="flex items-center justify-between">
 											<Label className="text-xs font-medium text-slate-700">
-												Export Text (copy this)
+												{t('settings.exportText')}
 											</Label>
 											<Button
 												onClick={copyToClipboard}
@@ -262,12 +296,12 @@ export function SettingsModal() {
 												{copied ? (
 													<>
 														<Check className="mr-1 h-3 w-3" />
-														Copied!
+														{t('pix.copied')}
 													</>
 												) : (
 													<>
 														<Copy className="mr-1 h-3 w-3" />
-														Copy
+														{t('pix.copy')}
 													</>
 												)}
 											</Button>
@@ -287,12 +321,12 @@ export function SettingsModal() {
 							{/* Import Section */}
 							<div className="space-y-2">
 								<Label className="text-xs font-medium text-slate-700">
-									Import Text (paste here)
+									{t('settings.importText')}
 								</Label>
 								<textarea
 									value={importText}
 									onChange={(e) => setImportText(e.target.value)}
-									placeholder="Paste your export text here..."
+									placeholder={t('settings.importTextPlaceholder')}
 									className="w-full h-32 rounded-lg border border-slate-200 bg-white p-3 text-xs font-mono text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-slate-300"
 								/>
 								<Button
@@ -301,7 +335,7 @@ export function SettingsModal() {
 									variant="outline"
 									className="w-full h-10 rounded-xl border border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
 								>
-									Import Data
+									{t('settings.importData')}
 								</Button>
 							</div>
 						</div>
@@ -314,7 +348,7 @@ export function SettingsModal() {
 					<DialogHeader>
 						<DialogTitle className="flex items-center gap-2 text-xl font-semibold text-slate-900">
 							<AlertTriangle className="h-5 w-5 text-red-500" />
-							Error
+							{t('settings.error')}
 						</DialogTitle>
 						<DialogDescription className="text-sm text-slate-500">
 							{errorMessage}
@@ -325,7 +359,7 @@ export function SettingsModal() {
 							onClick={() => setShowErrorDialog(false)}
 							className="rounded-xl bg-slate-900 text-white hover:bg-slate-800"
 						>
-							OK
+							{t('item.ok')}
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -339,11 +373,10 @@ export function SettingsModal() {
 				<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
 					<DialogHeader>
 						<DialogTitle className="text-xl font-semibold text-slate-900">
-							Confirm Import
+							{t('settings.confirmImport')}
 						</DialogTitle>
 						<DialogDescription className="text-sm text-slate-500">
-							This will replace all your current data with the imported data.
-							This action cannot be undone. Are you sure you want to continue?
+							{t('settings.confirmImportMessage')}
 						</DialogDescription>
 					</DialogHeader>
 					<DialogFooter className="flex gap-2">
@@ -352,14 +385,14 @@ export function SettingsModal() {
 							variant="outline"
 							className="rounded-xl"
 						>
-							Cancel
+							{t('group.cancel')}
 						</Button>
 						<Button
 							onClick={confirmImport}
 							disabled={importDataResult.waiting}
 							className="rounded-xl bg-red-600 text-white hover:bg-red-700"
 						>
-							{importDataResult.waiting ? 'Importing...' : 'Import'}
+							{importDataResult.waiting ? t('settings.importing') : t('settings.import')}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

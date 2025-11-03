@@ -1,5 +1,6 @@
 import { useAtom, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -10,6 +11,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { GroupManager } from './components/GroupManager'
+import { LanguageSync } from './components/LanguageSync'
 import { SettingsModal } from './components/SettingsModal'
 import {
 	createNewGroupAtom,
@@ -19,6 +21,7 @@ import {
 } from './store/atoms'
 
 function App() {
+	const { t } = useTranslation()
 	const groups = useAtomValue(groupsAtom)
 	const [selectedGroupId, setSelectedGroupId] = useAtom(selectedGroupIdAtom)
 	const createNewGroup = useAtomSet(createNewGroupAtom)
@@ -32,16 +35,17 @@ function App() {
 	}, [groups, selectedGroupId, setSelectedGroupId])
 
 	const handleCreateGroup = () => {
-		createNewGroup({ name: 'New Group' })
+		createNewGroup({ name: t('group.newGroup') })
 	}
 
 	return (
 		<div className="min-h-screen overflow-hidden bg-slate-950 text-slate-900">
+			<LanguageSync />
 			<header>
 				<div className="container mx-auto max-w-6xl px-4 py-6 text-white">
 					<div className="flex items-center justify-between">
 						<h1 className="text-3xl font-semibold tracking-tight">
-							&#x1F4B8; Divide Aqui
+							&#x1F4B8; {t('app.title')}
 						</h1>
 						<SettingsModal />
 					</div>
@@ -54,10 +58,10 @@ function App() {
 							<CardContent className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
 								<div className="space-y-1">
 									<p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
-										Active group
+										{t('group.activeGroup')}
 									</p>
 									<h2 className="text-xl font-semibold text-slate-800">
-										Choose where you want to work
+										{t('group.chooseWork')}
 									</h2>
 								</div>
 								<div className="flex w-full flex-col gap-3 md:max-w-md md:flex-row md:items-center">
@@ -69,7 +73,7 @@ function App() {
 											id="group-select"
 											className="h-12 flex-1 rounded-xl border border-slate-200 bg-white/70 text-left text-base font-medium text-slate-800 shadow-sm hover:border-slate-300"
 										>
-											<SelectValue placeholder="Select a group" />
+											<SelectValue placeholder={t('group.selectGroup')} />
 										</SelectTrigger>
 										<SelectContent className="rounded-xl border border-slate-200/80 bg-white/95 shadow-lg">
 											{groups.map((group) => (
@@ -83,7 +87,7 @@ function App() {
 										onClick={handleCreateGroup}
 										className="h-12 rounded-xl bg-slate-900 text-white shadow-sm hover:bg-slate-800"
 									>
-										+ New Group
+										+ {t('group.newGroup')}
 									</Button>
 								</div>
 							</CardContent>
@@ -95,10 +99,10 @@ function App() {
 						<Card className="border-none bg-white/90 text-center shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
 							<CardHeader className="space-y-3">
 								<CardTitle className="text-3xl font-semibold text-slate-900">
-									Welcome! 👋
+									{t('welcome.title')}
 								</CardTitle>
 								<p className="text-lg text-slate-500">
-									Create your first group and start balancing receipts together.
+									{t('welcome.subtitle')}
 								</p>
 							</CardHeader>
 							<CardContent className="flex flex-col items-center gap-4 pb-10">
@@ -107,11 +111,10 @@ function App() {
 									size="lg"
 									className="rounded-xl px-8 text-base"
 								>
-									Create your first group
+									{t('welcome.button')}
 								</Button>
 								<p className="text-sm text-slate-400">
-									Have a recurring dinner crew? Set them up once and reuse
-									anytime.
+									{t('welcome.hint')}
 								</p>
 							</CardContent>
 						</Card>

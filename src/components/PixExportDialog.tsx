@@ -2,6 +2,7 @@ import { useAtomValue } from '@effect-atom/atom-react'
 import { Check, Copy, QrCode } from 'lucide-react'
 import { createStaticPix, hasError } from 'pix-utils'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -27,6 +28,7 @@ export function PixExportDialog({
 	open,
 	onOpenChange,
 }: PixExportDialogProps) {
+	const { t, i18n } = useTranslation()
 	const pixKey = useAtomValue(pixKeyAtom)
 	const currency = useAtomValue(currencyAtom)
 	const group = useAtomValue(selectedGroupAtom)
@@ -34,8 +36,8 @@ export function PixExportDialog({
 	const [qrCodeImage, setQrCodeImage] = useState<string | null>(null)
 
 	const currencyFormatter = useMemo(
-		() => new Intl.NumberFormat('en-US', { style: 'currency', currency }),
-		[currency]
+		() => new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, { style: 'currency', currency }),
+		[currency, i18n.language]
 	)
 
 	// Generate PIX code
@@ -111,16 +113,16 @@ export function PixExportDialog({
 			<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
 				<DialogHeader>
 					<DialogTitle className="text-xl font-semibold text-slate-900">
-						PIX Payment for {person.name}
+						{t('pix.paymentFor', { name: person.name })}
 					</DialogTitle>
 					<DialogDescription className="text-sm text-slate-500">
-						Amount: {currencyFormatter.format(amount)}
+						{t('pix.amount')}: {currencyFormatter.format(amount)}
 					</DialogDescription>
 				</DialogHeader>
 				<div className="space-y-6 py-4">
 					{!pixData ? (
 						<p className="text-sm text-red-600">
-							Error generating PIX code. Please check your PIX key in settings.
+							{t('pix.errorGenerating')}
 						</p>
 					) : (
 						<>
@@ -128,7 +130,7 @@ export function PixExportDialog({
 							<div className="space-y-2">
 								<div className="flex items-center justify-between">
 									<Label className="text-sm font-medium text-slate-700">
-										Copia e Cola (Copy and Paste)
+										{t('pix.copyAndPaste')}
 									</Label>
 									<Button
 										onClick={copyBrCode}
@@ -139,12 +141,12 @@ export function PixExportDialog({
 										{copied ? (
 											<>
 												<Check className="mr-1 h-3 w-3" />
-												Copied!
+												{t('pix.copied')}
 											</>
 										) : (
 											<>
 												<Copy className="mr-1 h-3 w-3" />
-												Copy
+												{t('pix.copy')}
 											</>
 										)}
 									</Button>
@@ -161,7 +163,7 @@ export function PixExportDialog({
 							<div className="space-y-2">
 								<div className="flex items-center justify-between">
 									<Label className="text-sm font-medium text-slate-700">
-										QR Code
+										{t('pix.qrCode')}
 									</Label>
 									{qrCodeImage && (
 										<Button
@@ -171,7 +173,7 @@ export function PixExportDialog({
 											className="h-8 text-xs"
 										>
 											<QrCode className="mr-1 h-3 w-3" />
-											Download
+											{t('pix.download')}
 										</Button>
 									)}
 								</div>
@@ -184,7 +186,7 @@ export function PixExportDialog({
 										/>
 									) : (
 										<p className="text-sm text-slate-500">
-											Generating QR Code...
+											{t('pix.generatingQrCode')}
 										</p>
 									)}
 								</div>

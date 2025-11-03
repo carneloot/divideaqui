@@ -1,6 +1,7 @@
 import { useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { X } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -17,6 +18,7 @@ interface PeopleManagerProps {
 }
 
 export function PeopleManager({ people }: PeopleManagerProps) {
+	const { t } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
 	const groups = useAtomValue(groupsAtom)
 	const addPerson = useAtomSet(addPersonToGroupAtom)
@@ -67,10 +69,10 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 		<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60 backdrop-blur">
 			<CardHeader className="space-y-1">
 				<CardTitle className="text-xl font-semibold text-slate-900">
-					People
+					{t('people.title')}
 				</CardTitle>
 				<p className="text-sm text-slate-500">
-					Add friends and keep everyone aligned on what they owe.
+					{t('people.subtitle')}
 				</p>
 			</CardHeader>
 			<CardContent className="space-y-5">
@@ -80,20 +82,20 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 						onChange={setName}
 						suggestions={otherGroupMemberNames}
 						onEnter={handleAdd}
-						placeholder="Enter a name (e.g. Alex)"
+						placeholder={t('people.placeholder')}
 						className="h-12 flex-1 rounded-xl border-slate-200 bg-white text-base"
 					/>
 					<Button
 						onClick={handleAdd}
 						className="h-12 rounded-xl bg-slate-900 text-white shadow-sm transition hover:bg-slate-800"
 					>
-						Add person
+						{t('people.addPerson')}
 					</Button>
 				</div>
 				<div className="space-y-2">
 					{people.length === 0 ? (
 						<p className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 py-6 text-center text-sm font-medium text-slate-500">
-							No people added yet. Invite your crew to begin.
+							{t('people.empty')}
 						</p>
 					) : (
 						[...people]
@@ -110,7 +112,7 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 										variant="ghost"
 										size="icon"
 										onClick={() => handleRemove(person.id)}
-										aria-label={`Remove ${person.name}`}
+										aria-label={t('people.remove', { name: person.name })}
 										className="h-8 w-8 text-slate-400 hover:text-rose-500"
 									>
 										<X className="h-4 w-4" />

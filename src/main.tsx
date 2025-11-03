@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { Toaster } from 'sonner'
 import './index.css'
 import App from './App.tsx'
+import './lib/i18n'
 
 // biome-ignore lint/style/noNonNullAssertion: root is always defined
 createRoot(document.getElementById('root')!).render(

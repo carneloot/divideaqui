@@ -1,6 +1,7 @@
 import { useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { X } from 'lucide-react'
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -17,12 +18,13 @@ interface ItemsListProps {
 }
 
 export function ItemsList({ items, people }: ItemsListProps) {
+	const { t, i18n } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
 	const currency = useAtomValue(currencyAtom)
 	const removeItem = useAtomSet(removeItemFromGroupAtom)
 	const currencyFormatter = useMemo(
-		() => new Intl.NumberFormat('en-US', { style: 'currency', currency }),
-		[currency]
+		() => new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, { style: 'currency', currency }),
+		[currency, i18n.language]
 	)
 
 	const handleRemove = (id: string) => {
@@ -38,16 +40,16 @@ export function ItemsList({ items, people }: ItemsListProps) {
 		<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60 backdrop-blur">
 			<CardHeader className="space-y-1">
 				<CardTitle className="text-xl font-semibold text-slate-900">
-					Items
+					{t('itemsList.title')}
 				</CardTitle>
 				<p className="text-sm text-slate-500">
-					Track every shared cost and see where the money is going.
+					{t('itemsList.subtitle')}
 				</p>
 			</CardHeader>
 			<CardContent>
 				{items.length === 0 ? (
 					<p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 py-6 text-center text-sm font-medium text-slate-500">
-						No items yet. Add expenses or discounts to see the breakdown here.
+						{t('itemsList.empty')}
 					</p>
 				) : (
 					<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -67,7 +69,7 @@ export function ItemsList({ items, people }: ItemsListProps) {
 									<div className="relative z-10 flex items-start justify-between gap-3">
 										<div>
 											<p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">
-												{item.type === 'expense' ? 'Expense' : 'Discount'}
+												{item.type === 'expense' ? t('itemsList.expense') : t('itemsList.discount')}
 											</p>
 											<h3 className="mt-2 text-lg font-semibold text-slate-900">
 												{item.name}
@@ -77,7 +79,7 @@ export function ItemsList({ items, people }: ItemsListProps) {
 											variant="ghost"
 											size="icon"
 											onClick={() => handleRemove(item.id)}
-											aria-label={`Remove ${item.name}`}
+											aria-label={t('itemsList.remove', { name: item.name })}
 											className="h-8 w-8 text-slate-400 transition hover:bg-white/60 hover:text-rose-500"
 										>
 											<X className="h-4 w-4" />
@@ -93,14 +95,18 @@ export function ItemsList({ items, people }: ItemsListProps) {
 									</div>
 									<div className="relative z-10 mt-4 text-sm text-slate-600">
 										{item.appliesToEveryone ? (
-											<span>Splits evenly across everyone</span>
+											<span>{t('itemsList.splitsEvenly')}</span>
 										) : (
 											<span>
-												Shared with{' '}
-												{item.selectedPeople
-													.map(getPersonName)
-													.sort((a, b) => a.localeCompare(b))
-													.join(', ') || 'no one'}
+												{item.selectedPeople.length > 0
+													? t('itemsList.sharedWith', {
+														people: item.selectedPeople
+															.map(getPersonName)
+															.sort((a, b) => a.localeCompare(b))
+															.join(', ')
+													})
+													: t('itemsList.sharedWithNoOne')
+												}
 											</span>
 										)}
 									</div>
