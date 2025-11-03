@@ -59,9 +59,8 @@ const groupCalculationsAtom = Atom.make((get) => {
 		.reduce((sum, item) => sum + item.amount * item.price, 0)
 	const netTotal = totalExpenses - totalDiscounts
 
-	// Calculate global tip on net total and split equally among all people
+	// Calculate tip as a percentage of each person's individual total
 	let totalTipAmount = 0
-	let tipPerPerson = 0
 	if (
 		group.tipPercentage !== undefined &&
 		group.tipPercentage !== null &&
@@ -69,14 +68,22 @@ const groupCalculationsAtom = Atom.make((get) => {
 		netTotal > 0 &&
 		group.people.length > 0
 	) {
-		totalTipAmount = netTotal * (group.tipPercentage / 100)
-		tipPerPerson = totalTipAmount / group.people.length
-
-		// Assign tip to each person
+		// Calculate tip for each person based on their individual total
 		group.people.forEach((person) => {
-			tips[person.id] = tipPerPerson
-			totalsWithTips[person.id] = (totals[person.id] || 0) + tipPerPerson
+			const personTotal = totals[person.id] || 0
+			// Only calculate tip on positive amounts (expenses)
+			if (personTotal > 0) {
+				// biome-ignore lint/style/noNonNullAssertion: this is safe because we check for tipPercentage above
+				tips[person.id] = personTotal * (group.tipPercentage! / 100)
+				totalsWithTips[person.id] = personTotal + tips[person.id]
+			} else {
+				tips[person.id] = 0
+				totalsWithTips[person.id] = personTotal
+			}
 		})
+
+		// Calculate total tip amount for display
+		totalTipAmount = Object.values(tips).reduce((sum, val) => sum + val, 0)
 	} else {
 		// No tip, so totalsWithTips equals totals
 		group.people.forEach((person) => {
@@ -160,7 +167,7 @@ export function Summary() {
 					) : (
 						<>
 							<div className="rounded-2xl bg-linear-to-r from-primary/10 via-ring/5 to-background/50 p-5 ring-1 ring-ring/50 ring-inset">
-								<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+								<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 									<div>
 										<p className="font-semibold text-muted-foreground text-xs uppercase tracking-[0.35em]">
 											{t('summary.grandTotal')}

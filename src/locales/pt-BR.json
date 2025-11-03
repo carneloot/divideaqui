@@ -48,7 +48,7 @@
 		"placeholder": "Insira % de gorjeta (opcional)",
 		"adds": "Adiciona {{amount}} à conta",
 		"notAdded": "Nenhuma gorjeta adicionada ainda",
-		"calculationHint": "Calculado no total líquido e compartilhado igualmente entre todos os membros.",
+		"calculationHint": "Calculado como uma porcentagem do pagamento individual de cada pessoa.",
 		"noTipApplied": "Sem gorjeta aplicada"
 	},
 	"item": {

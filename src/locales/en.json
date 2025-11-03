@@ -48,7 +48,7 @@
 		"placeholder": "Enter tip % (optional)",
 		"adds": "Adds {{amount}} to the bill",
 		"notAdded": "No tip added yet",
-		"calculationHint": "Calculated on the net total and shared equally among all members.",
+		"calculationHint": "Calculated as a percentage of each person's individual payment.",
 		"noTipApplied": "No tip applied"
 	},
 	"item": {

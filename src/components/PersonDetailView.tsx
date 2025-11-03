@@ -69,25 +69,16 @@ export function PersonDetailView({
 		0
 	)
 
-	// Calculate tip
-	const totalExpenses = group.items
-		.filter((item) => item.type === 'expense')
-		.reduce((sum, item) => sum + item.amount * item.price, 0)
-	const totalDiscounts = group.items
-		.filter((item) => item.type === 'discount')
-		.reduce((sum, item) => sum + item.amount * item.price, 0)
-	const netTotal = totalExpenses - totalDiscounts
-
+	// Calculate tip as a percentage of this person's individual total
 	let tip = 0
 	if (
 		group.tipPercentage !== undefined &&
 		group.tipPercentage !== null &&
 		group.tipPercentage > 0 &&
-		netTotal > 0 &&
-		group.people.length > 0
+		baseTotal > 0
 	) {
-		const totalTipAmount = netTotal * (group.tipPercentage / 100)
-		tip = totalTipAmount / group.people.length
+		// Calculate tip based on this person's individual total
+		tip = baseTotal * (group.tipPercentage / 100)
 	}
 
 	const totalWithTip = baseTotal + tip
