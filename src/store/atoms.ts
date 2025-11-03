@@ -202,7 +202,7 @@ const ExportDataSchema = Schema.parseJson(
 )
 
 export const exportDataAtom = runtimeAtom.fn(
-	Effect.fn(function* (_input: undefined, get) {
+	Effect.fn(function* (_input: undefined, get: Atom.FnContext) {
 		const compressor = yield* Compressor
 		const groups = get(groupsAtom)
 		const settings = get(settingsAtom)
@@ -220,7 +220,7 @@ export const exportDataAtom = runtimeAtom.fn(
 )
 
 export const importDataAtom = runtimeAtom.fn(
-	Effect.fn(function* (input: { dataString: string }, get) {
+	Effect.fn(function* (input: { dataString: string }, get: Atom.FnContext) {
 		const compressor = yield* Compressor
 		const { dataString } = input
 
