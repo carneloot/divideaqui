@@ -58,6 +58,7 @@
     "namePlaceholder": "ex. Pizza Margherita, 15% desconto",
     "unitPrice": "Preço unitário",
     "quantity": "Quantidade",
+    "quantityDefaultHint": "O valor padrão é 1",
     "whoShouldPay": "Quem deve pagar?",
     "everyone": "Todos",
     "choosePeople": "Escolher pessoas",
@@ -159,6 +160,8 @@
     "error": "Erro",
     "currencyUpdated": "Moeda atualizada",
     "currencyChangedTo": "Moeda alterada para {{currency}}",
+    "languageUpdated": "Idioma atualizado",
+    "languageChangedTo": "Idioma alterado para {{language}}",
     "pixKeyUpdated": "Chave PIX atualizada",
     "pixKeySaved": "Chave PIX salva",
     "pixKeyCleared": "Chave PIX limpa"

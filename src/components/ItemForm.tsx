@@ -201,6 +201,9 @@ export function ItemForm({ people }: ItemFormProps) {
 							}
 							className="h-12 rounded-xl border-slate-200"
 						/>
+						<p className="text-xs leading-relaxed text-slate-500">
+							{t('item.quantityDefaultHint')}
+						</p>
 					</div>
 				</div>
 				<div>

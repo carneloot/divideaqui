@@ -73,6 +73,7 @@ export function SettingsModal() {
 	const [showImportConfirmDialog, setShowImportConfirmDialog] = useState(false)
 
 	const prevCurrencyRef = useRef(currency)
+	const prevLanguageRef = useRef<string | undefined>(undefined)
 	const prevPixKeyRef = useRef(pixKey)
 
 	// Track changes to currency and pixKey and show toast
@@ -88,6 +89,21 @@ export function SettingsModal() {
 		}
 		prevCurrencyRef.current = currency
 	}, [currency, t])
+
+	// Track changes to language and show toast
+	useEffect(() => {
+		if (
+			prevLanguageRef.current !== language &&
+			prevLanguageRef.current !== undefined
+		) {
+			const languageName = LANGUAGES.find((lang) => lang.code === language)?.name || language
+			toast.success(t('settings.languageUpdated'), {
+				description: t('settings.languageChangedTo', { language: languageName }),
+				id: 'settings:language-updated',
+			})
+		}
+		prevLanguageRef.current = language
+	}, [language, t])
 
 	useEffect(() => {
 		if (prevPixKeyRef.current !== pixKey && prevPixKeyRef.current !== null) {
