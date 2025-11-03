@@ -3,6 +3,14 @@ import { Percent, PiggyBank, Receipt, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -25,6 +33,7 @@ export function GroupManager() {
 	const [tipPercentage, setTipPercentage] = useState(
 		group?.tipPercentage?.toString() || ''
 	)
+	const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false)
 	const currency = useAtomValue(currencyAtom)
 	const currencyFormatter = useMemo(
 		() => new Intl.NumberFormat('en-US', { style: 'currency', currency }),
@@ -127,7 +136,7 @@ export function GroupManager() {
 					</div>
 					<Button
 						variant="outline"
-						onClick={() => deleteGroup({ id: group.id })}
+						onClick={() => setShowDeleteConfirmDialog(true)}
 						aria-label="Delete group"
 						className="h-11 rounded-lg border-white/40 bg-white/10 text-white transition hover:bg-white/20 hover:text-white"
 					>
@@ -220,6 +229,39 @@ export function GroupManager() {
 					<Summary />
 				</div>
 			</div>
+			{/* Delete Confirmation Dialog */}
+			<Dialog open={showDeleteConfirmDialog} onOpenChange={setShowDeleteConfirmDialog}>
+				<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
+					<DialogHeader>
+						<DialogTitle className="text-xl font-semibold text-slate-900">
+							Delete Group
+						</DialogTitle>
+						<DialogDescription className="text-sm text-slate-500">
+							Are you sure you want to delete "{group.name}"? This action
+							cannot be undone and all associated data (people, items, and
+							calculations) will be permanently deleted.
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter className="flex gap-2">
+						<Button
+							onClick={() => setShowDeleteConfirmDialog(false)}
+							variant="outline"
+							className="rounded-xl"
+						>
+							Cancel
+						</Button>
+						<Button
+							onClick={() => {
+								deleteGroup({ id: group.id })
+								setShowDeleteConfirmDialog(false)
+							}}
+							className="rounded-xl bg-red-600 text-white hover:bg-red-700"
+						>
+							Delete
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</Card>
 	)
 }
