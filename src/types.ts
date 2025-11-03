@@ -1,24 +1,34 @@
-export type ItemType = 'expense' | 'discount';
+import { Schema } from 'effect'
 
-export type Person = {
-  id: string;
-  name: string;
-};
+// Define schemas for validation and serialization
+export class ItemTypeSchema extends Schema.Literal('expense', 'discount') {}
 
-export type Item = {
-  id: string;
-  name: string;
-  amount: number; // Quantity
-  price: number; // Unit price
-  type: ItemType;
-  appliesToEveryone: boolean;
-  selectedPeople: string[]; // Person IDs
-};
+export class PersonSchema extends Schema.Class<PersonSchema>('PersonSchema')({
+	id: Schema.String,
+	name: Schema.String,
+}) {}
 
-export type ExpenseGroup = {
-  id: string;
-  name: string;
-  people: Person[];
-  items: Item[];
-  tipPercentage?: number; // Optional global tip percentage (e.g., 15 for 15%)
-};
+export class ItemSchema extends Schema.Class<ItemSchema>('ItemSchema')({
+	id: Schema.String,
+	name: Schema.String,
+	amount: Schema.Number, // Quantity
+	price: Schema.Number, // Unit price
+	type: ItemTypeSchema,
+	appliesToEveryone: Schema.Boolean,
+	selectedPeople: Schema.Array(Schema.String), // Person IDs
+}) {}
+
+export class ExpenseGroupSchema extends Schema.Class<ExpenseGroupSchema>(
+	'ExpenseGroupSchema'
+)({
+	id: Schema.String,
+	name: Schema.String,
+	people: Schema.Array(PersonSchema),
+	items: Schema.Array(ItemSchema),
+	tipPercentage: Schema.optional(Schema.Number),
+}) {}
+
+export type ExpenseGroup = Schema.Schema.Type<typeof ExpenseGroupSchema>
+export type Person = Schema.Schema.Type<typeof PersonSchema>
+export type Item = Schema.Schema.Type<typeof ItemSchema>
+export type ItemType = Schema.Schema.Type<typeof ItemTypeSchema>
