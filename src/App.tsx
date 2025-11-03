@@ -13,6 +13,7 @@ import {
 import { GroupManager } from './components/GroupManager'
 import { LanguageSync } from './components/LanguageSync'
 import { SettingsModal } from './components/SettingsModal'
+import { ThemeSync } from './components/ThemeSync'
 import {
 	createNewGroupAtom,
 	groupsAtom,
@@ -41,6 +42,7 @@ function App() {
 	return (
 		<div className="min-h-screen overflow-hidden bg-muted/30 text-foreground">
 			<LanguageSync />
+			<ThemeSync />
 			<header>
 				<div className="container mx-auto max-w-6xl px-4 py-6 text-ring-foreground">
 					<div className="flex items-center justify-between">

@@ -34,6 +34,8 @@ import {
 	importDataAtom,
 	languageAtom,
 	pixKeyAtom,
+	type Settings,
+	themeAtom,
 } from '../store/atoms'
 
 const CURRENCIES = [
@@ -56,10 +58,17 @@ const LANGUAGES = [
 	{ code: 'en', name: 'English' },
 ]
 
+const THEMES = [
+	{ code: 'light', translationKey: 'settings.themeLight' },
+	{ code: 'dark', translationKey: 'settings.themeDark' },
+	{ code: 'system', translationKey: 'settings.themeSystem' },
+]
+
 export function SettingsModal() {
 	const { t } = useTranslation()
 	const [currency, setCurrency] = useAtom(currencyAtom)
 	const [language, setLanguage] = useAtom(languageAtom)
+	const [theme, setTheme] = useAtom(themeAtom)
 	const [pixKey, setPixKey] = useAtom(pixKeyAtom)
 	const [open, setOpen] = useState(false)
 	const [importText, setImportText] = useState<string>('')
@@ -74,6 +83,7 @@ export function SettingsModal() {
 
 	const prevCurrencyRef = useRef(currency)
 	const prevLanguageRef = useRef<string | undefined>(undefined)
+	const prevThemeRef = useRef<string | undefined>(undefined)
 	const prevPixKeyRef = useRef(pixKey)
 
 	// Track changes to currency and pixKey and show toast
@@ -107,6 +117,21 @@ export function SettingsModal() {
 		}
 		prevLanguageRef.current = language
 	}, [language, t])
+
+	// Track changes to theme and show toast
+	useEffect(() => {
+		if (prevThemeRef.current !== theme && prevThemeRef.current !== undefined) {
+			const themeOption = THEMES.find((t) => t.code === theme)
+			const themeName = themeOption ? t(themeOption.translationKey) : theme
+			toast.success(t('settings.themeUpdated'), {
+				description: t('settings.themeChangedTo', {
+					theme: themeName,
+				}),
+				id: 'settings:theme-updated',
+			})
+		}
+		prevThemeRef.current = theme
+	}, [theme, t])
 
 	useEffect(() => {
 		if (prevPixKeyRef.current !== pixKey && prevPixKeyRef.current !== null) {
@@ -203,8 +228,8 @@ export function SettingsModal() {
 						<SettingsIcon className="h-5 w-5" />
 					</Button>
 				</DialogTrigger>
-				<DialogContent className="flex max-h-[90vh] flex-col rounded-xl border-none bg-card shadow-xl ring-1 ring-ring backdrop-blur sm:max-w-md">
-					<DialogHeader className="shrink-0">
+				<DialogContent className="flex max-h-[90vh] flex-col rounded-xl border-none bg-card p-0 shadow-xl ring-1 ring-ring backdrop-blur sm:max-w-xl">
+					<DialogHeader className="shrink-0 p-6 pb-0">
 						<DialogTitle className="font-semibold text-foreground text-xl">
 							{t('settings.title')}
 						</DialogTitle>
@@ -212,7 +237,7 @@ export function SettingsModal() {
 							{t('settings.subtitle')}
 						</DialogDescription>
 					</DialogHeader>
-					<div className="min-h-0 flex-1 space-y-6 overflow-y-auto py-4">
+					<div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-6 pt-0">
 						<div className="space-y-2">
 							<Label
 								htmlFor="language"
@@ -231,6 +256,32 @@ export function SettingsModal() {
 									{LANGUAGES.map((lang) => (
 										<SelectItem key={lang.code} value={lang.code}>
 											{lang.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="space-y-2">
+							<Label
+								htmlFor="theme"
+								className="font-medium text-foreground text-sm"
+							>
+								{t('settings.theme')}
+							</Label>
+							<Select
+								value={theme}
+								onValueChange={(value) => setTheme(value as Settings['theme'])}
+							>
+								<SelectTrigger
+									id="theme"
+									className="h-12 rounded-xl border border-input bg-background text-left font-medium text-base text-foreground shadow-sm hover:border-border"
+								>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent className="rounded-xl border border-border bg-card shadow-lg">
+									{THEMES.map((themeOption) => (
+										<SelectItem key={themeOption.code} value={themeOption.code}>
+											{t(themeOption.translationKey)}
 										</SelectItem>
 									))}
 								</SelectContent>
