@@ -1,4 +1,5 @@
-import { useAtom } from '@effect-atom/atom-react'
+import { Atom } from '@effect-atom/atom'
+import { Result, useAtom } from '@effect-atom/atom-react'
 import {
 	AlertTriangle,
 	Check,
@@ -29,7 +30,6 @@ import {
 import {
 	currencyAtom,
 	exportDataAtom,
-	exportedDataAtom,
 	importDataAtom,
 	pixKeyAtom,
 } from '../store/atoms'
@@ -56,7 +56,6 @@ export function SettingsModal() {
 	const [importText, setImportText] = useState<string>('')
 	const [copied, setCopied] = useState(false)
 
-	const [exportedText, setExportedText] = useAtom(exportedDataAtom)
 	const [exportDataResult, exportData] = useAtom(exportDataAtom)
 	const [importDataResult, importData] = useAtom(importDataAtom)
 
@@ -93,7 +92,7 @@ export function SettingsModal() {
 
 	const handleExport = () => {
 		try {
-			exportData({})
+			exportData(undefined)
 			toast.success('Export data generated', {
 				description: 'Export text is ready to copy',
 				id: 'settings:export-data-generated',
@@ -138,9 +137,9 @@ export function SettingsModal() {
 	}
 
 	const copyToClipboard = async () => {
-		if (!exportedText) return
+		if (!Result.isSuccess(exportDataResult)) return
 		try {
-			await navigator.clipboard.writeText(exportedText)
+			await navigator.clipboard.writeText(exportDataResult.value)
 			setCopied(true)
 			setTimeout(() => setCopied(false), 2000)
 			toast.success('Copied to clipboard', {
@@ -158,7 +157,7 @@ export function SettingsModal() {
 				onOpenChange={(isOpen) => {
 					setOpen(isOpen)
 					if (!isOpen) {
-						setExportedText(null)
+						exportData(Atom.Reset)
 					}
 				}}
 			>
@@ -248,7 +247,7 @@ export function SettingsModal() {
 								>
 									Generate Export Text
 								</Button>
-								{exportedText && (
+								{Result.isSuccess(exportDataResult) && (
 									<div className="space-y-2">
 										<div className="flex items-center justify-between">
 											<Label className="text-xs font-medium text-slate-700">
@@ -275,7 +274,7 @@ export function SettingsModal() {
 										</div>
 										<textarea
 											readOnly
-											value={exportedText}
+											value={exportDataResult.value}
 											className="w-full h-32 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs font-mono text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-slate-300"
 											onClick={(e) =>
 												(e.target as HTMLTextAreaElement).select()

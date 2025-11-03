@@ -1,5 +1,5 @@
 import { BrowserKeyValueStore } from '@effect/platform-browser'
-import { Atom, Registry } from '@effect-atom/atom-react'
+import { Atom } from '@effect-atom/atom-react'
 import { Effect, Layer, Schema } from 'effect'
 import { Compressor } from '../services/compressor'
 import { PakoCompressorLive } from '../services/pako-compressor'
@@ -63,7 +63,10 @@ export const pixKeyAtom = Atom.writable(
 	},
 	(ctx, pixKey: string | null) => {
 		const currentSettings = ctx.get(settingsAtom)
-		ctx.set(settingsAtom, { ...currentSettings, pixKey: pixKey?.trim() ?? undefined })
+		ctx.set(settingsAtom, {
+			...currentSettings,
+			pixKey: pixKey?.trim() ?? undefined,
+		})
 	}
 )
 
@@ -74,44 +77,41 @@ export const selectedGroupAtom = Atom.make((get) => {
 	return groups.find((g) => g.id === selectedGroupId) || null
 })
 
-export const createNewGroupAtom = Atom.fn(
-	Effect.fn(function* (input: { name: string }) {
-		const ctx = yield* Registry.AtomRegistry
+export const createNewGroupAtom = Atom.fnSync(
+	(input: { name: string }, get) => {
 		const newGroup: ExpenseGroup = {
 			id: crypto.randomUUID(),
 			name: input.name,
 			people: [],
 			items: [],
 		}
-
-		ctx.set(groupsAtom, [...ctx.get(groupsAtom), newGroup])
-		ctx.set(selectedGroupIdAtom, newGroup.id)
-	})
+		get.set(groupsAtom, [...get(groupsAtom), newGroup])
+		get.set(selectedGroupIdAtom, newGroup.id)
+	}
 )
 
-export const deleteGroupAtom = Atom.fn(
-	Effect.fn(function* (input: { id: string }) {
-		const ctx = yield* Registry.AtomRegistry
-		ctx.set(
-			groupsAtom,
-			ctx.get(groupsAtom).filter((g) => g.id !== input.id)
-		)
-		if (ctx.get(selectedGroupIdAtom) === input.id) {
-			ctx.set(selectedGroupIdAtom, null)
-		}
-	})
-)
+export const deleteGroupAtom = Atom.fnSync((input: { id: string }, get) => {
+	get.set(
+		groupsAtom,
+		get(groupsAtom).filter((g) => g.id !== input.id)
+	)
+	if (get(selectedGroupIdAtom) === input.id) {
+		get.set(selectedGroupIdAtom, null)
+	}
+})
 
-export const updateGroupAtom = Atom.fn(
-	Effect.fn(function* (input: {
-		id: string
-		name?: string
-		tipPercentage?: number
-	}) {
-		const ctx = yield* Registry.AtomRegistry
-		ctx.set(
+export const updateGroupAtom = Atom.fnSync(
+	(
+		input: {
+			id: string
+			name?: string
+			tipPercentage?: number
+		},
+		get
+	) => {
+		get.set(
 			groupsAtom,
-			ctx.get(groupsAtom).map((g) =>
+			get(groupsAtom).map((g) =>
 				g.id === input.id
 					? {
 							...g,
@@ -121,7 +121,7 @@ export const updateGroupAtom = Atom.fn(
 					: g
 			)
 		)
-	})
+	}
 )
 
 export const groupTipPercentageAtom = Atom.make((get) => {
@@ -129,11 +129,10 @@ export const groupTipPercentageAtom = Atom.make((get) => {
 	return selectedGroup?.tipPercentage ?? 0
 })
 
-export const addPersonToGroupAtom = Atom.fn(
-	Effect.fn(function* (input: { groupId: string; person: Person }) {
-		const ctx = yield* Registry.AtomRegistry
-		const groups = ctx.get(groupsAtom)
-		ctx.set(
+export const addPersonToGroupAtom = Atom.fnSync(
+	(input: { groupId: string; person: Person }, get) => {
+		const groups = get(groupsAtom)
+		get.set(
 			groupsAtom,
 			groups.map((g) =>
 				g.id === input.groupId
@@ -141,13 +140,12 @@ export const addPersonToGroupAtom = Atom.fn(
 					: g
 			)
 		)
-	})
+	}
 )
 
-export const removePersonFromGroupAtom = Atom.fn(
-	Effect.fn(function* (input: { groupId: string; personId: string }) {
-		const ctx = yield* Registry.AtomRegistry
-		const groups = ctx.get(groupsAtom)
+export const removePersonFromGroupAtom = Atom.fnSync(
+	(input: { groupId: string; personId: string }, get) => {
+		const groups = get(groupsAtom)
 		const group = groups.find((g) => g.id === input.groupId)
 		if (!group) return
 
@@ -157,7 +155,7 @@ export const removePersonFromGroupAtom = Atom.fn(
 			selectedPeople: item.selectedPeople.filter((id) => id !== input.personId),
 		}))
 
-		ctx.set(
+		get.set(
 			groupsAtom,
 			groups.map((g) =>
 				g.id === input.groupId
@@ -165,27 +163,25 @@ export const removePersonFromGroupAtom = Atom.fn(
 					: g
 			)
 		)
-	})
+	}
 )
 
-export const addItemToGroupAtom = Atom.fn(
-	Effect.fn(function* (input: { groupId: string; item: Item }) {
-		const ctx = yield* Registry.AtomRegistry
-		const groups = ctx.get(groupsAtom)
-		ctx.set(
+export const addItemToGroupAtom = Atom.fnSync(
+	(input: { groupId: string; item: Item }, get) => {
+		const groups = get(groupsAtom)
+		get.set(
 			groupsAtom,
 			groups.map((g) =>
 				g.id === input.groupId ? { ...g, items: [...g.items, input.item] } : g
 			)
 		)
-	})
+	}
 )
 
-export const removeItemFromGroupAtom = Atom.fn(
-	Effect.fn(function* (input: { groupId: string; itemId: string }) {
-		const ctx = yield* Registry.AtomRegistry
-		const groups = ctx.get(groupsAtom)
-		ctx.set(
+export const removeItemFromGroupAtom = Atom.fnSync(
+	(input: { groupId: string; itemId: string }, get) => {
+		const groups = get(groupsAtom)
+		get.set(
 			groupsAtom,
 			groups.map((g) =>
 				g.id === input.groupId
@@ -193,7 +189,7 @@ export const removeItemFromGroupAtom = Atom.fn(
 					: g
 			)
 		)
-	})
+	}
 )
 
 // Export/Import atoms
@@ -205,14 +201,11 @@ const ExportDataSchema = Schema.parseJson(
 	})
 )
 
-export const exportedDataAtom = Atom.make<string | null>(null)
-
 export const exportDataAtom = runtimeAtom.fn(
-	Effect.fn(function* (_input: Record<string, never>) {
-		const ctx = yield* Registry.AtomRegistry
+	Effect.fn(function* (_input: undefined, get) {
 		const compressor = yield* Compressor
-		const groups = ctx.get(groupsAtom)
-		const settings = ctx.get(settingsAtom)
+		const groups = get(groupsAtom)
+		const settings = get(settingsAtom)
 
 		const jsonString = yield* Schema.encode(ExportDataSchema)({
 			groups,
@@ -222,13 +215,12 @@ export const exportDataAtom = runtimeAtom.fn(
 
 		const compressed = yield* compressor.compress(jsonString)
 
-		ctx.set(exportedDataAtom, compressed)
+		return compressed
 	})
 )
 
 export const importDataAtom = runtimeAtom.fn(
-	Effect.fn(function* (input: { dataString: string }) {
-		const ctx = yield* Registry.AtomRegistry
+	Effect.fn(function* (input: { dataString: string }, get) {
 		const compressor = yield* Compressor
 		const { dataString } = input
 
@@ -237,25 +229,25 @@ export const importDataAtom = runtimeAtom.fn(
 		const validated = yield* Schema.decode(ExportDataSchema)(decompressed)
 
 		// Restore data (preserve pixKey from current settings, don't overwrite it)
-		const currentSettings = ctx.get(settingsAtom)
-		ctx.set(groupsAtom, validated.groups)
-		ctx.set(settingsAtom, {
+		const currentSettings = get(settingsAtom)
+		get.set(groupsAtom, validated.groups)
+		get.set(settingsAtom, {
 			currency: validated.settings.currency,
 			pixKey: currentSettings.pixKey, // Preserve existing pixKey
 		})
 
 		// Reset selected group ID if it doesn't exist in imported groups
-		const selectedGroupId = ctx.get(selectedGroupIdAtom)
+		const selectedGroupId = get(selectedGroupIdAtom)
 		if (
 			selectedGroupId &&
 			!validated.groups.some((g) => g.id === selectedGroupId)
 		) {
-			ctx.set(
+			get.set(
 				selectedGroupIdAtom,
 				validated.groups.length > 0 ? validated.groups[0].id : null
 			)
 		} else if (validated.groups.length > 0 && !selectedGroupId) {
-			ctx.set(selectedGroupIdAtom, validated.groups[0].id)
+			get.set(selectedGroupIdAtom, validated.groups[0].id)
 		}
 	})
 )
