@@ -1,4 +1,5 @@
 import { useAtomValue } from '@effect-atom/atom-react'
+import { useMemo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import {
 	Dialog,
@@ -21,6 +22,10 @@ export function PersonDetailView({
 	onOpenChange,
 }: PersonDetailViewProps) {
 	const group = useAtomValue(selectedGroupAtom)
+	const currencyFormatter = useMemo(
+		() => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }),
+		[]
+	)
 
 	if (!group) {
 		return null
@@ -81,109 +86,111 @@ export function PersonDetailView({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-				<DialogHeader>
-					<DialogTitle className="text-2xl">
-						{person.name}'s Cost Breakdown
-					</DialogTitle>
-				</DialogHeader>
-				<div className="pt-6">
+			<DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-none bg-white/95 p-0 shadow-2xl ring-1 ring-slate-200/70">
+				<div className="border-b border-slate-200/70 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 px-6 py-6">
+					<DialogHeader>
+						<DialogTitle className="text-2xl font-semibold text-slate-900">
+							{person.name}'s cost breakdown
+						</DialogTitle>
+					</DialogHeader>
+				</div>
+				<div className="space-y-6 px-6 py-6">
 					{applicableItems.length === 0 ? (
-						<p className="text-muted-foreground text-center py-8 italic">
+						<p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 py-8 text-center text-sm font-medium text-slate-500">
 							No items apply to {person.name} yet.
 						</p>
 					) : (
-						<div className="space-y-6">
-							{/* Items Breakdown */}
+						<>
 							<div className="space-y-3">
-								<h3 className="font-semibold text-lg mb-4">Items Breakdown</h3>
-								{applicableItems.map(
-									({ item, applicablePeople, perPerson }) => (
-										<Card
-											key={item.id}
-											className={
-												item.type === 'expense'
-													? 'border-l-4 border-l-blue-500'
-													: 'border-l-4 border-l-green-500'
-											}
-										>
-											<CardContent className="pt-4">
-												<div className="flex items-start justify-between mb-2">
-													<div className="flex-1">
-														<h4 className="font-semibold">{item.name}</h4>
-														<div className="text-sm text-muted-foreground mt-1">
-															{item.amount} × ${item.price.toFixed(2)} = $
-															{(item.amount * item.price).toFixed(2)}
-															{item.type === 'expense'
-																? ' (expense)'
-																: ' (discount)'}
+								<h3 className="text-lg font-semibold text-slate-900">Items breakdown</h3>
+								<div className="grid grid-cols-1 gap-4">
+									{applicableItems.map(
+										({ item, applicablePeople, perPerson }) => (
+											<Card
+												key={item.id}
+												className={`overflow-hidden border-none shadow-md ring-1 ring-slate-200/60 ${
+													item.type === 'expense'
+														? 'bg-gradient-to-br from-white via-indigo-50 to-indigo-100/60'
+														: 'bg-gradient-to-br from-white via-emerald-50 to-emerald-100/60'
+												}`}
+											>
+												<CardContent className="relative z-10 space-y-4 px-5 py-5">
+													<div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+														<div>
+															<p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">
+																{item.type === 'expense' ? 'Expense' : 'Discount'}
+															</p>
+															<h4 className="mt-2 text-lg font-semibold text-slate-900">
+																{item.name}
+															</h4>
+															<p className="text-sm text-slate-600">
+																{item.amount} × {currencyFormatter.format(item.price)} ={' '}
+																{currencyFormatter.format(item.amount * item.price)}
+															</p>
+														</div>
+														<div className="text-right">
+															<p
+																className={`text-lg font-semibold ${
+																	perPerson >= 0 ? 'text-indigo-600' : 'text-emerald-600'
+																}`}
+															>
+																{perPerson >= 0 ? '+' : '-'}
+																{currencyFormatter.format(Math.abs(perPerson))}
+															</p>
+															<p className="text-xs text-slate-500">
+																Split among {applicablePeople.length}{' '}
+																{applicablePeople.length === 1 ? 'person' : 'people'}
+															</p>
 														</div>
 													</div>
-													<div className="text-right">
-														<div
-															className={`text-lg font-semibold ${
-																perPerson >= 0
-																	? 'text-blue-600'
-																	: 'text-green-600'
-															}`}
-														>
-															{perPerson >= 0 ? '+' : ''}$
-															{Math.abs(perPerson).toFixed(2)}
+													{applicablePeople.length > 1 && (
+														<div className="flex flex-wrap gap-2 rounded-xl bg-white/70 px-3 py-2 text-xs text-slate-500">
+															<span className="font-medium text-slate-600">Shared with:</span>
+															{applicablePeople
+																.map((p) => (p.id === person.id ? 'you' : p.name))
+																.sort((a, b) => {
+																	if (a === 'you') return -1
+																	if (b === 'you') return 1
+																	return a.localeCompare(b)
+																})
+																.join(', ')}
 														</div>
-														<div className="text-xs text-muted-foreground">
-															Split among {applicablePeople.length} person
-															{applicablePeople.length !== 1 ? 's' : ''}
-														</div>
-													</div>
-												</div>
-												{applicablePeople.length > 1 && (
-													<div className="mt-2 pt-2 border-t text-xs text-muted-foreground">
-														Shared with:{' '}
-														{applicablePeople
-															.map((p) => (p.id === person.id ? 'you' : p.name))
-															.sort((a, b) => {
-																// Put "you" first
-																if (a === 'you') return -1
-																if (b === 'you') return 1
-																return a.localeCompare(b)
-															})
-															.join(', ')}
-													</div>
-												)}
-											</CardContent>
-										</Card>
-									)
-								)}
+													)}
+												</CardContent>
+											</Card>
+										)
+									)}
+								</div>
 							</div>
-
-							{/* Summary */}
-							<div className="space-y-2 p-4 bg-muted rounded-md border-t pt-6">
-								<div className="flex justify-between">
-									<span>Base Total (items):</span>
-									<span className="font-semibold">
-										${Math.abs(baseTotal).toFixed(2)}
-										{baseTotal < 0 && ' (credit)'}
+							<div className="rounded-2xl border border-slate-200/70 bg-slate-50/80 px-5 py-5">
+								<div className="flex justify-between text-sm text-slate-600">
+									<span>Base total (items)</span>
+									<span className="font-semibold text-slate-900">
+										{currencyFormatter.format(Math.abs(baseTotal))}
+										{baseTotal < 0 && <span className="ml-1 text-xs uppercase text-emerald-600">credit</span>}
 									</span>
 								</div>
 								{tip > 0 && (
-									<div className="flex justify-between">
-										<span>Tip ({group.tipPercentage}%):</span>
-										<span className="font-semibold">${tip.toFixed(2)}</span>
+									<div className="flex justify-between text-sm text-slate-600">
+										<span>Tip ({group.tipPercentage}%)</span>
+										<span className="font-semibold text-slate-900">
+											{currencyFormatter.format(tip)}
+										</span>
 									</div>
 								)}
-								<div className="flex justify-between pt-2 border-t font-bold text-lg">
-									<span>Total Amount:</span>
+								<div className="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-4">
+									<span className="text-base font-semibold text-slate-900">Total amount</span>
 									<span
-										className={
-											totalWithTip >= 0 ? 'text-blue-600' : 'text-green-600'
-										}
+										className={`text-xl font-semibold ${
+											totalWithTip >= 0 ? 'text-indigo-600' : 'text-emerald-600'
+										}`}
 									>
-										${Math.abs(totalWithTip).toFixed(2)}
-										{totalWithTip < 0 && ' (credit)'}
+										{currencyFormatter.format(Math.abs(totalWithTip))}
+										{totalWithTip < 0 && <span className="ml-1 text-xs uppercase">credit</span>}
 									</span>
 								</div>
 							</div>
-						</div>
+						</>
 					)}
 				</div>
 			</DialogContent>

@@ -1,6 +1,6 @@
 import { Atom, useAtomValue } from '@effect-atom/atom-react'
 import { Eye } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { selectedGroupAtom } from '../store/atoms'
@@ -98,6 +98,10 @@ export function Summary() {
 	const group = useAtomValue(selectedGroupAtom)
 	const calculations = useAtomValue(groupCalculationsAtom)
 	const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
+	const currencyFormatter = useMemo(
+		() => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }),
+		[]
+	)
 
 	if (!group || !calculations) {
 		return null
@@ -105,26 +109,59 @@ export function Summary() {
 
 	return (
 		<>
-			<Card>
-				<CardHeader>
-					<CardTitle>Summary</CardTitle>
+			<Card className="border-none bg-white/90 shadow-lg ring-1 ring-slate-200/60 backdrop-blur">
+				<CardHeader className="space-y-1">
+					<CardTitle className="text-xl font-semibold text-slate-900">
+						Summary
+					</CardTitle>
+					<p className="text-sm text-slate-500">
+						See who owes what, including discounts and tip adjustments.
+					</p>
 				</CardHeader>
-				<CardContent className="space-y-4">
+				<CardContent className="space-y-5">
 					{group.people.length === 0 ? (
-						<p className="text-muted-foreground text-center py-4 italic">
-							Add people to see the summary
+						<p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 py-6 text-center text-sm font-medium text-slate-500">
+							Add people to unlock the summary view.
 						</p>
 					) : group.items.length === 0 ? (
-						<p className="text-muted-foreground text-center py-4 italic">
-							Add items to see the summary
+						<p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 py-6 text-center text-sm font-medium text-slate-500">
+							Add items to calculate balances for everyone.
 						</p>
 					) : (
 						<>
-							<div className="border rounded-md overflow-hidden">
-								<div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-primary text-primary-foreground p-2 font-semibold">
+							<div className="rounded-2xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 p-5 ring-1 ring-inset ring-indigo-200/50">
+								<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+									<div>
+										<p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">
+											Grand total
+										</p>
+										<p className="mt-2 text-3xl font-semibold text-slate-900">
+											{currencyFormatter.format(calculations.sumOfSharesWithTips)}
+										</p>
+									</div>
+									<div className="grid gap-1 text-sm text-slate-600 sm:text-right">
+										<span>
+											Expenses: {currencyFormatter.format(calculations.totalExpenses)}
+										</span>
+										<span>
+											Discounts: {currencyFormatter.format(calculations.totalDiscounts)}
+										</span>
+										<span>
+											Net before tip: {currencyFormatter.format(calculations.netTotal)}
+										</span>
+										{calculations.totalTips > 0 && (
+											<span>
+												Tips added: {currencyFormatter.format(calculations.totalTips)}
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+							<div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+								<div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border-b border-slate-200/80 bg-slate-50 px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.35em] text-slate-500">
 									<span>Person</span>
-									<span className="text-right">Amount Owed</span>
-									<span></span>
+									<span className="text-right">Amount</span>
+									<span className="text-right">Details</span>
 								</div>
 								{[...group.people]
 									.sort((a, b) => a.name.localeCompare(b.name))
@@ -141,33 +178,34 @@ export function Summary() {
 										return (
 											<div
 												key={person.id}
-												className="grid grid-cols-[1fr_auto_auto] gap-2 p-2 border-t items-center"
+												className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border-t border-slate-200/70 px-4 py-4 text-sm"
 											>
-												<div>
-													<div className="font-medium">{person.name}</div>
+												<div className="space-y-1">
+													<p className="font-medium text-slate-900">{person.name}</p>
 													{hasTip && (
-														<div className="text-xs text-muted-foreground mt-1">
-															Base: ${Math.abs(baseTotal).toFixed(2)} + Tip ($
-															{group.tipPercentage}%): ${tip.toFixed(2)}
-														</div>
+														<p className="text-xs text-slate-500">
+															Base {currencyFormatter.format(baseTotal)} · Tip {currencyFormatter.format(tip)}
+														</p>
 													)}
 												</div>
-												<span
-													className={`text-right font-semibold ${
-														totalWithTip >= 0
-															? 'text-blue-600'
-															: 'text-green-600'
+												<div
+													className={`text-right text-base font-semibold ${
+														totalWithTip >= 0 ? 'text-indigo-600' : 'text-emerald-600'
 													}`}
 												>
-													${Math.abs(totalWithTip).toFixed(2)}
-													{totalWithTip < 0 && ' (credit)'}
-												</span>
+													{currencyFormatter.format(Math.abs(totalWithTip))}
+													{totalWithTip < 0 && (
+														<span className="ml-1 text-xs uppercase tracking-wide text-emerald-600">
+															credit
+														</span>
+													)}
+												</div>
 												<Button
 													variant="ghost"
 													size="icon"
 													onClick={() => setSelectedPerson(person)}
 													aria-label={`View details for ${person.name}`}
-													className="h-8 w-8"
+													className="h-8 w-8 rounded-full text-slate-400 transition hover:bg-indigo-50 hover:text-indigo-600"
 												>
 													<Eye className="h-4 w-4" />
 												</Button>
@@ -175,42 +213,9 @@ export function Summary() {
 										)
 									})}
 							</div>
-							<div className="space-y-2 p-4 bg-muted rounded-md">
-								<div className="flex justify-between">
-									<span>Total Expenses:</span>
-									<span className="font-semibold">
-										${calculations.totalExpenses.toFixed(2)}
-									</span>
-								</div>
-								<div className="flex justify-between">
-									<span>Total Discounts:</span>
-									<span className="font-semibold">
-										${calculations.totalDiscounts.toFixed(2)}
-									</span>
-								</div>
-								<div className="flex justify-between">
-									<span>Net Total (before tips):</span>
-									<span className="font-semibold">
-										${calculations.netTotal.toFixed(2)}
-									</span>
-								</div>
-								{calculations.totalTips > 0 && (
-									<div className="flex justify-between">
-										<span>Total Tips:</span>
-										<span className="font-semibold">
-											${calculations.totalTips.toFixed(2)}
-										</span>
-									</div>
-								)}
-								<div className="flex justify-between pt-2 border-t font-bold text-lg">
-									<span>Grand Total:</span>
-									<span>${calculations.sumOfSharesWithTips.toFixed(2)}</span>
-								</div>
-							</div>
 							{!calculations.isValid && (
-								<div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-md font-medium">
-									⚠️ Warning: Calculation mismatch detected. Please check your
-									items.
+								<div className="rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm font-medium text-amber-700">
+									⚠️ Calculation mismatch detected. Double-check your item splits.
 								</div>
 							)}
 						</>

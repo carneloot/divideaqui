@@ -47,26 +47,36 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 	}
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>People</CardTitle>
+		<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60 backdrop-blur">
+			<CardHeader className="space-y-1">
+				<CardTitle className="text-xl font-semibold text-slate-900">
+					People
+				</CardTitle>
+				<p className="text-sm text-slate-500">
+					Add friends and keep everyone aligned on what they owe.
+				</p>
 			</CardHeader>
-			<CardContent className="space-y-4">
-				<div className="flex gap-2">
+			<CardContent className="space-y-5">
+				<div className="flex flex-col gap-3 sm:flex-row">
 					<Input
 						type="text"
-						placeholder="Enter person's name"
+						placeholder="Enter a name (e.g. Alex)"
 						value={name}
 						onChange={(e) => setName(e.target.value)}
 						onKeyDown={handleKeyPress}
-						className="flex-1"
+						className="h-12 flex-1 rounded-xl border-slate-200 bg-white text-base"
 					/>
-					<Button onClick={handleAdd}>Add Person</Button>
+					<Button
+						onClick={handleAdd}
+						className="h-12 rounded-xl bg-slate-900 text-white shadow-sm transition hover:bg-slate-800"
+					>
+						Add person
+					</Button>
 				</div>
 				<div className="space-y-2">
 					{people.length === 0 ? (
-						<p className="text-muted-foreground text-center py-4 italic">
-							No people added yet. Add someone to get started!
+						<p className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 py-6 text-center text-sm font-medium text-slate-500">
+							No people added yet. Invite your crew to begin.
 						</p>
 					) : (
 						[...people]
@@ -74,15 +84,17 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 							.map((person) => (
 								<div
 									key={person.id}
-									className="flex items-center justify-between p-3 bg-card border rounded-md"
+									className="flex items-center justify-between gap-3 rounded-xl border border-slate-200/70 bg-white px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
 								>
-									<span>{person.name}</span>
+									<span className="text-sm font-medium text-slate-700">
+										{person.name}
+									</span>
 									<Button
 										variant="ghost"
 										size="icon"
 										onClick={() => handleRemove(person.id)}
 										aria-label={`Remove ${person.name}`}
-										className="h-8 w-8"
+										className="h-8 w-8 text-slate-400 hover:text-rose-500"
 									>
 										<X className="h-4 w-4" />
 									</Button>
