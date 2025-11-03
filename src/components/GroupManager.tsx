@@ -49,13 +49,13 @@ export function GroupManager() {
 
 	const handleUpdateTipPercentage = () => {
 		const tipValue =
-			tipPercentage.trim() === '' ? undefined : parseFloat(tipPercentage)
+			tipPercentage.trim() === '' ? 0 : parseFloat(tipPercentage)
 		updateGroup({
 			id: group.id,
 			tipPercentage:
 				tipValue !== undefined && !Number.isNaN(tipValue) && tipValue >= 0
 					? tipValue
-					: undefined,
+					: 0,
 		})
 	}
 
@@ -101,7 +101,7 @@ export function GroupManager() {
 
 	return (
 		<Card className="overflow-hidden border-none bg-white/95 shadow-2xl ring-1 ring-slate-200/70 backdrop-blur">
-			<div className="relative overflow-hidden border-b border-white/10 bg-gradient-to-br from-indigo-500 via-purple-500 to-sky-500">
+			<div className="relative overflow-hidden border-b border-white/10 bg-linear-to-br from-indigo-500 via-purple-500 to-sky-500">
 				<div className="absolute -left-16 -top-32 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
 				<div className="absolute -right-20 top-12 h-72 w-72 rounded-full bg-white/20 blur-3xl" />
 				<div className="relative z-10 flex flex-col gap-6 p-6 md:flex-row md:items-end md:justify-between">

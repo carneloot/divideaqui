@@ -47,7 +47,7 @@ export function ItemForm({ people }: ItemFormProps) {
 	const handleAddItem = (itemType: ItemType) => {
 		if (!group) return
 
-		const numAmount = parseFloat(amount.replace(/[^0-9.]/g, '')) || 0
+		const numAmount = parseFloat(amount.replace(/[^0-9.]/g, '')) || 1
 		const numPrice =
 			parseFloat(price.replace(/[^0-9.]/g, '')) ||
 			parseFloat(price.slice(1)) ||
@@ -113,23 +113,6 @@ export function ItemForm({ people }: ItemFormProps) {
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="amount" className="text-sm font-medium text-slate-700">
-							Quantity
-						</Label>
-						<Input
-							id="amount"
-							type="text"
-							placeholder="e.g. 2"
-							inputMode="numeric"
-							required
-							value={amount}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-								setAmount(e.target.value)
-							}
-							className="h-12 rounded-xl border-slate-200"
-						/>
-					</div>
-					<div className="space-y-2">
 						<Label htmlFor="price" className="text-sm font-medium text-slate-700">
 							Unit price
 						</Label>
@@ -143,6 +126,22 @@ export function ItemForm({ people }: ItemFormProps) {
 							value={price}
 							onInput={(e: React.FormEvent<HTMLInputElement>) =>
 								setPrice(e.currentTarget.value)
+							}
+							className="h-12 rounded-xl border-slate-200"
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor="amount" className="text-sm font-medium text-slate-700">
+							Quantity
+						</Label>
+						<Input
+							id="amount"
+							type="text"
+							placeholder="e.g. 2"
+							inputMode="numeric"
+							value={amount}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+								setAmount(e.target.value)
 							}
 							className="h-12 rounded-xl border-slate-200"
 						/>
