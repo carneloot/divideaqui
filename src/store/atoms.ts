@@ -1,6 +1,8 @@
 import { BrowserKeyValueStore } from '@effect/platform-browser'
 import { Atom, Registry } from '@effect-atom/atom-react'
-import { Effect, Schema } from 'effect'
+import { Effect, Layer, Schema } from 'effect'
+import { Compressor } from '../services/compressor'
+import { PakoCompressorLive } from '../services/pako-compressor'
 import {
 	type ExpenseGroup,
 	ExpenseGroupSchema,
@@ -9,7 +11,13 @@ import {
 } from '../types'
 
 // Create atoms for managing expense groups
-const runtimeAtom = Atom.runtime(BrowserKeyValueStore.layerLocalStorage)
+// Merge all required layers for the runtime
+const runtimeLayer = Layer.merge(
+	BrowserKeyValueStore.layerLocalStorage,
+	PakoCompressorLive
+)
+
+const runtimeAtom = Atom.runtime(runtimeLayer)
 
 // Settings schema
 export const SettingsSchema = Schema.Struct({
@@ -42,7 +50,8 @@ export const settingsAtom = Atom.kvs({
 // Derived atom for currency (for backward compatibility and convenience)
 export const currencyAtom = Atom.writable(
 	(get) => get(settingsAtom).currency,
-	(ctx, currency: string) => ctx.set(settingsAtom, { ...ctx.get(settingsAtom), currency })
+	(ctx, currency: string) =>
+		ctx.set(settingsAtom, { ...ctx.get(settingsAtom), currency })
 )
 
 // Atom for selected group (derived from groups and selectedGroupId)
@@ -171,5 +180,65 @@ export const removeItemFromGroupAtom = Atom.fn(
 					: g
 			)
 		)
+	})
+)
+
+// Export/Import atoms
+const ExportDataSchema = Schema.parseJson(
+	Schema.Struct({
+		groups: Schema.Array(ExpenseGroupSchema),
+		settings: SettingsSchema,
+		version: Schema.Literal('1.0.0'),
+	})
+)
+
+export const exportedDataAtom = Atom.make<string | null>(null)
+
+export const exportDataAtom = runtimeAtom.fn(
+	Effect.fn(function* (_input: Record<string, never>) {
+		const ctx = yield* Registry.AtomRegistry
+		const compressor = yield* Compressor
+		const groups = ctx.get(groupsAtom)
+		const settings = ctx.get(settingsAtom)
+
+		const jsonString = yield* Schema.encode(ExportDataSchema)({
+			groups,
+			settings,
+			version: '1.0.0',
+		})
+
+		const compressed = yield* compressor.compress(jsonString)
+
+		ctx.set(exportedDataAtom, compressed)
+	})
+)
+
+export const importDataAtom = runtimeAtom.fn(
+	Effect.fn(function* (input: { dataString: string }) {
+		const ctx = yield* Registry.AtomRegistry
+		const compressor = yield* Compressor
+		const { dataString } = input
+
+		const decompressed = yield* compressor.decompress(dataString)
+
+		const validated = yield* Schema.decode(ExportDataSchema)(decompressed)
+
+		// Restore data
+		ctx.set(groupsAtom, validated.groups)
+		ctx.set(settingsAtom, validated.settings)
+
+		// Reset selected group ID if it doesn't exist in imported groups
+		const selectedGroupId = ctx.get(selectedGroupIdAtom)
+		if (
+			selectedGroupId &&
+			!validated.groups.some((g) => g.id === selectedGroupId)
+		) {
+			ctx.set(
+				selectedGroupIdAtom,
+				validated.groups.length > 0 ? validated.groups[0].id : null
+			)
+		} else if (validated.groups.length > 0 && !selectedGroupId) {
+			ctx.set(selectedGroupIdAtom, validated.groups[0].id)
+		}
 	})
 )
