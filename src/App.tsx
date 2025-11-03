@@ -44,7 +44,7 @@ function App() {
 			<header>
 				<div className="container mx-auto max-w-6xl px-4 py-6 text-white">
 					<div className="flex items-center justify-between">
-						<h1 className="text-3xl font-semibold tracking-tight">
+						<h1 className="font-semibold text-3xl tracking-tight">
 							&#x1F4B8; {t('app.title')}
 						</h1>
 						<SettingsModal />
@@ -57,10 +57,10 @@ function App() {
 						<Card className="border-none bg-white/90 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
 							<CardContent className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
 								<div className="space-y-1">
-									<p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+									<p className="font-semibold text-slate-500 text-xs uppercase tracking-[0.3em]">
 										{t('group.activeGroup')}
 									</p>
-									<h2 className="text-xl font-semibold text-slate-800">
+									<h2 className="font-semibold text-slate-800 text-xl">
 										{t('group.chooseWork')}
 									</h2>
 								</div>
@@ -71,7 +71,7 @@ function App() {
 									>
 										<SelectTrigger
 											id="group-select"
-											className="h-12 flex-1 rounded-xl border border-slate-200 bg-white/70 text-left text-base font-medium text-slate-800 shadow-sm hover:border-slate-300"
+											className="h-12 flex-1 rounded-xl border border-slate-200 bg-white/70 text-left font-medium text-base text-slate-800 shadow-sm hover:border-slate-300"
 										>
 											<SelectValue placeholder={t('group.selectGroup')} />
 										</SelectTrigger>
@@ -98,7 +98,7 @@ function App() {
 					) : (
 						<Card className="border-none bg-white/90 text-center shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
 							<CardHeader className="space-y-3">
-								<CardTitle className="text-3xl font-semibold text-slate-900">
+								<CardTitle className="font-semibold text-3xl text-slate-900">
 									{t('welcome.title')}
 								</CardTitle>
 								<p className="text-lg text-slate-500">
@@ -109,13 +109,11 @@ function App() {
 								<Button
 									onClick={handleCreateGroup}
 									size="lg"
-									className="rounded-xl px-8 text-base"
+									className="rounded-xl bg-slate-900 px-8 text-base text-white shadow-sm hover:bg-slate-800"
 								>
 									{t('welcome.button')}
 								</Button>
-								<p className="text-sm text-slate-400">
-									{t('welcome.hint')}
-								</p>
+								<p className="text-slate-400 text-sm">{t('welcome.hint')}</p>
 							</CardContent>
 						</Card>
 					)}

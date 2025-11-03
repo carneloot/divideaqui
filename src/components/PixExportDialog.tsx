@@ -36,7 +36,11 @@ export function PixExportDialog({
 	const [qrCodeImage, setQrCodeImage] = useState<string | null>(null)
 
 	const currencyFormatter = useMemo(
-		() => new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, { style: 'currency', currency }),
+		() =>
+			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
+				style: 'currency',
+				currency,
+			}),
 		[currency, i18n.language]
 	)
 
@@ -110,26 +114,24 @@ export function PixExportDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
+			<DialogContent className="rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle className="text-xl font-semibold text-slate-900">
+					<DialogTitle className="font-semibold text-slate-900 text-xl">
 						{t('pix.paymentFor', { name: person.name })}
 					</DialogTitle>
-					<DialogDescription className="text-sm text-slate-500">
+					<DialogDescription className="text-slate-500 text-sm">
 						{t('pix.amount')}: {currencyFormatter.format(amount)}
 					</DialogDescription>
 				</DialogHeader>
 				<div className="space-y-6 py-4">
 					{!pixData ? (
-						<p className="text-sm text-red-600">
-							{t('pix.errorGenerating')}
-						</p>
+						<p className="text-red-600 text-sm">{t('pix.errorGenerating')}</p>
 					) : (
 						<>
 							{/* Copy and Paste Code */}
 							<div className="space-y-2">
 								<div className="flex items-center justify-between">
-									<Label className="text-sm font-medium text-slate-700">
+									<Label className="font-medium text-slate-700 text-sm">
 										{t('pix.copyAndPaste')}
 									</Label>
 									<Button
@@ -154,7 +156,7 @@ export function PixExportDialog({
 								<textarea
 									readOnly
 									value={pixData.brCode}
-									className="w-full h-32 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs font-mono text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-slate-300"
+									className="h-32 w-full resize-none rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-slate-300"
 									onClick={(e) => (e.target as HTMLTextAreaElement).select()}
 								/>
 							</div>
@@ -162,7 +164,7 @@ export function PixExportDialog({
 							{/* QR Code */}
 							<div className="space-y-2">
 								<div className="flex items-center justify-between">
-									<Label className="text-sm font-medium text-slate-700">
+									<Label className="font-medium text-slate-700 text-sm">
 										{t('pix.qrCode')}
 									</Label>
 									{qrCodeImage && (
@@ -177,15 +179,15 @@ export function PixExportDialog({
 										</Button>
 									)}
 								</div>
-								<div className="flex items-center justify-center rounded-lg border border-slate-200 bg-slate-50 p-4 min-h-[200px]">
+								<div className="flex min-h-[200px] items-center justify-center rounded-lg border border-slate-200 bg-slate-50 p-4">
 									{qrCodeImage ? (
 										<img
 											src={qrCodeImage}
 											alt="PIX QR Code"
-											className="max-w-full h-auto"
+											className="h-auto max-w-full"
 										/>
 									) : (
-										<p className="text-sm text-slate-500">
+										<p className="text-slate-500 text-sm">
 											{t('pix.generatingQrCode')}
 										</p>
 									)}

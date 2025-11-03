@@ -33,12 +33,15 @@ interface ItemFormProps {
 // Helper function to get currency symbol
 function getCurrencySymbol(currency: string, locale: string): string {
 	try {
-		const formatter = new Intl.NumberFormat(locale === 'en' ? 'en-US' : locale, {
-			style: 'currency',
-			currency,
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0,
-		})
+		const formatter = new Intl.NumberFormat(
+			locale === 'en' ? 'en-US' : locale,
+			{
+				style: 'currency',
+				currency,
+				minimumFractionDigits: 0,
+				maximumFractionDigits: 0,
+			}
+		)
 		const parts = formatter.formatToParts(1)
 		const symbolPart = parts.find((part) => part.type === 'currency')
 		return symbolPart?.value || currency
@@ -59,7 +62,10 @@ export function ItemForm({ people }: ItemFormProps) {
 	const [selectedPeople, setSelectedPeople] = useState<string[]>([])
 	const [showValidationDialog, setShowValidationDialog] = useState(false)
 
-	const currencySymbol = useMemo(() => getCurrencySymbol(currency, i18n.language), [currency, i18n.language])
+	const currencySymbol = useMemo(
+		() => getCurrencySymbol(currency, i18n.language),
+		[currency, i18n.language]
+	)
 	const maskOptions = useMemo(
 		() =>
 			maskitoNumberOptionsGenerator({
@@ -132,115 +138,113 @@ export function ItemForm({ people }: ItemFormProps) {
 
 	return (
 		<>
-		<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60 backdrop-blur">
-			<CardHeader className="space-y-1">
-				<CardTitle className="text-xl font-semibold text-slate-900">
-					{t('item.title')}
-				</CardTitle>
-				<p className="text-sm text-slate-500">
-					{t('item.subtitle')}
-				</p>
-			</CardHeader>
-			<CardContent className="space-y-5">
-				<div className="grid gap-4 sm:grid-cols-2">
-					<div className="sm:col-span-2 space-y-2">
-						<Label
-							htmlFor="name"
-							className="text-sm font-medium text-slate-700"
-						>
-							{t('item.name')}
-						</Label>
-						<Input
-							id="name"
-							type="text"
-							placeholder={t('item.namePlaceholder')}
-							value={name}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-								setName(e.target.value)
-							}
-							required
-							className="h-12 rounded-xl border-slate-200"
-						/>
-					</div>
-					<div className="space-y-2">
-						<Label
-							htmlFor="price"
-							className="text-sm font-medium text-slate-700"
-						>
-							{t('item.unitPrice')}
-						</Label>
-						<Input
-							id="price"
-							ref={priceInputRef}
-							type="text"
-							placeholder={`e.g. ${currencySymbol}12.50`}
-							inputMode="numeric"
-							required
-							value={price}
-							onInput={(e: React.FormEvent<HTMLInputElement>) =>
-								setPrice(e.currentTarget.value)
-							}
-							className="h-12 rounded-xl border-slate-200"
-						/>
-					</div>
-					<div className="space-y-2">
-						<Label
-							htmlFor="amount"
-							className="text-sm font-medium text-slate-700"
-						>
-							{t('item.quantity')}
-						</Label>
-						<Input
-							id="amount"
-							type="text"
-							placeholder="e.g. 1"
-							inputMode="numeric"
-							value={amount}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-								setAmount(e.target.value)
-							}
-							className="h-12 rounded-xl border-slate-200"
-						/>
-						<p className="text-xs leading-relaxed text-slate-500">
-							{t('item.quantityDefaultHint')}
-						</p>
-					</div>
-				</div>
-				<div>
-					<Label className="text-sm font-medium text-slate-700">
-						{t('item.whoShouldPay')}
-					</Label>
-					<RadioGroup
-						value={appliesToEveryone ? 'everyone' : 'custom'}
-						onValueChange={(value: string) =>
-							setAppliesToEveryone(value === 'everyone')
-						}
-						className="mt-3 flex flex-wrap gap-3"
-					>
-						<div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2">
-							<RadioGroupItem value="everyone" id="everyone" />
+			<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60 backdrop-blur">
+				<CardHeader className="space-y-1">
+					<CardTitle className="font-semibold text-slate-900 text-xl">
+						{t('item.title')}
+					</CardTitle>
+					<p className="text-slate-500 text-sm">{t('item.subtitle')}</p>
+				</CardHeader>
+				<CardContent className="space-y-5">
+					<div className="grid gap-4 sm:grid-cols-2">
+						<div className="space-y-2 sm:col-span-2">
 							<Label
-								htmlFor="everyone"
-								className="text-sm font-medium text-slate-700"
+								htmlFor="name"
+								className="font-medium text-slate-700 text-sm"
 							>
-								{t('item.everyone')}
+								{t('item.name')}
 							</Label>
+							<Input
+								id="name"
+								type="text"
+								placeholder={t('item.namePlaceholder')}
+								value={name}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+									setName(e.target.value)
+								}
+								required
+								className="h-12 rounded-xl border-slate-200"
+							/>
 						</div>
-						<div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2">
-							<RadioGroupItem value="custom" id="custom" />
+						<div className="space-y-2">
 							<Label
-								htmlFor="custom"
-								className="text-sm font-medium text-slate-700"
+								htmlFor="price"
+								className="font-medium text-slate-700 text-sm"
 							>
-								{t('item.choosePeople')}
+								{t('item.unitPrice')}
 							</Label>
+							<Input
+								id="price"
+								ref={priceInputRef}
+								type="text"
+								placeholder={`e.g. ${currencySymbol}12.50`}
+								inputMode="numeric"
+								required
+								value={price}
+								onInput={(e: React.FormEvent<HTMLInputElement>) =>
+									setPrice(e.currentTarget.value)
+								}
+								className="h-12 rounded-xl border-slate-200"
+							/>
 						</div>
-					</RadioGroup>
-				</div>
+						<div className="space-y-2">
+							<Label
+								htmlFor="amount"
+								className="font-medium text-slate-700 text-sm"
+							>
+								{t('item.quantity')}
+							</Label>
+							<Input
+								id="amount"
+								type="text"
+								placeholder="e.g. 1"
+								inputMode="numeric"
+								value={amount}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+									setAmount(e.target.value)
+								}
+								className="h-12 rounded-xl border-slate-200"
+							/>
+							<p className="text-slate-500 text-xs leading-relaxed">
+								{t('item.quantityDefaultHint')}
+							</p>
+						</div>
+					</div>
+					<div>
+						<Label className="font-medium text-slate-700 text-sm">
+							{t('item.whoShouldPay')}
+						</Label>
+						<RadioGroup
+							value={appliesToEveryone ? 'everyone' : 'custom'}
+							onValueChange={(value: string) =>
+								setAppliesToEveryone(value === 'everyone')
+							}
+							className="mt-3 flex flex-wrap gap-3"
+						>
+							<div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2">
+								<RadioGroupItem value="everyone" id="everyone" />
+								<Label
+									htmlFor="everyone"
+									className="font-medium text-slate-700 text-sm"
+								>
+									{t('item.everyone')}
+								</Label>
+							</div>
+							<div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2">
+								<RadioGroupItem value="custom" id="custom" />
+								<Label
+									htmlFor="custom"
+									className="font-medium text-slate-700 text-sm"
+								>
+									{t('item.choosePeople')}
+								</Label>
+							</div>
+						</RadioGroup>
+					</div>
 					{!appliesToEveryone && (
 						<div className="rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4">
 							{people.length === 0 ? (
-								<p className="text-sm font-medium text-amber-600">
+								<p className="font-medium text-amber-600 text-sm">
 									{t('item.customSplitHint')}
 								</p>
 							) : (
@@ -251,7 +255,7 @@ export function ItemForm({ people }: ItemFormProps) {
 											<label
 												key={person.id}
 												htmlFor={person.id}
-												className="flex items-center gap-3 rounded-xl border border-transparent bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50"
+												className="flex items-center gap-3 rounded-xl border border-transparent bg-white px-4 py-2 font-medium text-slate-600 text-sm shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50"
 											>
 												<Checkbox
 													id={person.id}
@@ -289,13 +293,13 @@ export function ItemForm({ people }: ItemFormProps) {
 				open={showValidationDialog}
 				onOpenChange={setShowValidationDialog}
 			>
-				<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
+				<DialogContent className="rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur sm:max-w-md">
 					<DialogHeader>
-						<DialogTitle className="flex items-center gap-2 text-xl font-semibold text-slate-900">
+						<DialogTitle className="flex items-center gap-2 font-semibold text-slate-900 text-xl">
 							<AlertTriangle className="h-5 w-5 text-amber-500" />
 							{t('item.selectionRequired')}
 						</DialogTitle>
-						<DialogDescription className="text-sm text-slate-500">
+						<DialogDescription className="text-slate-500 text-sm">
 							{t('item.selectPerson')}
 						</DialogDescription>
 					</DialogHeader>

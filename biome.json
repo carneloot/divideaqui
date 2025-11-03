@@ -39,6 +39,9 @@
 			},
 			"suspicious": {
 				"recommended": true
+			},
+			"nursery": {
+				"useSortedClasses": "warn"
 			}
 		}
 	},

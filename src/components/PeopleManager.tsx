@@ -68,12 +68,10 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 	return (
 		<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60 backdrop-blur">
 			<CardHeader className="space-y-1">
-				<CardTitle className="text-xl font-semibold text-slate-900">
+				<CardTitle className="font-semibold text-slate-900 text-xl">
 					{t('people.title')}
 				</CardTitle>
-				<p className="text-sm text-slate-500">
-					{t('people.subtitle')}
-				</p>
+				<p className="text-slate-500 text-sm">{t('people.subtitle')}</p>
 			</CardHeader>
 			<CardContent className="space-y-5">
 				<div className="flex flex-col gap-3 sm:flex-row">
@@ -94,7 +92,7 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 				</div>
 				<div className="space-y-2">
 					{people.length === 0 ? (
-						<p className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 py-6 text-center text-sm font-medium text-slate-500">
+						<p className="rounded-xl border border-slate-300 border-dashed bg-slate-50/80 py-6 text-center font-medium text-slate-500 text-sm">
 							{t('people.empty')}
 						</p>
 					) : (
@@ -103,9 +101,9 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 							.map((person) => (
 								<div
 									key={person.id}
-									className="flex items-center justify-between gap-3 rounded-xl border border-slate-200/70 bg-white px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+									className="hover:-translate-y-0.5 flex items-center justify-between gap-3 rounded-xl border border-slate-200/70 bg-white px-4 py-3 shadow-sm transition hover:shadow-md"
 								>
-									<span className="text-sm font-medium text-slate-700">
+									<span className="font-medium text-slate-700 text-sm">
 										{person.name}
 									</span>
 									<Button

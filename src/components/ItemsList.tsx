@@ -23,7 +23,11 @@ export function ItemsList({ items, people }: ItemsListProps) {
 	const currency = useAtomValue(currencyAtom)
 	const removeItem = useAtomSet(removeItemFromGroupAtom)
 	const currencyFormatter = useMemo(
-		() => new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, { style: 'currency', currency }),
+		() =>
+			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
+				style: 'currency',
+				currency,
+			}),
 		[currency, i18n.language]
 	)
 
@@ -39,16 +43,14 @@ export function ItemsList({ items, people }: ItemsListProps) {
 	return (
 		<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60 backdrop-blur">
 			<CardHeader className="space-y-1">
-				<CardTitle className="text-xl font-semibold text-slate-900">
+				<CardTitle className="font-semibold text-slate-900 text-xl">
 					{t('itemsList.title')}
 				</CardTitle>
-				<p className="text-sm text-slate-500">
-					{t('itemsList.subtitle')}
-				</p>
+				<p className="text-slate-500 text-sm">{t('itemsList.subtitle')}</p>
 			</CardHeader>
 			<CardContent>
 				{items.length === 0 ? (
-					<p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 py-6 text-center text-sm font-medium text-slate-500">
+					<p className="rounded-2xl border border-slate-300 border-dashed bg-slate-50/80 py-6 text-center font-medium text-slate-500 text-sm">
 						{t('itemsList.empty')}
 					</p>
 				) : (
@@ -59,19 +61,21 @@ export function ItemsList({ items, people }: ItemsListProps) {
 								<div
 									key={item.id}
 									className={cn(
-										'relative overflow-hidden rounded-2xl border p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-xl',
+										'hover:-translate-y-1 relative overflow-hidden rounded-2xl border p-5 shadow-sm transition hover:shadow-xl',
 										item.type === 'expense'
 											? 'border-indigo-200/80 bg-linear-to-br from-white via-indigo-50 to-indigo-100/60'
 											: 'border-emerald-200/80 bg-linear-to-br from-white via-emerald-50 to-emerald-100/60'
 									)}
 								>
-									<div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-white/40 blur-3xl" />
+									<div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-white/40 blur-3xl" />
 									<div className="relative z-10 flex items-start justify-between gap-3">
 										<div>
-											<p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">
-												{item.type === 'expense' ? t('itemsList.expense') : t('itemsList.discount')}
+											<p className="font-semibold text-slate-500 text-xs uppercase tracking-[0.35em]">
+												{item.type === 'expense'
+													? t('itemsList.expense')
+													: t('itemsList.discount')}
 											</p>
-											<h3 className="mt-2 text-lg font-semibold text-slate-900">
+											<h3 className="mt-2 font-semibold text-lg text-slate-900">
 												{item.name}
 											</h3>
 										</div>
@@ -86,27 +90,26 @@ export function ItemsList({ items, people }: ItemsListProps) {
 										</Button>
 									</div>
 									<div className="relative z-10 mt-4 flex items-baseline gap-2">
-										<span className="text-3xl font-semibold text-slate-900">
+										<span className="font-semibold text-3xl text-slate-900">
 											{currencyFormatter.format(totalValue)}
 										</span>
-										<span className="text-sm text-slate-500">
+										<span className="text-slate-500 text-sm">
 											{item.amount} × {currencyFormatter.format(item.price)}
 										</span>
 									</div>
-									<div className="relative z-10 mt-4 text-sm text-slate-600">
+									<div className="relative z-10 mt-4 text-slate-600 text-sm">
 										{item.appliesToEveryone ? (
 											<span>{t('itemsList.splitsEvenly')}</span>
 										) : (
 											<span>
 												{item.selectedPeople.length > 0
 													? t('itemsList.sharedWith', {
-														people: item.selectedPeople
-															.map(getPersonName)
-															.sort((a, b) => a.localeCompare(b))
-															.join(', ')
-													})
-													: t('itemsList.sharedWithNoOne')
-												}
+															people: item.selectedPeople
+																.map(getPersonName)
+																.sort((a, b) => a.localeCompare(b))
+																.join(', '),
+														})
+													: t('itemsList.sharedWithNoOne')}
 											</span>
 										)}
 									</div>

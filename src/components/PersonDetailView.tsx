@@ -26,7 +26,11 @@ export function PersonDetailView({
 	const group = useAtomValue(selectedGroupAtom)
 	const currency = useAtomValue(currencyAtom)
 	const currencyFormatter = useMemo(
-		() => new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, { style: 'currency', currency }),
+		() =>
+			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
+				style: 'currency',
+				currency,
+			}),
 		[currency, i18n.language]
 	)
 
@@ -91,22 +95,22 @@ export function PersonDetailView({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-none bg-white/95 p-0 shadow-2xl ring-1 ring-slate-200/70">
-				<div className="border-b border-slate-200/70 bg-linear-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 px-6 py-6">
+				<div className="border-slate-200/70 border-b bg-linear-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 px-6 py-6">
 					<DialogHeader>
-						<DialogTitle className="text-2xl font-semibold text-slate-900">
+						<DialogTitle className="font-semibold text-2xl text-slate-900">
 							{t('personDetail.title', { name: person.name })}
 						</DialogTitle>
 					</DialogHeader>
 				</div>
 				<div className="space-y-6 px-6 py-6">
 					{applicableItems.length === 0 ? (
-						<p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 py-8 text-center text-sm font-medium text-slate-500">
+						<p className="rounded-2xl border border-slate-300 border-dashed bg-slate-50/80 py-8 text-center font-medium text-slate-500 text-sm">
 							{t('personDetail.noItems', { name: person.name })}
 						</p>
 					) : (
 						<>
 							<div className="space-y-3">
-								<h3 className="text-lg font-semibold text-slate-900">
+								<h3 className="font-semibold text-lg text-slate-900">
 									{t('personDetail.itemsBreakdown')}
 								</h3>
 								<div className="grid grid-cols-1 gap-4">
@@ -123,15 +127,15 @@ export function PersonDetailView({
 												<CardContent className="relative z-10 space-y-4 px-5 py-5">
 													<div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
 														<div>
-															<p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">
+															<p className="font-semibold text-slate-500 text-xs uppercase tracking-[0.35em]">
 																{item.type === 'expense'
 																	? t('itemsList.expense')
 																	: t('itemsList.discount')}
 															</p>
-															<h4 className="mt-2 text-lg font-semibold text-slate-900">
+															<h4 className="mt-2 font-semibold text-lg text-slate-900">
 																{item.name}
 															</h4>
-															<p className="text-sm text-slate-600">
+															<p className="text-slate-600 text-sm">
 																{item.amount} ×{' '}
 																{currencyFormatter.format(item.price)} ={' '}
 																{currencyFormatter.format(
@@ -141,7 +145,7 @@ export function PersonDetailView({
 														</div>
 														<div className="text-right">
 															<p
-																className={`text-lg font-semibold ${
+																className={`font-semibold text-lg ${
 																	perPerson >= 0
 																		? 'text-indigo-600'
 																		: 'text-emerald-600'
@@ -150,21 +154,25 @@ export function PersonDetailView({
 																{perPerson >= 0 ? '+' : '-'}
 																{currencyFormatter.format(Math.abs(perPerson))}
 															</p>
-															<p className="text-xs text-slate-500">
+															<p className="text-slate-500 text-xs">
 																{applicablePeople.length === 1
 																	? t('personDetail.splitAmong', { count: 1 })
-																	: t('personDetail.splitAmongPlural', { count: applicablePeople.length })}
+																	: t('personDetail.splitAmongPlural', {
+																			count: applicablePeople.length,
+																		})}
 															</p>
 														</div>
 													</div>
 													{applicablePeople.length > 1 && (
-														<div className="flex flex-wrap gap-2 rounded-xl bg-white/70 px-3 py-2 text-xs text-slate-500">
+														<div className="flex flex-wrap gap-2 rounded-xl bg-white/70 px-3 py-2 text-slate-500 text-xs">
 															<span className="font-medium text-slate-600">
 																{t('personDetail.sharedWith')}
 															</span>
 															{applicablePeople
 																.map((p) =>
-																	p.id === person.id ? t('personDetail.you') : p.name
+																	p.id === person.id
+																		? t('personDetail.you')
+																		: p.name
 																)
 																.sort((a, b) => {
 																	if (a === t('personDetail.you')) return -1
@@ -180,42 +188,48 @@ export function PersonDetailView({
 									)}
 								</div>
 							</div>
-						<div className="rounded-2xl border border-slate-200/70 bg-slate-50/80 px-5 py-5">
-							<div className="flex justify-between text-sm text-slate-600">
-								<span>{t('personDetail.baseTotal')}</span>
-								<span className="font-semibold text-slate-900">
-									{currencyFormatter.format(Math.abs(baseTotal))}
-									{baseTotal < 0 && (
-										<span className="ml-1 text-xs uppercase text-emerald-600">
-											{t('summary.credit')}
-										</span>
-									)}
-								</span>
-							</div>
-							{tip > 0 && (
-								<div className="flex justify-between text-sm text-slate-600">
-									<span>{t('personDetail.tipLabel', { percentage: group.tipPercentage })}</span>
+							<div className="rounded-2xl border border-slate-200/70 bg-slate-50/80 px-5 py-5">
+								<div className="flex justify-between text-slate-600 text-sm">
+									<span>{t('personDetail.baseTotal')}</span>
 									<span className="font-semibold text-slate-900">
-										{currencyFormatter.format(tip)}
+										{currencyFormatter.format(Math.abs(baseTotal))}
+										{baseTotal < 0 && (
+											<span className="ml-1 text-emerald-600 text-xs uppercase">
+												{t('summary.credit')}
+											</span>
+										)}
 									</span>
 								</div>
-							)}
-							<div className="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-4">
-								<span className="text-base font-semibold text-slate-900">
-									{t('personDetail.totalAmount')}
-								</span>
-								<span
-									className={`text-xl font-semibold ${
-										totalWithTip >= 0 ? 'text-indigo-600' : 'text-emerald-600'
-									}`}
-								>
-									{currencyFormatter.format(Math.abs(totalWithTip))}
-									{totalWithTip < 0 && (
-										<span className="ml-1 text-xs uppercase">{t('summary.credit')}</span>
-									)}
-								</span>
+								{tip > 0 && (
+									<div className="flex justify-between text-slate-600 text-sm">
+										<span>
+											{t('personDetail.tipLabel', {
+												percentage: group.tipPercentage,
+											})}
+										</span>
+										<span className="font-semibold text-slate-900">
+											{currencyFormatter.format(tip)}
+										</span>
+									</div>
+								)}
+								<div className="mt-4 flex items-center justify-between border-slate-200/70 border-t pt-4">
+									<span className="font-semibold text-base text-slate-900">
+										{t('personDetail.totalAmount')}
+									</span>
+									<span
+										className={`font-semibold text-xl ${
+											totalWithTip >= 0 ? 'text-indigo-600' : 'text-emerald-600'
+										}`}
+									>
+										{currencyFormatter.format(Math.abs(totalWithTip))}
+										{totalWithTip < 0 && (
+											<span className="ml-1 text-xs uppercase">
+												{t('summary.credit')}
+											</span>
+										)}
+									</span>
+								</div>
 							</div>
-						</div>
 						</>
 					)}
 				</div>

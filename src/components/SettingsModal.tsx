@@ -96,9 +96,12 @@ export function SettingsModal() {
 			prevLanguageRef.current !== language &&
 			prevLanguageRef.current !== undefined
 		) {
-			const languageName = LANGUAGES.find((lang) => lang.code === language)?.name || language
+			const languageName =
+				LANGUAGES.find((lang) => lang.code === language)?.name || language
 			toast.success(t('settings.languageUpdated'), {
-				description: t('settings.languageChangedTo', { language: languageName }),
+				description: t('settings.languageChangedTo', {
+					language: languageName,
+				}),
 				id: 'settings:language-updated',
 			})
 		}
@@ -200,27 +203,27 @@ export function SettingsModal() {
 						<SettingsIcon className="h-5 w-5" />
 					</Button>
 				</DialogTrigger>
-				<DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
+				<DialogContent className="flex max-h-[90vh] flex-col rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur sm:max-w-md">
 					<DialogHeader className="shrink-0">
-						<DialogTitle className="text-xl font-semibold text-slate-900">
+						<DialogTitle className="font-semibold text-slate-900 text-xl">
 							{t('settings.title')}
 						</DialogTitle>
-						<DialogDescription className="text-sm text-slate-500">
+						<DialogDescription className="text-slate-500 text-sm">
 							{t('settings.subtitle')}
 						</DialogDescription>
 					</DialogHeader>
-					<div className="space-y-6 py-4 overflow-y-auto flex-1 min-h-0">
+					<div className="min-h-0 flex-1 space-y-6 overflow-y-auto py-4">
 						<div className="space-y-2">
 							<Label
 								htmlFor="language"
-								className="text-sm font-medium text-slate-700"
+								className="font-medium text-slate-700 text-sm"
 							>
 								{t('app.language')}
 							</Label>
 							<Select value={language} onValueChange={setLanguage}>
 								<SelectTrigger
 									id="language"
-									className="h-12 rounded-xl border border-slate-200 bg-white text-left text-base font-medium text-slate-800 shadow-sm hover:border-slate-300"
+									className="h-12 rounded-xl border border-slate-200 bg-white text-left font-medium text-base text-slate-800 shadow-sm hover:border-slate-300"
 								>
 									<SelectValue />
 								</SelectTrigger>
@@ -236,14 +239,14 @@ export function SettingsModal() {
 						<div className="space-y-2">
 							<Label
 								htmlFor="currency"
-								className="text-sm font-medium text-slate-700"
+								className="font-medium text-slate-700 text-sm"
 							>
 								{t('settings.currency')}
 							</Label>
 							<Select value={currency} onValueChange={setCurrency}>
 								<SelectTrigger
 									id="currency"
-									className="h-12 rounded-xl border border-slate-200 bg-white text-left text-base font-medium text-slate-800 shadow-sm hover:border-slate-300"
+									className="h-12 rounded-xl border border-slate-200 bg-white text-left font-medium text-base text-slate-800 shadow-sm hover:border-slate-300"
 								>
 									<SelectValue placeholder={t('settings.selectCurrency')} />
 								</SelectTrigger>
@@ -255,7 +258,7 @@ export function SettingsModal() {
 									))}
 								</SelectContent>
 							</Select>
-							<p className="text-xs text-slate-500">
+							<p className="text-slate-500 text-xs">
 								{t('settings.currencyHint')}
 							</p>
 						</div>
@@ -263,7 +266,7 @@ export function SettingsModal() {
 						<div className="space-y-2">
 							<Label
 								htmlFor="pixKey"
-								className="text-sm font-medium text-slate-700"
+								className="font-medium text-slate-700 text-sm"
 							>
 								{t('settings.pixKey')}
 							</Label>
@@ -275,32 +278,32 @@ export function SettingsModal() {
 								placeholder={t('settings.pixKeyPlaceholder')}
 								className="h-12 rounded-xl border-slate-200"
 							/>
-							<p className="text-xs text-slate-500">
+							<p className="text-slate-500 text-xs">
 								{t('settings.pixKeyHint')}
 							</p>
 						</div>
 
-						<div className="border-t border-slate-200 pt-4">
-							<Label className="text-sm font-medium text-slate-700">
+						<div className="border-slate-200 border-t pt-4">
+							<Label className="font-medium text-slate-700 text-sm">
 								{t('settings.dataManagement')}
 							</Label>
-							<p className="text-xs text-slate-500 mb-4">
+							<p className="mb-4 text-slate-500 text-xs">
 								{t('settings.dataManagementHint')}
 							</p>
 
 							{/* Export Section */}
-							<div className="space-y-2 mb-4">
+							<div className="mb-4 space-y-2">
 								<Button
 									onClick={handleExport}
 									disabled={exportDataResult.waiting}
-									className="w-full h-10 rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+									className="h-10 w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800"
 								>
 									{t('settings.generateExport')}
 								</Button>
 								{Result.isSuccess(exportDataResult) && (
 									<div className="space-y-2">
 										<div className="flex items-center justify-between">
-											<Label className="text-xs font-medium text-slate-700">
+											<Label className="font-medium text-slate-700 text-xs">
 												{t('settings.exportText')}
 											</Label>
 											<Button
@@ -325,7 +328,7 @@ export function SettingsModal() {
 										<textarea
 											readOnly
 											value={exportDataResult.value}
-											className="w-full h-32 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs font-mono text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-slate-300"
+											className="h-32 w-full resize-none rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-slate-300"
 											onClick={(e) =>
 												(e.target as HTMLTextAreaElement).select()
 											}
@@ -336,20 +339,20 @@ export function SettingsModal() {
 
 							{/* Import Section */}
 							<div className="space-y-2">
-								<Label className="text-xs font-medium text-slate-700">
+								<Label className="font-medium text-slate-700 text-xs">
 									{t('settings.importText')}
 								</Label>
 								<textarea
 									value={importText}
 									onChange={(e) => setImportText(e.target.value)}
 									placeholder={t('settings.importTextPlaceholder')}
-									className="w-full h-32 rounded-lg border border-slate-200 bg-white p-3 text-xs font-mono text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-slate-300"
+									className="h-32 w-full resize-none rounded-lg border border-slate-200 bg-white p-3 font-mono text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-slate-300"
 								/>
 								<Button
 									onClick={handleImport}
 									disabled={!importText.trim() || importDataResult.waiting}
 									variant="outline"
-									className="w-full h-10 rounded-xl border border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+									className="h-10 w-full rounded-xl border border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
 								>
 									{t('settings.importData')}
 								</Button>
@@ -360,13 +363,13 @@ export function SettingsModal() {
 			</Dialog>
 			{/* Error Dialog */}
 			<Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
-				<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
+				<DialogContent className="rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur sm:max-w-md">
 					<DialogHeader>
-						<DialogTitle className="flex items-center gap-2 text-xl font-semibold text-slate-900">
+						<DialogTitle className="flex items-center gap-2 font-semibold text-slate-900 text-xl">
 							<AlertTriangle className="h-5 w-5 text-red-500" />
 							{t('settings.error')}
 						</DialogTitle>
-						<DialogDescription className="text-sm text-slate-500">
+						<DialogDescription className="text-slate-500 text-sm">
 							{errorMessage}
 						</DialogDescription>
 					</DialogHeader>
@@ -386,12 +389,12 @@ export function SettingsModal() {
 				open={showImportConfirmDialog}
 				onOpenChange={setShowImportConfirmDialog}
 			>
-				<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
+				<DialogContent className="rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur sm:max-w-md">
 					<DialogHeader>
-						<DialogTitle className="text-xl font-semibold text-slate-900">
+						<DialogTitle className="font-semibold text-slate-900 text-xl">
 							{t('settings.confirmImport')}
 						</DialogTitle>
-						<DialogDescription className="text-sm text-slate-500">
+						<DialogDescription className="text-slate-500 text-sm">
 							{t('settings.confirmImportMessage')}
 						</DialogDescription>
 					</DialogHeader>
@@ -408,7 +411,9 @@ export function SettingsModal() {
 							disabled={importDataResult.waiting}
 							className="rounded-xl bg-red-600 text-white hover:bg-red-700"
 						>
-							{importDataResult.waiting ? t('settings.importing') : t('settings.import')}
+							{importDataResult.waiting
+								? t('settings.importing')
+								: t('settings.import')}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

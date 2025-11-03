@@ -42,7 +42,11 @@ export function GroupManager() {
 	const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false)
 	const currency = useAtomValue(currencyAtom)
 	const currencyFormatter = useMemo(
-		() => new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, { style: 'currency', currency }),
+		() =>
+			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
+				style: 'currency',
+				currency,
+			}),
 		[currency, i18n.language]
 	)
 
@@ -94,14 +98,13 @@ export function GroupManager() {
 		.filter((item) => item.type === 'discount')
 		.reduce((sum, item) => sum + item.amount * item.price, 0)
 	const netTotal = totalExpenses - totalDiscounts
-	const hasTip = group.tipPercentage !== undefined &&
+	const hasTip =
+		group.tipPercentage !== undefined &&
 		group.tipPercentage !== null &&
 		group.tipPercentage > 0
 
 	const totalTipAmount =
-		hasTip && netTotal > 0
-			? (netTotal * group.tipPercentage) / 100
-			: 0
+		hasTip && netTotal > 0 ? (netTotal * group.tipPercentage) / 100 : 0
 
 	const stats = [
 		{
@@ -130,13 +133,13 @@ export function GroupManager() {
 
 	return (
 		<Card className="overflow-hidden border-none bg-white/95 shadow-2xl ring-1 ring-slate-200/70 backdrop-blur">
-			<div className="relative overflow-hidden border-b border-white/10 bg-linear-to-br from-indigo-500 via-purple-500 to-sky-500">
-				<div className="absolute -left-16 -top-32 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
-				<div className="absolute -right-20 top-12 h-72 w-72 rounded-full bg-white/20 blur-3xl" />
+			<div className="relative overflow-hidden border-white/10 border-b bg-linear-to-br from-indigo-500 via-purple-500 to-sky-500">
+				<div className="-left-16 -top-32 absolute h-64 w-64 rounded-full bg-white/20 blur-3xl" />
+				<div className="-right-20 absolute top-12 h-72 w-72 rounded-full bg-white/20 blur-3xl" />
 				<div className="relative z-10 flex flex-col gap-6 p-6 md:flex-row md:items-end md:justify-between">
 					<div className="w-full max-w-xl space-y-4">
 						<div>
-							<p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/70">
+							<p className="font-semibold text-white/70 text-xs uppercase tracking-[0.35em]">
 								{t('group.name')}
 							</p>
 							<Input
@@ -145,13 +148,11 @@ export function GroupManager() {
 								onChange={(e) => setGroupName(e.target.value)}
 								onBlur={handleUpdateName}
 								onKeyDown={(e) => e.key === 'Enter' && handleUpdateName()}
-								className="mt-2 h-14 rounded-xl border border-white/20 bg-white/15 px-5 text-lg font-semibold text-white placeholder:text-white/50 focus-visible:ring-white/60"
+								className="mt-2 h-14 rounded-xl border border-white/20 bg-white/15 px-5 font-semibold text-lg text-white placeholder:text-white/50 focus-visible:ring-white/60"
 								placeholder={t('group.placeholder')}
 							/>
 						</div>
-						<p className="text-sm text-white/80">
-							{t('group.renameHint')}
-						</p>
+						<p className="text-sm text-white/80">{t('group.renameHint')}</p>
 					</div>
 					<Button
 						variant="outline"
@@ -174,10 +175,10 @@ export function GroupManager() {
 							<Icon className="h-5 w-5" />
 						</span>
 						<div>
-							<p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+							<p className="font-semibold text-slate-400 text-xs uppercase tracking-widest">
 								{label}
 							</p>
-							<p className="mt-1 text-base font-semibold text-slate-900">
+							<p className="mt-1 font-semibold text-base text-slate-900">
 								{value}
 							</p>
 						</div>
@@ -189,18 +190,16 @@ export function GroupManager() {
 					<PeopleManager people={group.people} />
 					<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60">
 						<CardHeader className="space-y-1">
-							<CardTitle className="text-xl font-semibold text-slate-900">
+							<CardTitle className="font-semibold text-slate-900 text-xl">
 								{t('tip.title')}
 							</CardTitle>
-							<p className="text-sm text-slate-500">
-								{t('tip.subtitle')}
-							</p>
+							<p className="text-slate-500 text-sm">{t('tip.subtitle')}</p>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							<div className="space-y-2">
 								<Label
 									htmlFor="tip-percentage"
-									className="text-sm font-medium text-slate-700"
+									className="font-medium text-slate-700 text-sm"
 								>
 									{t('tip.percentage')}
 								</Label>
@@ -223,10 +222,12 @@ export function GroupManager() {
 										className="flex-1 rounded-xl"
 									/>
 									{hasTip && (
-										<div className="flex items-center text-sm text-slate-500">
+										<div className="flex items-center text-slate-500 text-sm">
 											{totalTipAmount > 0 ? (
 												<span>
-													{t('tip.adds', { amount: currencyFormatter.format(totalTipAmount) })}
+													{t('tip.adds', {
+														amount: currencyFormatter.format(totalTipAmount),
+													})}
 												</span>
 											) : (
 												<span>{t('tip.notAdded')}</span>
@@ -234,7 +235,7 @@ export function GroupManager() {
 										</div>
 									)}
 								</div>
-								<p className="text-xs leading-relaxed text-slate-500">
+								<p className="text-slate-500 text-xs leading-relaxed">
 									{t('tip.calculationHint')}
 								</p>
 							</div>
@@ -248,13 +249,16 @@ export function GroupManager() {
 				</div>
 			</div>
 			{/* Delete Confirmation Dialog */}
-			<Dialog open={showDeleteConfirmDialog} onOpenChange={setShowDeleteConfirmDialog}>
-				<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
+			<Dialog
+				open={showDeleteConfirmDialog}
+				onOpenChange={setShowDeleteConfirmDialog}
+			>
+				<DialogContent className="rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur sm:max-w-md">
 					<DialogHeader>
-						<DialogTitle className="text-xl font-semibold text-slate-900">
+						<DialogTitle className="font-semibold text-slate-900 text-xl">
 							{t('group.confirmDelete')}
 						</DialogTitle>
-						<DialogDescription className="text-sm text-slate-500">
+						<DialogDescription className="text-slate-500 text-sm">
 							{t('group.confirmDeleteMessage', { name: group.name })}
 						</DialogDescription>
 					</DialogHeader>
