@@ -7,7 +7,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
-import { selectedGroupAtom } from '../store/atoms'
+import { currencyAtom, selectedGroupAtom } from '../store/atoms'
 import type { Person } from '../types'
 
 interface PersonDetailViewProps {
@@ -22,9 +22,10 @@ export function PersonDetailView({
 	onOpenChange,
 }: PersonDetailViewProps) {
 	const group = useAtomValue(selectedGroupAtom)
+	const currency = useAtomValue(currencyAtom)
 	const currencyFormatter = useMemo(
-		() => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }),
-		[]
+		() => new Intl.NumberFormat('en-US', { style: 'currency', currency }),
+		[currency]
 	)
 
 	if (!group) {
@@ -87,7 +88,7 @@ export function PersonDetailView({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-none bg-white/95 p-0 shadow-2xl ring-1 ring-slate-200/70">
-				<div className="border-b border-slate-200/70 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 px-6 py-6">
+				<div className="border-b border-slate-200/70 bg-linear-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 px-6 py-6">
 					<DialogHeader>
 						<DialogTitle className="text-2xl font-semibold text-slate-900">
 							{person.name}'s cost breakdown
@@ -110,8 +111,8 @@ export function PersonDetailView({
 												key={item.id}
 												className={`overflow-hidden border-none shadow-md ring-1 ring-slate-200/60 ${
 													item.type === 'expense'
-														? 'bg-gradient-to-br from-white via-indigo-50 to-indigo-100/60'
-														: 'bg-gradient-to-br from-white via-emerald-50 to-emerald-100/60'
+														? 'bg-linear-to-br from-white via-indigo-50 to-indigo-100/60'
+														: 'bg-linear-to-br from-white via-emerald-50 to-emerald-100/60'
 												}`}
 											>
 												<CardContent className="relative z-10 space-y-4 px-5 py-5">

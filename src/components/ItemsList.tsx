@@ -1,9 +1,11 @@
 import { useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { X } from 'lucide-react'
+import { useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import {
+	currencyAtom,
 	removeItemFromGroupAtom,
 	selectedGroupAtom,
 } from '../store/atoms'
@@ -16,11 +18,12 @@ interface ItemsListProps {
 
 export function ItemsList({ items, people }: ItemsListProps) {
 	const group = useAtomValue(selectedGroupAtom)
+	const currency = useAtomValue(currencyAtom)
 	const removeItem = useAtomSet(removeItemFromGroupAtom)
-	const currencyFormatter = new Intl.NumberFormat('en-US', {
-		style: 'currency',
-		currency: 'USD',
-	})
+	const currencyFormatter = useMemo(
+		() => new Intl.NumberFormat('en-US', { style: 'currency', currency }),
+		[currency]
+	)
 
 	const handleRemove = (id: string) => {
 		if (group) {
@@ -56,8 +59,8 @@ export function ItemsList({ items, people }: ItemsListProps) {
 									className={cn(
 										'relative overflow-hidden rounded-2xl border p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-xl',
 										item.type === 'expense'
-											? 'border-indigo-200/80 bg-gradient-to-br from-white via-indigo-50 to-indigo-100/60'
-											: 'border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50 to-emerald-100/60'
+											? 'border-indigo-200/80 bg-linear-to-br from-white via-indigo-50 to-indigo-100/60'
+											: 'border-emerald-200/80 bg-linear-to-br from-white via-emerald-50 to-emerald-100/60'
 									)}
 								>
 									<div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-white/40 blur-3xl" />

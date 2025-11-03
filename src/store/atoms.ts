@@ -11,6 +11,13 @@ import {
 // Create atoms for managing expense groups
 const runtimeAtom = Atom.runtime(BrowserKeyValueStore.layerLocalStorage)
 
+// Settings schema
+export const SettingsSchema = Schema.Struct({
+	currency: Schema.String,
+})
+
+export type Settings = Schema.Schema.Type<typeof SettingsSchema>
+
 // Atom for expense groups persisted in localStorage
 export const groupsAtom = Atom.kvs({
 	runtime: runtimeAtom,
@@ -22,6 +29,20 @@ export const groupsAtom = Atom.kvs({
 // Atom for selected group ID
 export const selectedGroupIdAtom = Atom.make<string | null>(null).pipe(
 	Atom.keepAlive
+)
+
+// Atom for settings (persisted in localStorage)
+export const settingsAtom = Atom.kvs({
+	runtime: runtimeAtom,
+	key: 'settings',
+	schema: SettingsSchema,
+	defaultValue: () => ({ currency: 'USD' }),
+})
+
+// Derived atom for currency (for backward compatibility and convenience)
+export const currencyAtom = Atom.writable(
+	(get) => get(settingsAtom).currency,
+	(ctx, currency: string) => ctx.set(settingsAtom, { ...ctx.get(settingsAtom), currency })
 )
 
 // Atom for selected group (derived from groups and selectedGroupId)

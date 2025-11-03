@@ -3,7 +3,7 @@ import { Eye } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { selectedGroupAtom } from '../store/atoms'
+import { currencyAtom, selectedGroupAtom } from '../store/atoms'
 import type { Person } from '../types'
 import { PersonDetailView } from './PersonDetailView'
 
@@ -97,10 +97,11 @@ const groupCalculationsAtom = Atom.make((get) => {
 export function Summary() {
 	const group = useAtomValue(selectedGroupAtom)
 	const calculations = useAtomValue(groupCalculationsAtom)
+	const currency = useAtomValue(currencyAtom)
 	const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
 	const currencyFormatter = useMemo(
-		() => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }),
-		[]
+		() => new Intl.NumberFormat('en-US', { style: 'currency', currency }),
+		[currency]
 	)
 
 	if (!group || !calculations) {
@@ -129,7 +130,7 @@ export function Summary() {
 						</p>
 					) : (
 						<>
-							<div className="rounded-2xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 p-5 ring-1 ring-inset ring-indigo-200/50">
+							<div className="rounded-2xl bg-linear-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 p-5 ring-1 ring-inset ring-indigo-200/50">
 								<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 									<div>
 										<p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">

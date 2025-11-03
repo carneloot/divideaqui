@@ -1,38 +1,61 @@
 import { useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { maskitoNumberOptionsGenerator } from '@maskito/kit'
 import { useMaskito } from '@maskito/react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { addItemToGroupAtom, selectedGroupAtom } from '../store/atoms'
+import { addItemToGroupAtom, currencyAtom, selectedGroupAtom } from '../store/atoms'
 import type { ItemType, Person } from '../types'
 
 interface ItemFormProps {
 	people: readonly Person[]
 }
 
-const maskOptions = maskitoNumberOptionsGenerator({
-	min: 0,
-	max: 999999.99,
-	decimalSeparator: '.',
-	thousandSeparator: ',',
-	prefix: '$',
-	minimumFractionDigits: 2,
-	maximumFractionDigits: 2,
-})
+// Helper function to get currency symbol
+function getCurrencySymbol(currency: string): string {
+	try {
+		const formatter = new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency,
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0,
+		})
+		const parts = formatter.formatToParts(1)
+		const symbolPart = parts.find((part) => part.type === 'currency')
+		return symbolPart?.value || currency
+	} catch {
+		return currency
+	}
+}
 
 export function ItemForm({ people }: ItemFormProps) {
 	const group = useAtomValue(selectedGroupAtom)
+	const currency = useAtomValue(currencyAtom)
 	const addItem = useAtomSet(addItemToGroupAtom)
 	const [name, setName] = useState('')
 	const [amount, setAmount] = useState('')
 	const [price, setPrice] = useState('')
 	const [appliesToEveryone, setAppliesToEveryone] = useState(true)
 	const [selectedPeople, setSelectedPeople] = useState<string[]>([])
+
+	const currencySymbol = useMemo(() => getCurrencySymbol(currency), [currency])
+	const maskOptions = useMemo(
+		() =>
+			maskitoNumberOptionsGenerator({
+				min: 0,
+				max: 999999.99,
+				decimalSeparator: '.',
+				thousandSeparator: ',',
+				prefix: currencySymbol,
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 2,
+			}),
+		[currencySymbol]
+	)
 
 	const priceInputRef = useMaskito({ options: maskOptions })
 
@@ -120,7 +143,7 @@ export function ItemForm({ people }: ItemFormProps) {
 							id="price"
 							ref={priceInputRef}
 							type="text"
-							placeholder="e.g. $12.50"
+							placeholder={`e.g. ${currencySymbol}12.50`}
 							inputMode="numeric"
 							required
 							value={price}
@@ -137,7 +160,7 @@ export function ItemForm({ people }: ItemFormProps) {
 						<Input
 							id="amount"
 							type="text"
-							placeholder="e.g. 2"
+							placeholder="e.g. 1"
 							inputMode="numeric"
 							value={amount}
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

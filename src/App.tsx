@@ -10,6 +10,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { GroupManager } from './components/GroupManager'
+import { SettingsModal } from './components/SettingsModal'
 import {
 	createNewGroupAtom,
 	groupsAtom,
@@ -38,9 +39,12 @@ function App() {
 		<div className="min-h-screen overflow-hidden bg-slate-950 text-slate-900">
 			<header>
 				<div className="container mx-auto max-w-6xl px-4 py-6 text-white">
-					<h1 className="text-3xl font-semibold tracking-tight">
-						💰 Divide Aqui
-					</h1>
+					<div className="flex items-center justify-between">
+						<h1 className="text-3xl font-semibold tracking-tight">
+							💰 Divide Aqui
+						</h1>
+						<SettingsModal />
+					</div>
 				</div>
 			</header>
 			<main className="mx-auto w-full max-w-6xl p-4">
