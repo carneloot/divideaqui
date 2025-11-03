@@ -1,15 +1,16 @@
 import { useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { X } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import {
 	addPersonToGroupAtom,
+	groupsAtom,
 	removePersonFromGroupAtom,
 	selectedGroupAtom,
 } from '../store/atoms'
 import type { Person } from '../types'
+import { AutocompleteInput } from './AutocompleteInput'
 
 interface PeopleManagerProps {
 	people: readonly Person[]
@@ -17,9 +18,31 @@ interface PeopleManagerProps {
 
 export function PeopleManager({ people }: PeopleManagerProps) {
 	const group = useAtomValue(selectedGroupAtom)
+	const groups = useAtomValue(groupsAtom)
 	const addPerson = useAtomSet(addPersonToGroupAtom)
 	const removePerson = useAtomSet(removePersonFromGroupAtom)
 	const [name, setName] = useState('')
+
+	// Get unique member names from other groups
+	const otherGroupMemberNames = useMemo(() => {
+		if (!group) return []
+		const currentMemberNames = new Set(people.map((p) => p.name.toLowerCase()))
+		const allNames = new Set<string>()
+
+		groups.forEach((g) => {
+			if (g.id !== group.id) {
+				g.people.forEach((person) => {
+					const nameLower = person.name.toLowerCase()
+					// Only include names that aren't already in current group
+					if (!currentMemberNames.has(nameLower)) {
+						allNames.add(person.name)
+					}
+				})
+			}
+		})
+
+		return Array.from(allNames).sort((a, b) => a.localeCompare(b))
+	}, [groups, group, people])
 
 	const handleAdd = () => {
 		if (name.trim() && group) {
@@ -40,12 +63,6 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 		}
 	}
 
-	const handleKeyPress = (e: React.KeyboardEvent) => {
-		if (e.key === 'Enter') {
-			handleAdd()
-		}
-	}
-
 	return (
 		<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60 backdrop-blur">
 			<CardHeader className="space-y-1">
@@ -58,12 +75,12 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 			</CardHeader>
 			<CardContent className="space-y-5">
 				<div className="flex flex-col gap-3 sm:flex-row">
-					<Input
-						type="text"
-						placeholder="Enter a name (e.g. Alex)"
+					<AutocompleteInput
 						value={name}
-						onChange={(e) => setName(e.target.value)}
-						onKeyDown={handleKeyPress}
+						onChange={setName}
+						suggestions={otherGroupMemberNames}
+						onEnter={handleAdd}
+						placeholder="Enter a name (e.g. Alex)"
 						className="h-12 flex-1 rounded-xl border-slate-200 bg-white text-base"
 					/>
 					<Button
