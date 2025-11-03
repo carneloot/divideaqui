@@ -172,8 +172,8 @@ export function SettingsModal() {
 						<SettingsIcon className="h-5 w-5" />
 					</Button>
 				</DialogTrigger>
-				<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
-					<DialogHeader>
+				<DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
+					<DialogHeader className="shrink-0">
 						<DialogTitle className="text-xl font-semibold text-slate-900">
 							Settings
 						</DialogTitle>
@@ -181,7 +181,7 @@ export function SettingsModal() {
 							Customize your app preferences
 						</DialogDescription>
 					</DialogHeader>
-					<div className="space-y-6 py-4">
+					<div className="space-y-6 py-4 overflow-y-auto flex-1 min-h-0">
 						<div className="space-y-2">
 							<Label
 								htmlFor="currency"
