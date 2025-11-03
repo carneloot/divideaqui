@@ -33,6 +33,7 @@
 		"effect": "^3.18.4",
 		"lucide-react": "^0.552.0",
 		"pako": "^2.1.0",
+		"pix-utils": "^2.8.2",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
 		"tailwind-merge": "^3.3.1",

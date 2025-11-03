@@ -1,11 +1,19 @@
 import { Atom, useAtomValue } from '@effect-atom/atom-react'
-import { Eye } from 'lucide-react'
+import { Eye, QrCode } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { currencyAtom, selectedGroupAtom } from '../store/atoms'
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog'
+import { currencyAtom, pixKeyAtom, selectedGroupAtom } from '../store/atoms'
 import type { Person } from '../types'
 import { PersonDetailView } from './PersonDetailView'
+import { PixExportDialog } from './PixExportDialog'
 
 // Atom for summary calculations (derived from selected group)
 const groupCalculationsAtom = Atom.make((get) => {
@@ -98,11 +106,22 @@ export function Summary() {
 	const group = useAtomValue(selectedGroupAtom)
 	const calculations = useAtomValue(groupCalculationsAtom)
 	const currency = useAtomValue(currencyAtom)
+	const pixKey = useAtomValue(pixKeyAtom)
 	const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
+	const [pixPerson, setPixPerson] = useState<{ person: Person; amount: number } | null>(null)
+	const [showPixError, setShowPixError] = useState(false)
 	const currencyFormatter = useMemo(
 		() => new Intl.NumberFormat('en-US', { style: 'currency', currency }),
 		[currency]
 	)
+
+	const handlePixClick = (person: Person, amount: number) => {
+		if (!pixKey) {
+			setShowPixError(true)
+			return
+		}
+		setPixPerson({ person, amount })
+	}
 
 	if (!group || !calculations) {
 		return null
@@ -159,10 +178,10 @@ export function Summary() {
 								</div>
 							</div>
 							<div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
-								<div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border-b border-slate-200/80 bg-slate-50 px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.35em] text-slate-500">
+								<div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-b border-slate-200/80 bg-slate-50 px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.35em] text-slate-500">
 									<span>Person</span>
 									<span className="text-right">Amount</span>
-									<span className="text-right">Details</span>
+									<span className="text-right">Actions</span>
 								</div>
 								{[...group.people]
 									.sort((a, b) => a.name.localeCompare(b.name))
@@ -179,7 +198,7 @@ export function Summary() {
 										return (
 											<div
 												key={person.id}
-												className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border-t border-slate-200/70 px-4 py-4 text-sm"
+												className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-t border-slate-200/70 px-4 py-4 text-sm"
 											>
 												<div className="space-y-1">
 													<p className="font-medium text-slate-900">{person.name}</p>
@@ -201,15 +220,28 @@ export function Summary() {
 														</span>
 													)}
 												</div>
-												<Button
-													variant="ghost"
-													size="icon"
-													onClick={() => setSelectedPerson(person)}
-													aria-label={`View details for ${person.name}`}
-													className="h-8 w-8 rounded-full text-slate-400 transition hover:bg-indigo-50 hover:text-indigo-600"
-												>
-													<Eye className="h-4 w-4" />
-												</Button>
+												<div className="flex items-center gap-1">
+													{totalWithTip > 0 && currency === 'BRL' && (
+														<Button
+															variant="ghost"
+															size="icon"
+															onClick={() => handlePixClick(person, totalWithTip)}
+															aria-label={`Generate PIX for ${person.name}`}
+															className="h-8 w-8 rounded-full text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-600"
+														>
+															<QrCode className="h-4 w-4" />
+														</Button>
+													)}
+													<Button
+														variant="ghost"
+														size="icon"
+														onClick={() => setSelectedPerson(person)}
+														aria-label={`View details for ${person.name}`}
+														className="h-8 w-8 rounded-full text-slate-400 transition hover:bg-indigo-50 hover:text-indigo-600"
+													>
+														<Eye className="h-4 w-4" />
+													</Button>
+												</div>
 											</div>
 										)
 									})}
@@ -234,6 +266,38 @@ export function Summary() {
 					}}
 				/>
 			)}
+			{pixPerson && (
+				<PixExportDialog
+					person={pixPerson.person}
+					amount={pixPerson.amount}
+					open={!!pixPerson}
+					onOpenChange={(open) => {
+						if (!open) {
+							setPixPerson(null)
+						}
+					}}
+				/>
+			)}
+			<Dialog open={showPixError} onOpenChange={setShowPixError}>
+				<DialogContent className="sm:max-w-md rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
+					<DialogHeader>
+						<DialogTitle className="text-xl font-semibold text-slate-900">
+							PIX Key Not Set
+						</DialogTitle>
+						<DialogDescription className="text-sm text-slate-500">
+							Please configure your PIX key in settings before generating payment requests.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="py-4">
+						<Button
+							onClick={() => setShowPixError(false)}
+							className="w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+						>
+							OK
+						</Button>
+					</div>
+				</DialogContent>
+			</Dialog>
 		</>
 	)
 }

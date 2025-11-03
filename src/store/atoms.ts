@@ -19,9 +19,10 @@ const runtimeLayer = Layer.merge(
 
 const runtimeAtom = Atom.runtime(runtimeLayer)
 
-// Settings schema
+// Settings schema (includes pixKey which should not be exported)
 export const SettingsSchema = Schema.Struct({
 	currency: Schema.String,
+	pixKey: Schema.optional(Schema.String),
 })
 
 export type Settings = Schema.Schema.Type<typeof SettingsSchema>
@@ -44,7 +45,7 @@ export const settingsAtom = Atom.kvs({
 	runtime: runtimeAtom,
 	key: 'settings',
 	schema: SettingsSchema,
-	defaultValue: () => ({ currency: 'USD' }),
+	defaultValue: (): Settings => ({ currency: 'USD' }),
 })
 
 // Derived atom for currency (for backward compatibility and convenience)
@@ -52,6 +53,18 @@ export const currencyAtom = Atom.writable(
 	(get) => get(settingsAtom).currency,
 	(ctx, currency: string) =>
 		ctx.set(settingsAtom, { ...ctx.get(settingsAtom), currency })
+)
+
+// Derived atom for pixKey
+export const pixKeyAtom = Atom.writable(
+	(get) => {
+		const settings = get(settingsAtom)
+		return settings.pixKey ?? null
+	},
+	(ctx, pixKey: string | null) => {
+		const currentSettings = ctx.get(settingsAtom)
+		ctx.set(settingsAtom, { ...currentSettings, pixKey: pixKey ?? undefined })
+	}
 )
 
 // Atom for selected group (derived from groups and selectedGroupId)
@@ -187,7 +200,7 @@ export const removeItemFromGroupAtom = Atom.fn(
 const ExportDataSchema = Schema.parseJson(
 	Schema.Struct({
 		groups: Schema.Array(ExpenseGroupSchema),
-		settings: SettingsSchema,
+		settings: SettingsSchema.pipe(Schema.omit('pixKey')), // Use export schema that excludes pixKey
 		version: Schema.Literal('1.0.0'),
 	})
 )
@@ -223,9 +236,13 @@ export const importDataAtom = runtimeAtom.fn(
 
 		const validated = yield* Schema.decode(ExportDataSchema)(decompressed)
 
-		// Restore data
+		// Restore data (preserve pixKey from current settings, don't overwrite it)
+		const currentSettings = ctx.get(settingsAtom)
 		ctx.set(groupsAtom, validated.groups)
-		ctx.set(settingsAtom, validated.settings)
+		ctx.set(settingsAtom, {
+			currency: validated.settings.currency,
+			pixKey: currentSettings.pixKey, // Preserve existing pixKey
+		})
 
 		// Reset selected group ID if it doesn't exist in imported groups
 		const selectedGroupId = ctx.get(selectedGroupIdAtom)

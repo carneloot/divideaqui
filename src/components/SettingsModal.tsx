@@ -10,6 +10,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
 	Select,
@@ -23,6 +24,7 @@ import {
 	exportDataAtom,
 	exportedDataAtom,
 	importDataAtom,
+	pixKeyAtom,
 } from '../store/atoms'
 
 const CURRENCIES = [
@@ -42,6 +44,7 @@ const CURRENCIES = [
 
 export function SettingsModal() {
 	const [currency, setCurrency] = useAtom(currencyAtom)
+	const [pixKey, setPixKey] = useAtom(pixKeyAtom)
 	const [open, setOpen] = useState(false)
 	const [importText, setImportText] = useState<string>('')
 	const [copied, setCopied] = useState(false)
@@ -157,12 +160,32 @@ export function SettingsModal() {
 								))}
 							</SelectContent>
 						</Select>
-						<p className="text-xs text-slate-500">
-							This will update all currency displays throughout the app
-						</p>
-					</div>
+					<p className="text-xs text-slate-500">
+						This will update all currency displays throughout the app
+					</p>
+				</div>
 
-					<div className="border-t border-slate-200 pt-4">
+				<div className="space-y-2">
+					<Label
+						htmlFor="pixKey"
+						className="text-sm font-medium text-slate-700"
+					>
+						PIX Key
+					</Label>
+					<Input
+						id="pixKey"
+						type="text"
+						value={pixKey || ''}
+						onChange={(e) => setPixKey(e.target.value || null)}
+						placeholder="Enter your PIX key (CPF, email, phone, or random key)"
+						className="h-12 rounded-xl border-slate-200"
+					/>
+					<p className="text-xs text-slate-500">
+						Your PIX key will be used to generate payment requests. It will not be exported with your data.
+					</p>
+				</div>
+
+				<div className="border-t border-slate-200 pt-4">
 						<Label className="text-sm font-medium text-slate-700">
 							Data Management
 						</Label>
