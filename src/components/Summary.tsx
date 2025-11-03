@@ -1,6 +1,11 @@
 import { Atom, useAtomValue } from '@effect-atom/atom-react'
+import { Eye } from 'lucide-react'
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { selectedGroupAtom } from '../store/atoms'
+import type { Person } from '../types'
+import { PersonDetailView } from './PersonDetailView'
 
 // Atom for summary calculations (derived from selected group)
 const groupCalculationsAtom = Atom.make((get) => {
@@ -92,111 +97,137 @@ const groupCalculationsAtom = Atom.make((get) => {
 export function Summary() {
 	const group = useAtomValue(selectedGroupAtom)
 	const calculations = useAtomValue(groupCalculationsAtom)
+	const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
 
 	if (!group || !calculations) {
 		return null
 	}
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>Summary</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-4">
-				{group.people.length === 0 ? (
-					<p className="text-muted-foreground text-center py-4 italic">
-						Add people to see the summary
-					</p>
-				) : group.items.length === 0 ? (
-					<p className="text-muted-foreground text-center py-4 italic">
-						Add items to see the summary
-					</p>
-				) : (
-					<>
-						<div className="border rounded-md overflow-hidden">
-							<div className="grid grid-cols-2 bg-primary text-primary-foreground p-2 font-semibold">
-								<span>Person</span>
-								<span className="text-right">Amount Owed</span>
-							</div>
-							{[...group.people]
-								.sort((a, b) => a.name.localeCompare(b.name))
-								.map((person) => {
-									const baseTotal = calculations.totals[person.id] || 0
-									const tip = calculations.tips[person.id] || 0
-									const totalWithTip =
-										calculations.totalsWithTips[person.id] || 0
-									const hasTip =
-										tip > 0 &&
-										group.tipPercentage !== undefined &&
-										group.tipPercentage !== null
+		<>
+			<Card>
+				<CardHeader>
+					<CardTitle>Summary</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					{group.people.length === 0 ? (
+						<p className="text-muted-foreground text-center py-4 italic">
+							Add people to see the summary
+						</p>
+					) : group.items.length === 0 ? (
+						<p className="text-muted-foreground text-center py-4 italic">
+							Add items to see the summary
+						</p>
+					) : (
+						<>
+							<div className="border rounded-md overflow-hidden">
+								<div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-primary text-primary-foreground p-2 font-semibold">
+									<span>Person</span>
+									<span className="text-right">Amount Owed</span>
+									<span></span>
+								</div>
+								{[...group.people]
+									.sort((a, b) => a.name.localeCompare(b.name))
+									.map((person) => {
+										const baseTotal = calculations.totals[person.id] || 0
+										const tip = calculations.tips[person.id] || 0
+										const totalWithTip =
+											calculations.totalsWithTips[person.id] || 0
+										const hasTip =
+											tip > 0 &&
+											group.tipPercentage !== undefined &&
+											group.tipPercentage !== null
 
-									return (
-										<div
-											key={person.id}
-											className="grid grid-cols-2 p-2 border-t"
-										>
-											<div>
-												<div className="font-medium">{person.name}</div>
-												{hasTip && (
-													<div className="text-xs text-muted-foreground mt-1">
-														Base: ${Math.abs(baseTotal).toFixed(2)} + Tip ($
-														{group.tipPercentage}%): ${tip.toFixed(2)}
-													</div>
-												)}
-											</div>
-											<span
-												className={`text-right font-semibold ${
-													totalWithTip >= 0 ? 'text-blue-600' : 'text-green-600'
-												}`}
+										return (
+											<div
+												key={person.id}
+												className="grid grid-cols-[1fr_auto_auto] gap-2 p-2 border-t items-center"
 											>
-												${Math.abs(totalWithTip).toFixed(2)}
-												{totalWithTip < 0 && ' (credit)'}
-											</span>
-										</div>
-									)
-								})}
-						</div>
-						<div className="space-y-2 p-4 bg-muted rounded-md">
-							<div className="flex justify-between">
-								<span>Total Expenses:</span>
-								<span className="font-semibold">
-									${calculations.totalExpenses.toFixed(2)}
-								</span>
+												<div>
+													<div className="font-medium">{person.name}</div>
+													{hasTip && (
+														<div className="text-xs text-muted-foreground mt-1">
+															Base: ${Math.abs(baseTotal).toFixed(2)} + Tip ($
+															{group.tipPercentage}%): ${tip.toFixed(2)}
+														</div>
+													)}
+												</div>
+												<span
+													className={`text-right font-semibold ${
+														totalWithTip >= 0
+															? 'text-blue-600'
+															: 'text-green-600'
+													}`}
+												>
+													${Math.abs(totalWithTip).toFixed(2)}
+													{totalWithTip < 0 && ' (credit)'}
+												</span>
+												<Button
+													variant="ghost"
+													size="icon"
+													onClick={() => setSelectedPerson(person)}
+													aria-label={`View details for ${person.name}`}
+													className="h-8 w-8"
+												>
+													<Eye className="h-4 w-4" />
+												</Button>
+											</div>
+										)
+									})}
 							</div>
-							<div className="flex justify-between">
-								<span>Total Discounts:</span>
-								<span className="font-semibold">
-									${calculations.totalDiscounts.toFixed(2)}
-								</span>
-							</div>
-							<div className="flex justify-between">
-								<span>Net Total (before tips):</span>
-								<span className="font-semibold">
-									${calculations.netTotal.toFixed(2)}
-								</span>
-							</div>
-							{calculations.totalTips > 0 && (
+							<div className="space-y-2 p-4 bg-muted rounded-md">
 								<div className="flex justify-between">
-									<span>Total Tips:</span>
+									<span>Total Expenses:</span>
 									<span className="font-semibold">
-										${calculations.totalTips.toFixed(2)}
+										${calculations.totalExpenses.toFixed(2)}
 									</span>
 								</div>
+								<div className="flex justify-between">
+									<span>Total Discounts:</span>
+									<span className="font-semibold">
+										${calculations.totalDiscounts.toFixed(2)}
+									</span>
+								</div>
+								<div className="flex justify-between">
+									<span>Net Total (before tips):</span>
+									<span className="font-semibold">
+										${calculations.netTotal.toFixed(2)}
+									</span>
+								</div>
+								{calculations.totalTips > 0 && (
+									<div className="flex justify-between">
+										<span>Total Tips:</span>
+										<span className="font-semibold">
+											${calculations.totalTips.toFixed(2)}
+										</span>
+									</div>
+								)}
+								<div className="flex justify-between pt-2 border-t font-bold text-lg">
+									<span>Grand Total:</span>
+									<span>${calculations.sumOfSharesWithTips.toFixed(2)}</span>
+								</div>
+							</div>
+							{!calculations.isValid && (
+								<div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-md font-medium">
+									⚠️ Warning: Calculation mismatch detected. Please check your
+									items.
+								</div>
 							)}
-							<div className="flex justify-between pt-2 border-t font-bold text-lg">
-								<span>Grand Total:</span>
-								<span>${calculations.sumOfSharesWithTips.toFixed(2)}</span>
-							</div>
-						</div>
-						{!calculations.isValid && (
-							<div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-md font-medium">
-								⚠️ Warning: Calculation mismatch detected. Please check your
-								items.
-							</div>
-						)}
-					</>
-				)}
-			</CardContent>
-		</Card>
+						</>
+					)}
+				</CardContent>
+			</Card>
+			{selectedPerson && (
+				<PersonDetailView
+					person={selectedPerson}
+					open={!!selectedPerson}
+					onOpenChange={(open) => {
+						if (!open) {
+							setSelectedPerson(null)
+						}
+					}}
+				/>
+			)}
+		</>
 	)
 }
