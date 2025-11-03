@@ -41,7 +41,7 @@ function App() {
 				<div className="container mx-auto max-w-6xl px-4 py-6 text-white">
 					<div className="flex items-center justify-between">
 						<h1 className="text-3xl font-semibold tracking-tight">
-							💰 Divide Aqui
+							&#x1F4B8; Divide Aqui
 						</h1>
 						<SettingsModal />
 					</div>
