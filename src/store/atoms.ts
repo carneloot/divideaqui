@@ -116,25 +116,29 @@ export const deleteGroupAtom = Atom.fnSync((input: { id: string }, get) => {
 	}
 })
 
-export const updateGroupAtom = Atom.fnSync(
+export const updateGroupNameAtom = Atom.fnSync(
 	(
 		input: {
 			id: string
-			name?: string
-			tipPercentage?: number
+			name: string
 		},
 		get
 	) => {
 		get.set(
 			groupsAtom,
 			get(groupsAtom).map((g) =>
-				g.id === input.id
-					? {
-							...g,
-							name: input.name ?? g.name,
-							tipPercentage: input.tipPercentage ?? g.tipPercentage,
-						}
-					: g
+				g.id === input.id ? { ...g, name: input.name } : g
+			)
+		)
+	}
+)
+
+export const updateGroupTipPercentageAtom = Atom.fnSync(
+	(input: { id: string; tipPercentage: number | undefined }, get) => {
+		get.set(
+			groupsAtom,
+			get(groupsAtom).map((g) =>
+				g.id === input.id ? { ...g, tipPercentage: input.tipPercentage } : g
 			)
 		)
 	}

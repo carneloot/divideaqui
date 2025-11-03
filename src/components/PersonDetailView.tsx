@@ -78,6 +78,7 @@ export function PersonDetailView({
 	if (
 		group.tipPercentage !== undefined &&
 		group.tipPercentage !== null &&
+		group.tipPercentage > 0 &&
 		netTotal > 0 &&
 		group.people.length > 0
 	) {

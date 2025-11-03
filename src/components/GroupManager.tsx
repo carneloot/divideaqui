@@ -18,7 +18,8 @@ import {
 	currencyAtom,
 	deleteGroupAtom,
 	selectedGroupAtom,
-	updateGroupAtom,
+	updateGroupNameAtom,
+	updateGroupTipPercentageAtom,
 } from '../store/atoms'
 import { ItemForm } from './ItemForm'
 import { ItemsList } from './ItemsList'
@@ -29,11 +30,14 @@ export function GroupManager() {
 	const { t, i18n } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
 	const deleteGroup = useAtomSet(deleteGroupAtom)
-	const updateGroup = useAtomSet(updateGroupAtom)
+	const updateGroupName = useAtomSet(updateGroupNameAtom)
+	const updateGroupTipPercentage = useAtomSet(updateGroupTipPercentageAtom)
 
 	const [groupName, setGroupName] = useState(group?.name || '')
 	const [tipPercentage, setTipPercentage] = useState(
-		group?.tipPercentage?.toString() || ''
+		group?.tipPercentage && group.tipPercentage > 0
+			? group.tipPercentage.toString()
+			: ''
 	)
 	const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false)
 	const currency = useAtomValue(currencyAtom)
@@ -46,7 +50,11 @@ export function GroupManager() {
 	useEffect(() => {
 		if (group) {
 			setGroupName(group.name)
-			setTipPercentage(group.tipPercentage?.toString() || '')
+			setTipPercentage(
+				group.tipPercentage && group.tipPercentage > 0
+					? group.tipPercentage.toString()
+					: ''
+			)
 		}
 	}, [group])
 
@@ -56,18 +64,26 @@ export function GroupManager() {
 
 	const handleUpdateName = () => {
 		if (groupName.trim()) {
-			updateGroup({ id: group.id, name: groupName.trim() })
+			updateGroupName({ id: group.id, name: groupName.trim() })
 		}
 	}
 
 	const handleUpdateTipPercentage = () => {
-		const tipValue = tipPercentage.trim() === '' ? 0 : parseFloat(tipPercentage)
-		updateGroup({
+		const trimmedValue = tipPercentage.trim()
+		if (trimmedValue === '') {
+			updateGroupTipPercentage({
+				id: group.id,
+				tipPercentage: undefined,
+			})
+			return
+		}
+		const tipValue = parseFloat(trimmedValue)
+		updateGroupTipPercentage({
 			id: group.id,
 			tipPercentage:
-				tipValue !== undefined && !Number.isNaN(tipValue) && tipValue >= 0
+				tipValue !== undefined && !Number.isNaN(tipValue) && tipValue > 0
 					? tipValue
-					: 0,
+					: undefined,
 		})
 	}
 
@@ -78,10 +94,12 @@ export function GroupManager() {
 		.filter((item) => item.type === 'discount')
 		.reduce((sum, item) => sum + item.amount * item.price, 0)
 	const netTotal = totalExpenses - totalDiscounts
-	const totalTipAmount =
-		group.tipPercentage !== undefined &&
+	const hasTip = group.tipPercentage !== undefined &&
 		group.tipPercentage !== null &&
-		netTotal > 0
+		group.tipPercentage > 0
+
+	const totalTipAmount =
+		hasTip && netTotal > 0
 			? (netTotal * group.tipPercentage) / 100
 			: 0
 
@@ -103,10 +121,9 @@ export function GroupManager() {
 		},
 		{
 			label: t('stats.tipSetting'),
-			value:
-				group.tipPercentage !== undefined && group.tipPercentage !== null
-					? `${group.tipPercentage}% · ${currencyFormatter.format(totalTipAmount)}`
-					: t('stats.noTip'),
+			value: hasTip
+				? `${group.tipPercentage}% · ${currencyFormatter.format(totalTipAmount)}`
+				: t('stats.noTip'),
 			icon: Percent,
 		},
 	]
@@ -205,15 +222,17 @@ export function GroupManager() {
 										step="0.1"
 										className="flex-1 rounded-xl"
 									/>
-									<div className="flex items-center text-sm text-slate-500">
-										{totalTipAmount > 0 ? (
-											<span>
-												{t('tip.adds', { amount: currencyFormatter.format(totalTipAmount) })}
-											</span>
-										) : (
-											<span>{t('tip.notAdded')}</span>
-										)}
-									</div>
+									{hasTip && (
+										<div className="flex items-center text-sm text-slate-500">
+											{totalTipAmount > 0 ? (
+												<span>
+													{t('tip.adds', { amount: currencyFormatter.format(totalTipAmount) })}
+												</span>
+											) : (
+												<span>{t('tip.notAdded')}</span>
+											)}
+										</div>
+									)}
 								</div>
 								<p className="text-xs leading-relaxed text-slate-500">
 									{t('tip.calculationHint')}

@@ -65,6 +65,7 @@ const groupCalculationsAtom = Atom.make((get) => {
 	if (
 		group.tipPercentage !== undefined &&
 		group.tipPercentage !== null &&
+		group.tipPercentage > 0 &&
 		netTotal > 0 &&
 		group.people.length > 0
 	) {
@@ -175,15 +176,17 @@ export function Summary() {
 										{t('summary.discounts')}:{' '}
 										{currencyFormatter.format(calculations.totalDiscounts)}
 									</span>
-									<span>
-										{t('summary.netBeforeTip')}:{' '}
-										{currencyFormatter.format(calculations.netTotal)}
-									</span>
 									{calculations.totalTips > 0 && (
-										<span>
-											{t('summary.tipsAdded')}:{' '}
-											{currencyFormatter.format(calculations.totalTips)}
-										</span>
+										<>
+											<span>
+												{t('summary.netBeforeTip')}:{' '}
+												{currencyFormatter.format(calculations.netTotal)}
+											</span>
+											<span>
+												{t('summary.tipsAdded')}:{' '}
+												{currencyFormatter.format(calculations.totalTips)}
+											</span>
+										</>
 									)}
 								</div>
 							</div>
@@ -204,7 +207,8 @@ export function Summary() {
 										const hasTip =
 											tip > 0 &&
 											group.tipPercentage !== undefined &&
-											group.tipPercentage !== null
+											group.tipPercentage !== null &&
+											group.tipPercentage > 0
 
 										return (
 											<div
