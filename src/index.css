@@ -1,14 +1,10 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-@plugin "tailwindcss-animate";
+@plugin 'tailwindcss-animate';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -24,6 +20,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -40,76 +37,27 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
 }
 
-:root {
-  --radius: 0.625rem;
-  --background: 220 42% 98%;
-  --foreground: 224 44% 15%;
-  --card: 0 0% 100%;
-  --card-foreground: 224 44% 15%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 224 44% 15%;
-  --primary: 248 86% 60%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 220 35% 96%;
-  --secondary-foreground: 224 38% 25%;
-  --muted: 220 32% 94%;
-  --muted-foreground: 226 20% 44%;
-  --accent: 258 95% 92%;
-  --accent-foreground: 256 48% 30%;
-  --destructive: 0 78% 58%;
-  --border: 220 30% 90%;
-  --input: 220 30% 90%;
-  --ring: 244 88% 68%;
-  --chart-1: 238 88% 64%;
-  --chart-2: 158 65% 48%;
-  --chart-3: 34 90% 62%;
-  --chart-4: 286 70% 65%;
-  --chart-5: 195 84% 58%;
-  --sidebar: 0 0% 100%;
-  --sidebar-foreground: 224 44% 14%;
-  --sidebar-primary: 248 86% 60%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 220 35% 96%;
-  --sidebar-accent-foreground: 224 38% 25%;
-  --sidebar-border: 220 30% 90%;
-  --sidebar-ring: 244 88% 68%;
-}
-
-.dark {
-  --background: 224 54% 10%;
-  --foreground: 0 0% 98%;
-  --card: 224 46% 12%;
-  --card-foreground: 0 0% 98%;
-  --popover: 224 46% 12%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 250 88% 65%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 224 32% 20%;
-  --secondary-foreground: 0 0% 95%;
-  --muted: 224 28% 22%;
-  --muted-foreground: 220 16% 74%;
-  --accent: 250 58% 48%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 355 75% 55%;
-  --border: 224 32% 24%;
-  --input: 224 32% 24%;
-  --ring: 248 82% 70%;
-  --chart-1: 238 88% 66%;
-  --chart-2: 158 70% 60%;
-  --chart-3: 32 86% 58%;
-  --chart-4: 288 65% 62%;
-  --chart-5: 196 82% 62%;
-  --sidebar: 224 40% 14%;
-  --sidebar-foreground: 220 20% 82%;
-  --sidebar-primary: 250 88% 65%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 224 32% 20%;
-  --sidebar-accent-foreground: 0 0% 95%;
-  --sidebar-border: 224 32% 24%;
-  --sidebar-ring: 248 82% 70%;
-}
+@import './theme.css';
 
 @layer base {
   * {

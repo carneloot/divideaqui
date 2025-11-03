@@ -39,10 +39,10 @@ function App() {
 	}
 
 	return (
-		<div className="min-h-screen overflow-hidden bg-slate-950 text-slate-900">
+		<div className="min-h-screen overflow-hidden bg-muted/30 text-foreground">
 			<LanguageSync />
 			<header>
-				<div className="container mx-auto max-w-6xl px-4 py-6 text-white">
+				<div className="container mx-auto max-w-6xl px-4 py-6 text-ring-foreground">
 					<div className="flex items-center justify-between">
 						<h1 className="font-semibold text-3xl tracking-tight">
 							&#x1F4B8; {t('app.title')}
@@ -54,13 +54,13 @@ function App() {
 			<main className="mx-auto w-full max-w-6xl p-4">
 				<div className="space-y-8">
 					{groups.length > 0 && (
-						<Card className="border-none bg-white/90 shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
+						<Card className="border-none bg-card shadow-xl ring-1 ring-ring backdrop-blur">
 							<CardContent className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
 								<div className="space-y-1">
-									<p className="font-semibold text-slate-500 text-xs uppercase tracking-[0.3em]">
+									<p className="font-semibold text-muted-foreground text-xs uppercase tracking-[0.3em]">
 										{t('group.activeGroup')}
 									</p>
-									<h2 className="font-semibold text-slate-800 text-xl">
+									<h2 className="font-semibold text-foreground text-xl">
 										{t('group.chooseWork')}
 									</h2>
 								</div>
@@ -71,11 +71,11 @@ function App() {
 									>
 										<SelectTrigger
 											id="group-select"
-											className="h-12 flex-1 rounded-xl border border-slate-200 bg-white/70 text-left font-medium text-base text-slate-800 shadow-sm hover:border-slate-300"
+											className="h-12 flex-1 rounded-xl border border-input bg-background text-left font-medium text-base text-foreground shadow-sm hover:border-border"
 										>
 											<SelectValue placeholder={t('group.selectGroup')} />
 										</SelectTrigger>
-										<SelectContent className="rounded-xl border border-slate-200/80 bg-white/95 shadow-lg">
+										<SelectContent className="rounded-xl border border-border bg-card shadow-lg">
 											{groups.map((group) => (
 												<SelectItem key={group.id} value={group.id}>
 													{group.name}
@@ -85,7 +85,7 @@ function App() {
 									</Select>
 									<Button
 										onClick={handleCreateGroup}
-										className="h-12 rounded-xl bg-slate-900 text-white shadow-sm hover:bg-slate-800"
+										className="h-12 rounded-xl bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
 									>
 										+ {t('group.newGroup')}
 									</Button>
@@ -96,12 +96,12 @@ function App() {
 					{selectedGroup ? (
 						<GroupManager />
 					) : (
-						<Card className="border-none bg-white/90 text-center shadow-xl ring-1 ring-slate-200/70 backdrop-blur">
+						<Card className="border-none bg-card text-center shadow-xl ring-1 ring-ring backdrop-blur">
 							<CardHeader className="space-y-3">
-								<CardTitle className="font-semibold text-3xl text-slate-900">
+								<CardTitle className="font-semibold text-3xl text-foreground">
 									{t('welcome.title')}
 								</CardTitle>
-								<p className="text-lg text-slate-500">
+								<p className="text-lg text-muted-foreground">
 									{t('welcome.subtitle')}
 								</p>
 							</CardHeader>
@@ -109,11 +109,13 @@ function App() {
 								<Button
 									onClick={handleCreateGroup}
 									size="lg"
-									className="rounded-xl bg-slate-900 px-8 text-base text-white shadow-sm hover:bg-slate-800"
+									className="rounded-xl bg-primary px-8 text-base text-primary-foreground shadow-sm hover:bg-primary/90"
 								>
 									{t('welcome.button')}
 								</Button>
-								<p className="text-slate-400 text-sm">{t('welcome.hint')}</p>
+								<p className="text-muted-foreground text-sm">
+									{t('welcome.hint')}
+								</p>
 							</CardContent>
 						</Card>
 					)}

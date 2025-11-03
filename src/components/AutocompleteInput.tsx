@@ -114,7 +114,7 @@ export function AutocompleteInput({
 			{showSuggestions && filteredSuggestions.length > 0 && (
 				<div
 					ref={suggestionsRef}
-					className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-slate-200/80 bg-white shadow-lg"
+					className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-border bg-background shadow-lg"
 					role="listbox"
 					aria-label="Suggestions"
 				>
@@ -127,10 +127,10 @@ export function AutocompleteInput({
 								e.preventDefault()
 							}}
 							onClick={() => handleSuggestionClick(suggestion)}
-							className={`w-full px-4 py-2 text-left text-sm transition hover:bg-slate-50 ${
+							className={`w-full px-4 py-2 text-left text-sm transition hover:bg-accent ${
 								index === selectedIndex
-									? 'bg-slate-100 font-medium'
-									: 'text-slate-700'
+									? 'bg-accent font-medium'
+									: 'text-foreground'
 							}`}
 						>
 							{suggestion}

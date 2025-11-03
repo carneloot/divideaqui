@@ -41,16 +41,18 @@ export function ItemsList({ items, people }: ItemsListProps) {
 	}
 
 	return (
-		<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60 backdrop-blur">
+		<Card className="border-none bg-card shadow-md ring-1 ring-ring backdrop-blur">
 			<CardHeader className="space-y-1">
-				<CardTitle className="font-semibold text-slate-900 text-xl">
+				<CardTitle className="font-semibold text-foreground text-xl">
 					{t('itemsList.title')}
 				</CardTitle>
-				<p className="text-slate-500 text-sm">{t('itemsList.subtitle')}</p>
+				<p className="text-muted-foreground text-sm">
+					{t('itemsList.subtitle')}
+				</p>
 			</CardHeader>
 			<CardContent>
 				{items.length === 0 ? (
-					<p className="rounded-2xl border border-slate-300 border-dashed bg-slate-50/80 py-6 text-center font-medium text-slate-500 text-sm">
+					<p className="rounded-2xl border border-border border-dashed bg-muted py-6 text-center font-medium text-muted-foreground text-sm">
 						{t('itemsList.empty')}
 					</p>
 				) : (
@@ -63,19 +65,19 @@ export function ItemsList({ items, people }: ItemsListProps) {
 									className={cn(
 										'hover:-translate-y-1 relative overflow-hidden rounded-2xl border p-5 shadow-sm transition hover:shadow-xl',
 										item.type === 'expense'
-											? 'border-indigo-200/80 bg-linear-to-br from-white via-indigo-50 to-indigo-100/60'
-											: 'border-emerald-200/80 bg-linear-to-br from-white via-emerald-50 to-emerald-100/60'
+											? 'border-primary/30 bg-linear-to-br from-primary/10 to-primary/20'
+											: 'border-accent/30 bg-linear-to-br from-accent/50 to-accent/60'
 									)}
 								>
-									<div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-white/40 blur-3xl" />
+									<div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-background/40 blur-3xl" />
 									<div className="relative z-10 flex items-start justify-between gap-3">
 										<div>
-											<p className="font-semibold text-slate-500 text-xs uppercase tracking-[0.35em]">
+											<p className="font-semibold text-muted-foreground text-xs uppercase tracking-[0.35em]">
 												{item.type === 'expense'
 													? t('itemsList.expense')
 													: t('itemsList.discount')}
 											</p>
-											<h3 className="mt-2 font-semibold text-lg text-slate-900">
+											<h3 className="mt-1 font-semibold text-foreground text-lg">
 												{item.name}
 											</h3>
 										</div>
@@ -84,20 +86,27 @@ export function ItemsList({ items, people }: ItemsListProps) {
 											size="icon"
 											onClick={() => handleRemove(item.id)}
 											aria-label={t('itemsList.remove', { name: item.name })}
-											className="h-8 w-8 text-slate-400 transition hover:bg-white/60 hover:text-rose-500"
+											className="h-8 w-8 text-muted-foreground transition hover:bg-background/60 hover:text-destructive"
 										>
 											<X className="h-4 w-4" />
 										</Button>
 									</div>
-									<div className="relative z-10 mt-4 flex items-baseline gap-2">
-										<span className="font-semibold text-3xl text-slate-900">
+									<div className="relative z-10 mt-2 flex items-baseline gap-2">
+										<span
+											className={cn(
+												'font-semibold text-3xl text-foreground',
+												item.type === 'expense'
+													? 'text-primary'
+													: 'text-accent-foreground'
+											)}
+										>
 											{currencyFormatter.format(totalValue)}
 										</span>
-										<span className="text-slate-500 text-sm">
+										<span className="text-muted-foreground text-sm">
 											{item.amount} × {currencyFormatter.format(item.price)}
 										</span>
 									</div>
-									<div className="relative z-10 mt-4 text-slate-600 text-sm">
+									<div className="relative z-10 mt-2 text-muted-foreground text-sm">
 										{item.appliesToEveryone ? (
 											<span>{t('itemsList.splitsEvenly')}</span>
 										) : (

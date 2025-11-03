@@ -138,19 +138,19 @@ export function ItemForm({ people }: ItemFormProps) {
 
 	return (
 		<>
-			<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60 backdrop-blur">
+			<Card className="border-none bg-card shadow-md ring-1 ring-ring backdrop-blur">
 				<CardHeader className="space-y-1">
-					<CardTitle className="font-semibold text-slate-900 text-xl">
+					<CardTitle className="font-semibold text-foreground text-xl">
 						{t('item.title')}
 					</CardTitle>
-					<p className="text-slate-500 text-sm">{t('item.subtitle')}</p>
+					<p className="text-muted-foreground text-sm">{t('item.subtitle')}</p>
 				</CardHeader>
 				<CardContent className="space-y-5">
 					<div className="grid gap-4 sm:grid-cols-2">
 						<div className="space-y-2 sm:col-span-2">
 							<Label
 								htmlFor="name"
-								className="font-medium text-slate-700 text-sm"
+								className="font-medium text-foreground text-sm"
 							>
 								{t('item.name')}
 							</Label>
@@ -163,13 +163,13 @@ export function ItemForm({ people }: ItemFormProps) {
 									setName(e.target.value)
 								}
 								required
-								className="h-12 rounded-xl border-slate-200"
+								className="h-12 rounded-xl border-input"
 							/>
 						</div>
 						<div className="space-y-2">
 							<Label
 								htmlFor="price"
-								className="font-medium text-slate-700 text-sm"
+								className="font-medium text-foreground text-sm"
 							>
 								{t('item.unitPrice')}
 							</Label>
@@ -184,13 +184,13 @@ export function ItemForm({ people }: ItemFormProps) {
 								onInput={(e: React.FormEvent<HTMLInputElement>) =>
 									setPrice(e.currentTarget.value)
 								}
-								className="h-12 rounded-xl border-slate-200"
+								className="h-12 rounded-xl border-input"
 							/>
 						</div>
 						<div className="space-y-2">
 							<Label
 								htmlFor="amount"
-								className="font-medium text-slate-700 text-sm"
+								className="font-medium text-foreground text-sm"
 							>
 								{t('item.quantity')}
 							</Label>
@@ -203,15 +203,15 @@ export function ItemForm({ people }: ItemFormProps) {
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 									setAmount(e.target.value)
 								}
-								className="h-12 rounded-xl border-slate-200"
+								className="h-12 rounded-xl border-input"
 							/>
-							<p className="text-slate-500 text-xs leading-relaxed">
+							<p className="text-muted-foreground text-xs leading-relaxed">
 								{t('item.quantityDefaultHint')}
 							</p>
 						</div>
 					</div>
 					<div>
-						<Label className="font-medium text-slate-700 text-sm">
+						<Label className="font-medium text-foreground text-sm">
 							{t('item.whoShouldPay')}
 						</Label>
 						<RadioGroup
@@ -221,20 +221,20 @@ export function ItemForm({ people }: ItemFormProps) {
 							}
 							className="mt-3 flex flex-wrap gap-3"
 						>
-							<div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2">
+							<div className="flex items-center gap-2 rounded-full border border-input bg-background px-4 py-2">
 								<RadioGroupItem value="everyone" id="everyone" />
 								<Label
 									htmlFor="everyone"
-									className="font-medium text-slate-700 text-sm"
+									className="font-medium text-foreground text-sm"
 								>
 									{t('item.everyone')}
 								</Label>
 							</div>
-							<div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2">
+							<div className="flex items-center gap-2 rounded-full border border-input bg-background px-4 py-2">
 								<RadioGroupItem value="custom" id="custom" />
 								<Label
 									htmlFor="custom"
-									className="font-medium text-slate-700 text-sm"
+									className="font-medium text-foreground text-sm"
 								>
 									{t('item.choosePeople')}
 								</Label>
@@ -242,7 +242,7 @@ export function ItemForm({ people }: ItemFormProps) {
 						</RadioGroup>
 					</div>
 					{!appliesToEveryone && (
-						<div className="rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4">
+						<div className="rounded-2xl border border-border bg-muted p-4">
 							{people.length === 0 ? (
 								<p className="font-medium text-amber-600 text-sm">
 									{t('item.customSplitHint')}
@@ -255,7 +255,7 @@ export function ItemForm({ people }: ItemFormProps) {
 											<label
 												key={person.id}
 												htmlFor={person.id}
-												className="flex items-center gap-3 rounded-xl border border-transparent bg-white px-4 py-2 font-medium text-slate-600 text-sm shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50"
+												className="flex items-center gap-3 rounded-xl border border-transparent bg-background px-4 py-2 font-medium text-foreground text-sm shadow-sm transition hover:border-primary/50 hover:bg-primary/5"
 											>
 												<Checkbox
 													id={person.id}
@@ -273,7 +273,7 @@ export function ItemForm({ people }: ItemFormProps) {
 						<Button
 							type="button"
 							onClick={() => handleAddItem('expense')}
-							className="h-12 flex-1 rounded-xl bg-indigo-600 text-white shadow-sm transition hover:bg-indigo-500"
+							className="h-12 flex-1 rounded-xl bg-destructive text-destructive-foreground shadow-sm transition hover:bg-destructive/90"
 						>
 							{t('item.addExpense')}
 						</Button>
@@ -281,7 +281,7 @@ export function ItemForm({ people }: ItemFormProps) {
 							type="button"
 							variant="secondary"
 							onClick={() => handleAddItem('discount')}
-							className="h-12 flex-1 rounded-xl bg-emerald-500 text-white shadow-sm transition hover:bg-emerald-400"
+							className="h-12 flex-1 rounded-xl bg-accent text-accent-foreground shadow-sm transition hover:bg-accent/80"
 						>
 							{t('item.addDiscount')}
 						</Button>
@@ -293,20 +293,20 @@ export function ItemForm({ people }: ItemFormProps) {
 				open={showValidationDialog}
 				onOpenChange={setShowValidationDialog}
 			>
-				<DialogContent className="rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur sm:max-w-md">
+				<DialogContent className="rounded-xl border-none bg-card shadow-xl ring-1 ring-ring backdrop-blur sm:max-w-md">
 					<DialogHeader>
-						<DialogTitle className="flex items-center gap-2 font-semibold text-slate-900 text-xl">
+						<DialogTitle className="flex items-center gap-2 font-semibold text-foreground text-xl">
 							<AlertTriangle className="h-5 w-5 text-amber-500" />
 							{t('item.selectionRequired')}
 						</DialogTitle>
-						<DialogDescription className="text-slate-500 text-sm">
+						<DialogDescription className="text-muted-foreground text-sm">
 							{t('item.selectPerson')}
 						</DialogDescription>
 					</DialogHeader>
 					<DialogFooter>
 						<Button
 							onClick={() => setShowValidationDialog(false)}
-							className="rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+							className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
 						>
 							{t('item.ok')}
 						</Button>

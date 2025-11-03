@@ -132,10 +132,8 @@ export function GroupManager() {
 	]
 
 	return (
-		<Card className="overflow-hidden border-none bg-white/95 shadow-2xl ring-1 ring-slate-200/70 backdrop-blur">
-			<div className="relative overflow-hidden border-white/10 border-b bg-linear-to-br from-indigo-500 via-purple-500 to-sky-500">
-				<div className="-left-16 -top-32 absolute h-64 w-64 rounded-full bg-white/20 blur-3xl" />
-				<div className="-right-20 absolute top-12 h-72 w-72 rounded-full bg-white/20 blur-3xl" />
+		<Card className="overflow-hidden border-none bg-card shadow-2xl ring-1 ring-ring backdrop-blur">
+			<div className="relative overflow-hidden border-white/10 border-b bg-linear-to-br from-ring/70 to-primary">
 				<div className="relative z-10 flex flex-col gap-6 p-6 md:flex-row md:items-end md:justify-between">
 					<div className="w-full max-w-xl space-y-4">
 						<div>
@@ -155,30 +153,30 @@ export function GroupManager() {
 						<p className="text-sm text-white/80">{t('group.renameHint')}</p>
 					</div>
 					<Button
-						variant="outline"
+						variant="ghost"
 						onClick={() => setShowDeleteConfirmDialog(true)}
 						aria-label={t('group.deleteGroup')}
-						className="h-11 rounded-lg border-white/40 bg-white/10 text-white transition hover:bg-white/20 hover:text-white"
+						className="h-11 rounded-lg border border-ring-foreground text-primary-foreground hover:border-transparent"
 					>
 						<Trash2 className="mr-2 h-4 w-4" />
 						{t('group.deleteGroup')}
 					</Button>
 				</div>
 			</div>
-			<div className="grid gap-3 bg-white/70 px-6 py-5 sm:grid-cols-2 lg:grid-cols-4">
+			<div className="grid gap-3 bg-muted px-6 py-5 sm:grid-cols-2 lg:grid-cols-4">
 				{stats.map(({ label, value, icon: Icon }) => (
 					<div
 						key={label}
-						className="flex items-center gap-3 rounded-xl border border-slate-200/60 bg-white/80 p-4 shadow-sm"
+						className="flex items-center gap-3 rounded-xl border border-border bg-background p-4 shadow-sm"
 					>
-						<span className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+						<span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
 							<Icon className="h-5 w-5" />
 						</span>
 						<div>
-							<p className="font-semibold text-slate-400 text-xs uppercase tracking-widest">
+							<p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest">
 								{label}
 							</p>
-							<p className="mt-1 font-semibold text-base text-slate-900">
+							<p className="mt-1 font-semibold text-base text-foreground">
 								{value}
 							</p>
 						</div>
@@ -188,18 +186,20 @@ export function GroupManager() {
 			<div className="grid grid-cols-1 gap-6 p-6 lg:grid-cols-[1.1fr,0.9fr]">
 				<div className="space-y-6">
 					<PeopleManager people={group.people} />
-					<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60">
+					<Card className="border-none bg-card shadow-md ring-1 ring-ring">
 						<CardHeader className="space-y-1">
-							<CardTitle className="font-semibold text-slate-900 text-xl">
+							<CardTitle className="font-semibold text-foreground text-xl">
 								{t('tip.title')}
 							</CardTitle>
-							<p className="text-slate-500 text-sm">{t('tip.subtitle')}</p>
+							<p className="text-muted-foreground text-sm">
+								{t('tip.subtitle')}
+							</p>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							<div className="space-y-2">
 								<Label
 									htmlFor="tip-percentage"
-									className="font-medium text-slate-700 text-sm"
+									className="font-medium text-foreground text-sm"
 								>
 									{t('tip.percentage')}
 								</Label>
@@ -222,7 +222,7 @@ export function GroupManager() {
 										className="flex-1 rounded-xl"
 									/>
 									{hasTip && (
-										<div className="flex items-center text-slate-500 text-sm">
+										<div className="flex items-center text-muted-foreground text-sm">
 											{totalTipAmount > 0 ? (
 												<span>
 													{t('tip.adds', {
@@ -235,7 +235,7 @@ export function GroupManager() {
 										</div>
 									)}
 								</div>
-								<p className="text-slate-500 text-xs leading-relaxed">
+								<p className="text-muted-foreground text-xs leading-relaxed">
 									{t('tip.calculationHint')}
 								</p>
 							</div>
@@ -253,12 +253,12 @@ export function GroupManager() {
 				open={showDeleteConfirmDialog}
 				onOpenChange={setShowDeleteConfirmDialog}
 			>
-				<DialogContent className="rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur sm:max-w-md">
+				<DialogContent className="rounded-xl border-none bg-card shadow-xl ring-1 ring-ring backdrop-blur sm:max-w-md">
 					<DialogHeader>
-						<DialogTitle className="font-semibold text-slate-900 text-xl">
+						<DialogTitle className="font-semibold text-foreground text-xl">
 							{t('group.confirmDelete')}
 						</DialogTitle>
-						<DialogDescription className="text-slate-500 text-sm">
+						<DialogDescription className="text-muted-foreground text-sm">
 							{t('group.confirmDeleteMessage', { name: group.name })}
 						</DialogDescription>
 					</DialogHeader>
@@ -275,7 +275,7 @@ export function GroupManager() {
 								deleteGroup({ id: group.id })
 								setShowDeleteConfirmDialog(false)
 							}}
-							className="rounded-xl bg-red-600 text-white hover:bg-red-700"
+							className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
 						>
 							{t('group.delete')}
 						</Button>

@@ -66,12 +66,12 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 	}
 
 	return (
-		<Card className="border-none bg-white/90 shadow-md ring-1 ring-slate-200/60 backdrop-blur">
+		<Card className="border-none bg-card shadow-md ring-1 ring-ring backdrop-blur">
 			<CardHeader className="space-y-1">
-				<CardTitle className="font-semibold text-slate-900 text-xl">
+				<CardTitle className="font-semibold text-foreground text-xl">
 					{t('people.title')}
 				</CardTitle>
-				<p className="text-slate-500 text-sm">{t('people.subtitle')}</p>
+				<p className="text-muted-foreground text-sm">{t('people.subtitle')}</p>
 			</CardHeader>
 			<CardContent className="space-y-5">
 				<div className="flex flex-col gap-3 sm:flex-row">
@@ -81,18 +81,18 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 						suggestions={otherGroupMemberNames}
 						onEnter={handleAdd}
 						placeholder={t('people.placeholder')}
-						className="h-12 flex-1 rounded-xl border-slate-200 bg-white text-base"
+						className="h-12 flex-1 rounded-xl border-input bg-background text-base"
 					/>
 					<Button
 						onClick={handleAdd}
-						className="h-12 rounded-xl bg-slate-900 text-white shadow-sm transition hover:bg-slate-800"
+						className="h-12 rounded-xl bg-primary text-primary-foreground shadow-sm transition hover:bg-primary/90"
 					>
 						{t('people.addPerson')}
 					</Button>
 				</div>
 				<div className="space-y-2">
 					{people.length === 0 ? (
-						<p className="rounded-xl border border-slate-300 border-dashed bg-slate-50/80 py-6 text-center font-medium text-slate-500 text-sm">
+						<p className="rounded-xl border border-border border-dashed bg-muted py-6 text-center font-medium text-muted-foreground text-sm">
 							{t('people.empty')}
 						</p>
 					) : (
@@ -101,9 +101,9 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 							.map((person) => (
 								<div
 									key={person.id}
-									className="hover:-translate-y-0.5 flex items-center justify-between gap-3 rounded-xl border border-slate-200/70 bg-white px-4 py-3 shadow-sm transition hover:shadow-md"
+									className="hover:-translate-y-0.5 flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-4 py-3 shadow-sm transition hover:shadow-md"
 								>
-									<span className="font-medium text-slate-700 text-sm">
+									<span className="font-medium text-foreground text-sm">
 										{person.name}
 									</span>
 									<Button
@@ -111,7 +111,7 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 										size="icon"
 										onClick={() => handleRemove(person.id)}
 										aria-label={t('people.remove', { name: person.name })}
-										className="h-8 w-8 text-slate-400 hover:text-rose-500"
+										className="h-8 w-8 text-muted-foreground hover:text-destructive"
 									>
 										<X className="h-4 w-4" />
 									</Button>

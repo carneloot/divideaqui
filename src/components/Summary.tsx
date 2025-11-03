@@ -139,37 +139,39 @@ export function Summary() {
 
 	return (
 		<>
-			<Card className="border-none bg-white/90 shadow-lg ring-1 ring-slate-200/60 backdrop-blur">
+			<Card className="border-none bg-card shadow-lg ring-1 ring-ring backdrop-blur">
 				<CardHeader className="space-y-1">
-					<CardTitle className="font-semibold text-slate-900 text-xl">
+					<CardTitle className="font-semibold text-foreground text-xl">
 						{t('summary.title')}
 					</CardTitle>
-					<p className="text-slate-500 text-sm">{t('summary.subtitle')}</p>
+					<p className="text-muted-foreground text-sm">
+						{t('summary.subtitle')}
+					</p>
 				</CardHeader>
 				<CardContent className="space-y-5">
 					{group.people.length === 0 ? (
-						<p className="rounded-2xl border border-slate-300 border-dashed bg-slate-50/80 py-6 text-center font-medium text-slate-500 text-sm">
+						<p className="rounded-2xl border border-border border-dashed bg-muted py-6 text-center font-medium text-muted-foreground text-sm">
 							{t('summary.addPeople')}
 						</p>
 					) : group.items.length === 0 ? (
-						<p className="rounded-2xl border border-slate-300 border-dashed bg-slate-50/80 py-6 text-center font-medium text-slate-500 text-sm">
+						<p className="rounded-2xl border border-border border-dashed bg-muted py-6 text-center font-medium text-muted-foreground text-sm">
 							{t('summary.addItems')}
 						</p>
 					) : (
 						<>
-							<div className="rounded-2xl bg-linear-to-r from-indigo-500/10 via-purple-500/10 to-sky-500/10 p-5 ring-1 ring-indigo-200/50 ring-inset">
+							<div className="rounded-2xl bg-linear-to-r from-primary/10 via-ring/5 to-background/50 p-5 ring-1 ring-ring/50 ring-inset">
 								<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 									<div>
-										<p className="font-semibold text-slate-500 text-xs uppercase tracking-[0.35em]">
+										<p className="font-semibold text-muted-foreground text-xs uppercase tracking-[0.35em]">
 											{t('summary.grandTotal')}
 										</p>
-										<p className="mt-2 font-semibold text-3xl text-slate-900">
+										<p className="mt-2 font-semibold text-3xl text-foreground">
 											{currencyFormatter.format(
 												calculations.sumOfSharesWithTips
 											)}
 										</p>
 									</div>
-									<div className="grid gap-1 text-slate-600 text-sm sm:text-right">
+									<div className="grid gap-1 text-muted-foreground text-sm sm:text-right">
 										<span>
 											{t('summary.expenses')}:{' '}
 											{currencyFormatter.format(calculations.totalExpenses)}
@@ -193,8 +195,8 @@ export function Summary() {
 									</div>
 								</div>
 							</div>
-							<div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
-								<div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-slate-200/80 border-b bg-slate-50 px-4 py-3 font-semibold text-[0.68rem] text-slate-500 uppercase tracking-[0.35em]">
+							<div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
+								<div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-border border-b bg-muted px-4 py-3 font-semibold text-[0.68rem] text-muted-foreground uppercase tracking-[0.35em]">
 									<span>{t('summary.person')}</span>
 									<span className="text-right">{t('summary.amount')}</span>
 									<span className="text-right">{t('summary.actions')}</span>
@@ -215,14 +217,14 @@ export function Summary() {
 										return (
 											<div
 												key={person.id}
-												className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-slate-200/70 border-t px-4 py-4 text-sm"
+												className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-border border-t px-4 py-4 text-sm"
 											>
 												<div className="space-y-1">
-													<p className="font-medium text-slate-900">
+													<p className="font-medium text-foreground">
 														{person.name}
 													</p>
 													{hasTip && (
-														<p className="text-slate-500 text-xs">
+														<p className="text-muted-foreground text-xs">
 															{t('summary.base')}{' '}
 															{currencyFormatter.format(baseTotal)} ·{' '}
 															{t('summary.tip')} {currencyFormatter.format(tip)}
@@ -232,7 +234,7 @@ export function Summary() {
 												<div
 													className={`text-right font-semibold text-base ${
 														totalWithTip >= 0
-															? 'text-indigo-600'
+															? 'text-primary'
 															: 'text-emerald-600'
 													}`}
 												>
@@ -254,7 +256,7 @@ export function Summary() {
 															aria-label={t('summary.generatePix', {
 																name: person.name,
 															})}
-															className="h-8 w-8 rounded-full text-slate-400 transition hover:bg-emerald-50 hover:text-emerald-600"
+															className="h-8 w-8 rounded-full text-muted-foreground transition hover:bg-accent hover:text-emerald-600"
 														>
 															<QrCode className="h-4 w-4" />
 														</Button>
@@ -266,7 +268,7 @@ export function Summary() {
 														aria-label={t('summary.viewDetails', {
 															name: person.name,
 														})}
-														className="h-8 w-8 rounded-full text-slate-400 transition hover:bg-indigo-50 hover:text-indigo-600"
+														className="h-8 w-8 rounded-full text-muted-foreground transition hover:bg-accent hover:text-primary"
 													>
 														<Eye className="h-4 w-4" />
 													</Button>
@@ -308,19 +310,19 @@ export function Summary() {
 				/>
 			)}
 			<Dialog open={showPixError} onOpenChange={setShowPixError}>
-				<DialogContent className="rounded-xl border-none bg-white/95 shadow-xl ring-1 ring-slate-200/70 backdrop-blur sm:max-w-md">
+				<DialogContent className="rounded-xl border-none bg-card shadow-xl ring-1 ring-ring backdrop-blur sm:max-w-md">
 					<DialogHeader>
-						<DialogTitle className="font-semibold text-slate-900 text-xl">
+						<DialogTitle className="font-semibold text-foreground text-xl">
 							{t('pix.keyNotSet')}
 						</DialogTitle>
-						<DialogDescription className="text-slate-500 text-sm">
+						<DialogDescription className="text-muted-foreground text-sm">
 							{t('pix.configurePixKey')}
 						</DialogDescription>
 					</DialogHeader>
 					<div className="py-4">
 						<Button
 							onClick={() => setShowPixError(false)}
-							className="w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+							className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
 						>
 							{t('item.ok')}
 						</Button>
