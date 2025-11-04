@@ -12,7 +12,8 @@ import {
 } from '@/components/ui/dialog'
 import { useMultiShare } from '@/hooks/useMultiShare'
 import { usePlausible } from '@/hooks/usePlausible'
-import { currencyAtom, selectedGroupAtom } from '../store/atoms'
+import { selectedGroupAtom } from '../store/expense-groups'
+import { currencyAtom } from '../store/settings'
 import type { Item, Person } from '../types'
 
 interface PersonDetailViewProps {

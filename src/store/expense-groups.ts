@@ -1,6 +1,5 @@
 import { Atom } from '@effect-atom/atom-react'
-import { Effect, Schema } from 'effect'
-import { Compressor } from '../services/compressor'
+import { Schema } from 'effect'
 import {
 	type ExpenseGroup,
 	ExpenseGroupSchema,
@@ -8,16 +7,6 @@ import {
 	type Person,
 } from '../types'
 import { runtimeAtom } from './runtime'
-
-// Settings schema (includes pixKey which should not be exported)
-export const SettingsSchema = Schema.Struct({
-	currency: Schema.String,
-	pixKey: Schema.optional(Schema.String),
-	language: Schema.optional(Schema.String),
-	theme: Schema.Literal('system', 'dark', 'light'),
-})
-
-export type Settings = Schema.Schema.Type<typeof SettingsSchema>
 
 // Atom for expense groups persisted in localStorage
 export const groupsAtom = Atom.kvs({
@@ -30,66 +19,6 @@ export const groupsAtom = Atom.kvs({
 // Atom for selected group ID
 export const selectedGroupIdAtom = Atom.make<string | null>(null).pipe(
 	Atom.keepAlive
-)
-
-// Atom for settings (persisted in localStorage)
-export const settingsAtom = Atom.kvs({
-	runtime: runtimeAtom,
-	key: 'settings',
-	schema: SettingsSchema,
-	defaultValue: (): Settings => ({ currency: 'BRL', theme: 'system' }),
-})
-
-// Derived atom for currency (for backward compatibility and convenience)
-export const currencyAtom = Atom.writable(
-	(get) => get(settingsAtom).currency,
-	(ctx, currency: string) =>
-		ctx.set(settingsAtom, { ...ctx.get(settingsAtom), currency })
-)
-
-// Derived atom for pixKey
-export const pixKeyAtom = Atom.writable(
-	(get) => {
-		const settings = get(settingsAtom)
-		return settings.pixKey ?? null
-	},
-	(ctx, pixKey: string | null) => {
-		const currentSettings = ctx.get(settingsAtom)
-		ctx.set(settingsAtom, {
-			...currentSettings,
-			pixKey: pixKey?.trim() ?? undefined,
-		})
-	}
-)
-
-// Derived atom for language
-export const languageAtom = Atom.writable(
-	(get) => {
-		const settings = get(settingsAtom)
-		return settings.language ?? 'pt-BR'
-	},
-	(ctx, language: string) => {
-		const currentSettings = ctx.get(settingsAtom)
-		ctx.set(settingsAtom, {
-			...currentSettings,
-			language,
-		})
-	}
-)
-
-// Derived atom for theme
-export const themeAtom = Atom.writable(
-	(get) => {
-		const settings = get(settingsAtom)
-		return settings.theme ?? 'system'
-	},
-	(ctx, theme: Settings['theme']) => {
-		const currentSettings = ctx.get(settingsAtom)
-		ctx.set(settingsAtom, {
-			...currentSettings,
-			theme,
-		})
-	}
 )
 
 // Atom for selected group (derived from groups and selectedGroupId)
@@ -257,66 +186,4 @@ export const updatePaymentGroupsAtom = Atom.fnSync(
 			)
 		)
 	}
-)
-
-// Export/Import atoms
-const ExportDataSchema = Schema.parseJson(
-	Schema.Struct({
-		groups: Schema.Array(ExpenseGroupSchema),
-		settings: SettingsSchema.pipe(Schema.omit('pixKey')), // Use export schema that excludes pixKey
-		version: Schema.Literal('1.0.0'),
-	})
-)
-
-export const exportDataAtom = runtimeAtom.fn(
-	Effect.fn(function* (_input: undefined, get: Atom.FnContext) {
-		const compressor = yield* Compressor
-		const groups = get(groupsAtom)
-		const settings = get(settingsAtom)
-
-		const jsonString = yield* Schema.encode(ExportDataSchema)({
-			groups,
-			settings,
-			version: '1.0.0',
-		})
-
-		const compressed = yield* compressor.compress(jsonString)
-
-		return compressed
-	})
-)
-
-export const importDataAtom = runtimeAtom.fn(
-	Effect.fn(function* (input: { dataString: string }, get: Atom.FnContext) {
-		const compressor = yield* Compressor
-		const { dataString } = input
-
-		const decompressed = yield* compressor.decompress(dataString)
-
-		const validated = yield* Schema.decode(ExportDataSchema)(decompressed)
-
-		// Restore data (preserve pixKey from current settings, don't overwrite it)
-		const currentSettings = get(settingsAtom)
-		get.set(groupsAtom, validated.groups)
-		get.set(settingsAtom, {
-			currency: validated.settings.currency,
-			language: validated.settings.language,
-			theme: validated.settings.theme,
-			pixKey: currentSettings.pixKey, // Preserve existing pixKey
-		})
-
-		// Reset selected group ID if it doesn't exist in imported groups
-		const selectedGroupId = get(selectedGroupIdAtom)
-		if (
-			selectedGroupId &&
-			!validated.groups.some((g) => g.id === selectedGroupId)
-		) {
-			get.set(
-				selectedGroupIdAtom,
-				validated.groups.length > 0 ? validated.groups[0].id : null
-			)
-		} else if (validated.groups.length > 0 && !selectedGroupId) {
-			get.set(selectedGroupIdAtom, validated.groups[0].id)
-		}
-	})
 )

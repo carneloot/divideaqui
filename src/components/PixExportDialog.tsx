@@ -14,7 +14,8 @@ import {
 import { Label } from '@/components/ui/label'
 import { useClipboard } from '@/hooks/useClipboard'
 import { usePlausible } from '@/hooks/usePlausible'
-import { currencyAtom, pixKeyAtom, selectedGroupAtom } from '../store/atoms'
+import { selectedGroupAtom } from '../store/expense-groups'
+import { currencyAtom, pixKeyAtom } from '../store/settings'
 import type { Person } from '../types'
 
 interface PixExportDialogProps {

@@ -13,10 +13,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { itemsAccordionStateAtom } from '../store/accordion'
 import {
-	currencyAtom,
 	removeItemFromGroupAtom,
 	selectedGroupAtom,
-} from '../store/atoms'
+} from '../store/expense-groups'
+import { currencyAtom } from '../store/settings'
 import type { Item, Person } from '../types'
 
 interface ItemsListProps {

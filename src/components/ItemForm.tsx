@@ -26,11 +26,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { itemAccordionStateAtom } from '../store/accordion'
-import {
-	addItemToGroupAtom,
-	currencyAtom,
-	selectedGroupAtom,
-} from '../store/atoms'
+import { addItemToGroupAtom, selectedGroupAtom } from '../store/expense-groups'
+import { currencyAtom } from '../store/settings'
 import type { ItemType, Person } from '../types'
 
 interface ItemFormProps {

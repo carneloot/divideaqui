@@ -1,6 +1,6 @@
 import { useAtomValue } from '@effect-atom/atom-react'
 import { useEffect, useState } from 'react'
-import { themeAtom } from '../store/atoms'
+import { themeAtom } from '../store/settings'
 
 export function useEffectiveTheme() {
 	const theme = useAtomValue(themeAtom)

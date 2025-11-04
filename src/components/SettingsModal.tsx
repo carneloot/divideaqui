@@ -29,15 +29,14 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { useClipboard } from '@/hooks/useClipboard'
+import { exportDataAtom, importDataAtom } from '../store/export'
 import {
 	currencyAtom,
-	exportDataAtom,
-	importDataAtom,
 	languageAtom,
 	pixKeyAtom,
 	type Settings,
 	themeAtom,
-} from '../store/atoms'
+} from '../store/settings'
 
 const CURRENCIES = [
 	{ code: 'USD', name: 'US Dollar (USD)' },

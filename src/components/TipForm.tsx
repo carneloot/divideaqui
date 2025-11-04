@@ -12,10 +12,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { tipAccordionStateAtom } from '../store/accordion'
 import {
-	currencyAtom,
 	selectedGroupAtom,
 	updateGroupTipPercentageAtom,
-} from '../store/atoms'
+} from '../store/expense-groups'
+import { currencyAtom } from '../store/settings'
 
 export function TipForm() {
 	const { t, i18n } = useTranslation()

@@ -2,6 +2,7 @@ import { Atom, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { Percent, PiggyBank, Receipt, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -14,11 +15,12 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import {
-	currencyAtom,
 	deleteGroupAtom,
 	selectedGroupAtom,
 	updateGroupNameAtom,
-} from '../store/atoms'
+} from '../store/expense-groups'
+import { currencyAtom } from '../store/settings'
+
 import { ItemForm } from './ItemForm'
 import { ItemsList } from './ItemsList'
 import { PeopleManager } from './PeopleManager'

@@ -1,5 +1,5 @@
 import { Toaster } from 'sonner'
-import { useEffectiveTheme } from '../lib/useEffectiveTheme'
+import { useEffectiveTheme } from '../hooks/useEffectiveTheme'
 
 export function ThemeToaster() {
 	const effectiveTheme = useEffectiveTheme()

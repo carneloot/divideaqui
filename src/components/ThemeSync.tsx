@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useEffectiveTheme } from '../lib/useEffectiveTheme'
+import { useEffectiveTheme } from '../hooks/useEffectiveTheme'
 
 export function ThemeSync() {
 	const effectiveTheme = useEffectiveTheme()

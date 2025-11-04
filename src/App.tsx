@@ -20,7 +20,7 @@ import {
 	groupsAtom,
 	selectedGroupAtom,
 	selectedGroupIdAtom,
-} from './store/atoms'
+} from './store/expense-groups'
 
 function App() {
 	const { t } = useTranslation()

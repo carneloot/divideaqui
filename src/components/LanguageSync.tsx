@@ -1,7 +1,7 @@
 import { useAtomValue } from '@effect-atom/atom-react'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { languageAtom } from '../store/atoms'
+import { languageAtom } from '../store/settings'
 
 export function LanguageSync() {
 	const language = useAtomValue(languageAtom)

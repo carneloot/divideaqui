@@ -36,7 +36,7 @@ import {
 	removePersonFromGroupAtom,
 	selectedGroupAtom,
 	updatePaymentGroupsAtom,
-} from '../store/atoms'
+} from '../store/expense-groups'
 import type { Person } from '../types'
 import { AutocompleteInput } from './AutocompleteInput'
 
