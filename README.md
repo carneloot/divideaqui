@@ -1,73 +1,84 @@
-# React + TypeScript + Vite
+# Divide Aqui 💰
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern expense splitting application that helps groups divide bills, track shared expenses, and calculate who owes what. Perfect for dinner groups, trips, and any shared expenses scenario.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🎯 **Group Management**: Create and manage multiple expense groups
+- 👥 **People Management**: Add people and organize them into payment groups
+- 💸 **Expense Tracking**: Track expenses and discounts with detailed itemization
+- 🧮 **Smart Calculations**: Automatically calculates balances, tips, and splits
+- 💰 **PIX Integration**: Generate PIX payment requests (Brazilian payment system)
+- 🌐 **Internationalization**: Available in English and Portuguese
+- 🎨 **Theme Support**: Light, dark, and system themes
+- 💾 **Data Export/Import**: Export and import your data as compressed text
+- 📱 **Responsive Design**: Works seamlessly on desktop and mobile
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Styling
+- **shadcn/ui** - UI components
+- **Effect** - Functional programming and state management
+- **i18next** - Internationalization
+- **Lucide React** - Icons
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js 18+ or Bun
+- npm, yarn, pnpm, or bun
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Clone the repository
+git clone https://github.com/carneloot/divideaqui.git
+cd divideaqui
+
+# Install dependencies
+bun install
+
+# Start the development server
+bun dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app will be available at `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Building for Production
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bun run build
 ```
+
+The production build will be in the `dist` directory.
+
+## Development
+
+### Available Scripts
+
+- `bun dev` - Start development server
+- `bun build` - Build for production
+- `bun preview` - Preview production build
+- `bun check` - Run Biome linter and formatter
+- `bun check:fix` - Fix linting and formatting issues
+- `bun format` - Format code
+
+## About This Project
+
+**Note**: Most of the code in this project was written using AI as a learning exercise. This project was created to explore modern React development practices, TypeScript patterns, and building a complete application from scratch with AI assistance. It serves as both a useful tool and a learning resource for understanding contemporary web development workflows.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+Matheus Carnelutt
+
+---
+
+Made with ❤️ and AI assistance

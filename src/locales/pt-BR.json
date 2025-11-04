@@ -194,5 +194,11 @@
 		"pixKeyUpdated": "Chave PIX atualizada",
 		"pixKeySaved": "Chave PIX salva",
 		"pixKeyCleared": "Chave PIX limpa"
+	},
+	"footer": {
+		"copyright": "Matheus Carnelutt",
+		"license": "Licenciado sob MIT",
+		"viewOnGitHub": "Ver no GitHub",
+		"github": "GitHub"
 	}
 }

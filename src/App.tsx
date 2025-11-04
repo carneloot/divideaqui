@@ -10,6 +10,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
+import { Footer } from './components/Footer'
 import { GroupManager } from './components/GroupManager'
 import { LanguageSync } from './components/LanguageSync'
 import { SettingsModal } from './components/SettingsModal'
@@ -47,7 +48,7 @@ function App() {
 	}
 
 	return (
-		<div className="min-h-screen overflow-hidden bg-muted/30 text-foreground">
+		<div className="flex min-h-screen flex-col overflow-hidden bg-muted/30 text-foreground">
 			<LanguageSync />
 			<ThemeSync />
 			<header>
@@ -60,7 +61,7 @@ function App() {
 					</div>
 				</div>
 			</header>
-			<main className="mx-auto w-full max-w-6xl p-4">
+			<main className="mx-auto w-full max-w-6xl flex-1 p-4">
 				<div className="space-y-8">
 					{groups.length > 0 && (
 						<Card className="border-none bg-card shadow-xl ring-1 ring-ring backdrop-blur">
@@ -130,6 +131,7 @@ function App() {
 					)}
 				</div>
 			</main>
+			<Footer />
 		</div>
 	)
 }
