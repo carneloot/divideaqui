@@ -1,4 +1,4 @@
-import { useAtomValue } from '@effect-atom/atom-react'
+import { Atom, useAtomValue } from '@effect-atom/atom-react'
 import { Share2 } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -13,13 +13,85 @@ import {
 import { useMultiShare } from '@/hooks/useMultiShare'
 import { usePlausible } from '@/hooks/usePlausible'
 import { currencyAtom, selectedGroupAtom } from '../store/atoms'
-import type { Person } from '../types'
+import type { Item, Person } from '../types'
 
 interface PersonDetailViewProps {
 	person: Person
 	open: boolean
 	onOpenChange: (open: boolean) => void
 }
+
+interface PersonItemBreakdown {
+	item: Item
+	applicablePeople: Person[]
+	perPerson: number
+	totalValue: number
+}
+
+interface PersonBreakdown {
+	applicableItems: PersonItemBreakdown[]
+	baseTotal: number
+	tip: number
+	totalWithTip: number
+	hasTip: boolean
+	tipPercentage?: number
+}
+
+const personBreakdownAtom = Atom.family((personId: string) =>
+	Atom.make<PersonBreakdown | null>((get) => {
+		const group = get(selectedGroupAtom)
+		if (!group) return null
+
+		const person = group.people.find((p) => p.id === personId)
+		if (!person) return null
+
+		const applicableItems = group.items
+			.map((item) => {
+				const applicablePeople = item.appliesToEveryone
+					? group.people
+					: group.people.filter((p) => item.selectedPeople.includes(p.id))
+
+				if (!applicablePeople.some((p) => p.id === personId)) {
+					return null
+				}
+
+				const totalValue = item.amount * item.price
+				const amount = item.type === 'expense' ? totalValue : -totalValue
+				const perPerson = amount / applicablePeople.length
+
+				return {
+					item,
+					applicablePeople,
+					perPerson,
+					totalValue,
+				}
+			})
+			.filter((entry): entry is PersonItemBreakdown => entry !== null)
+
+		const baseTotal = applicableItems.reduce(
+			(sum, entry) => sum + entry.perPerson,
+			0
+		)
+
+		const tipPercentage = group.tipPercentage
+		const hasTip =
+			tipPercentage !== undefined && tipPercentage !== null && tipPercentage > 0
+		const tip =
+			hasTip && baseTotal > 0 && tipPercentage !== undefined
+				? baseTotal * (tipPercentage / 100)
+				: 0
+		const totalWithTip = baseTotal + tip
+
+		return {
+			applicableItems,
+			baseTotal,
+			tip,
+			totalWithTip,
+			hasTip,
+			tipPercentage,
+		}
+	})
+)
 
 export function PersonDetailView({
 	person,
@@ -29,6 +101,7 @@ export function PersonDetailView({
 	const { t, i18n } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
 	const currency = useAtomValue(currencyAtom)
+	const breakdown = useAtomValue(personBreakdownAtom(person.id))
 	const currencyFormatter = useMemo(
 		() =>
 			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
@@ -50,54 +123,11 @@ export function PersonDetailView({
 	})
 	const trackEvent = usePlausible()
 
-	if (!group) {
+	if (!group || !breakdown) {
 		return null
 	}
 
-	// Calculate items that apply to this person
-	const applicableItems = group.items
-		.map((item) => {
-			const applicablePeople = item.appliesToEveryone
-				? group.people
-				: group.people.filter((p) => item.selectedPeople.includes(p.id))
-
-			// Check if this person is in the applicable people
-			if (!applicablePeople.find((p) => p.id === person.id)) {
-				return null
-			}
-
-			const totalValue = item.amount * item.price
-			const amount = item.type === 'expense' ? totalValue : -totalValue
-			const perPerson = amount / applicablePeople.length
-
-			return {
-				item,
-				applicablePeople,
-				perPerson,
-				totalValue,
-			}
-		})
-		.filter((result): result is NonNullable<typeof result> => result !== null)
-
-	// Calculate totals
-	const baseTotal = applicableItems.reduce(
-		(sum, { perPerson }) => sum + perPerson,
-		0
-	)
-
-	// Calculate tip as a percentage of this person's individual total
-	let tip = 0
-	if (
-		group.tipPercentage !== undefined &&
-		group.tipPercentage !== null &&
-		group.tipPercentage > 0 &&
-		baseTotal > 0
-	) {
-		// Calculate tip based on this person's individual total
-		tip = baseTotal * (group.tipPercentage / 100)
-	}
-
-	const totalWithTip = baseTotal + tip
+	const { applicableItems, baseTotal, tip, totalWithTip } = breakdown
 
 	const generateSummaryText = () => {
 		if (!group) return ''

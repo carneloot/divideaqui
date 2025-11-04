@@ -1,4 +1,4 @@
-import { useAtomSet, useAtomValue } from '@effect-atom/atom-react'
+import { Atom, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { Percent, PiggyBank, Receipt, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -26,12 +26,42 @@ import { ItemsList } from './ItemsList'
 import { PeopleManager } from './PeopleManager'
 import { Summary } from './Summary'
 
+const groupStatsAtom = Atom.make((get) => {
+	const group = get(selectedGroupAtom)
+	if (!group) return null
+
+	const totalExpenses = group.items
+		.filter((item) => item.type === 'expense')
+		.reduce((sum, item) => sum + item.amount * item.price, 0)
+	const totalDiscounts = group.items
+		.filter((item) => item.type === 'discount')
+		.reduce((sum, item) => sum + item.amount * item.price, 0)
+	const netTotal = totalExpenses - totalDiscounts
+	const tipPercentage = group.tipPercentage
+	const tipIsEnabled =
+		tipPercentage !== undefined && tipPercentage !== null && tipPercentage > 0
+	const totalTipAmount =
+		tipIsEnabled && netTotal > 0 && tipPercentage !== undefined
+			? (netTotal * tipPercentage) / 100
+			: 0
+
+	return {
+		peopleCount: group.people.length,
+		itemCount: group.items.length,
+		netTotal,
+		tipIsEnabled,
+		totalTipAmount,
+		tipPercentage,
+	}
+})
+
 export function GroupManager() {
 	const { t, i18n } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
 	const deleteGroup = useAtomSet(deleteGroupAtom)
 	const updateGroupName = useAtomSet(updateGroupNameAtom)
 	const updateGroupTipPercentage = useAtomSet(updateGroupTipPercentageAtom)
+	const groupStats = useAtomValue(groupStatsAtom)
 
 	const [groupName, setGroupName] = useState(group?.name || '')
 	const [tipPercentage, setTipPercentage] = useState(
@@ -62,9 +92,18 @@ export function GroupManager() {
 		}
 	}, [group])
 
-	if (!group) {
+	if (!group || !groupStats) {
 		return null
 	}
+
+	const {
+		peopleCount,
+		itemCount,
+		netTotal,
+		tipIsEnabled,
+		totalTipAmount,
+		tipPercentage: activeTipPercentage,
+	} = groupStats
 
 	const handleUpdateName = () => {
 		if (groupName.trim()) {
@@ -91,30 +130,15 @@ export function GroupManager() {
 		})
 	}
 
-	const totalExpenses = group.items
-		.filter((item) => item.type === 'expense')
-		.reduce((sum, item) => sum + item.amount * item.price, 0)
-	const totalDiscounts = group.items
-		.filter((item) => item.type === 'discount')
-		.reduce((sum, item) => sum + item.amount * item.price, 0)
-	const netTotal = totalExpenses - totalDiscounts
-	const hasTip =
-		group.tipPercentage !== undefined &&
-		group.tipPercentage !== null &&
-		group.tipPercentage > 0
-
-	const totalTipAmount =
-		hasTip && netTotal > 0 ? (netTotal * group.tipPercentage) / 100 : 0
-
 	const stats = [
 		{
 			label: t('stats.people'),
-			value: group.people.length.toString(),
+			value: peopleCount.toString(),
 			icon: Users,
 		},
 		{
 			label: t('stats.itemsTracked'),
-			value: group.items.length.toString(),
+			value: itemCount.toString(),
 			icon: Receipt,
 		},
 		{
@@ -124,9 +148,10 @@ export function GroupManager() {
 		},
 		{
 			label: t('stats.tipSetting'),
-			value: hasTip
-				? `${group.tipPercentage}% · ${currencyFormatter.format(totalTipAmount)}`
-				: t('stats.noTip'),
+			value:
+				tipIsEnabled && activeTipPercentage !== undefined
+					? `${activeTipPercentage}% · ${currencyFormatter.format(totalTipAmount)}`
+					: t('stats.noTip'),
 			icon: Percent,
 		},
 	]
@@ -221,7 +246,7 @@ export function GroupManager() {
 										step="0.1"
 										className="flex-1 rounded-xl"
 									/>
-									{hasTip && (
+									{tipIsEnabled && (
 										<div className="flex items-center text-muted-foreground text-sm">
 											{totalTipAmount > 0 ? (
 												<span>

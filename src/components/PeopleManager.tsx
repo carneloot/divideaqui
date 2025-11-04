@@ -11,9 +11,9 @@ import {
 	useSensors,
 } from '@dnd-kit/core'
 
-import { useAtomSet, useAtomValue } from '@effect-atom/atom-react'
+import { Atom, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { ChevronDown, ChevronUp, GripVertical, Trash2, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -67,6 +67,50 @@ function DraggablePerson({ person, groupId }: DraggablePersonProps) {
 		</div>
 	)
 }
+
+const otherGroupMemberNamesAtom = Atom.make((get) => {
+	const group = get(selectedGroupAtom)
+	if (!group) return [] as string[]
+
+	const currentMemberNames = new Set(
+		group.people.map((person) => person.name.toLowerCase())
+	)
+	const allNames = new Set<string>()
+
+	const groups = get(groupsAtom)
+	for (const candidateGroup of groups) {
+		if (candidateGroup.id === group.id) continue
+		for (const person of candidateGroup.people) {
+			const nameLower = person.name.toLowerCase()
+			if (!currentMemberNames.has(nameLower)) {
+				allNames.add(person.name)
+			}
+		}
+	}
+
+	return Array.from(allNames).sort((a, b) => a.localeCompare(b))
+})
+
+const paymentGroupsAtom = Atom.make((get) => {
+	const group = get(selectedGroupAtom)
+	if (!group?.paymentGroups) return [] as string[][]
+
+	return group.paymentGroups.map((paymentGroup) => [...paymentGroup])
+})
+
+const unassignedPeopleAtom = Atom.make((get) => {
+	const group = get(selectedGroupAtom)
+	if (!group) return [] as Person[]
+
+	const peopleInGroups = new Set<string>()
+	for (const paymentGroup of group.paymentGroups ?? []) {
+		for (const personId of paymentGroup) {
+			peopleInGroups.add(personId)
+		}
+	}
+
+	return group.people.filter((person) => !peopleInGroups.has(person.id))
+})
 
 interface PaymentGroupProps {
 	groupIndex: number
@@ -142,10 +186,12 @@ function UnassignedDroppable({ children }: { children: React.ReactNode }) {
 export function PeopleManager({ people }: PeopleManagerProps) {
 	const { t } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
-	const groups = useAtomValue(groupsAtom)
 	const addPerson = useAtomSet(addPersonToGroupAtom)
 	const removePerson = useAtomSet(removePersonFromGroupAtom)
 	const updatePaymentGroups = useAtomSet(updatePaymentGroupsAtom)
+	const otherGroupMemberNames = useAtomValue(otherGroupMemberNamesAtom)
+	const paymentGroups = useAtomValue(paymentGroupsAtom)
+	const unassignedPeople = useAtomValue(unassignedPeopleAtom)
 	const [name, setName] = useState('')
 	const [showPaymentGroups, setShowPaymentGroups] = useState(false)
 	const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
@@ -157,27 +203,6 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 			},
 		})
 	)
-
-	// Get unique member names from other groups
-	const otherGroupMemberNames = useMemo(() => {
-		if (!group) return []
-		const currentMemberNames = new Set(people.map((p) => p.name.toLowerCase()))
-		const allNames = new Set<string>()
-
-		groups.forEach((g) => {
-			if (g.id !== group.id) {
-				g.people.forEach((person) => {
-					const nameLower = person.name.toLowerCase()
-					// Only include names that aren't already in current group
-					if (!currentMemberNames.has(nameLower)) {
-						allNames.add(person.name)
-					}
-				})
-			}
-		})
-
-		return Array.from(allNames).sort((a, b) => a.localeCompare(b))
-	}, [groups, group, people])
 
 	const handleAdd = () => {
 		if (name.trim() && group) {
@@ -198,24 +223,6 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 		}
 	}
 
-	const currentPaymentGroups = group?.paymentGroups || []
-	const [localPaymentGroups, setLocalPaymentGroups] =
-		useState(currentPaymentGroups)
-
-	// Sync local state when group changes
-	useEffect(() => {
-		setLocalPaymentGroups(group?.paymentGroups || [])
-	}, [group?.paymentGroups])
-
-	// Get people not in any payment group
-	const peopleInGroups = new Set<string>()
-	currentPaymentGroups.forEach((paymentGroup) => {
-		paymentGroup.forEach((personId: string) => {
-			peopleInGroups.add(personId)
-		})
-	})
-	const unassignedPeople = people.filter((p) => !peopleInGroups.has(p.id))
-
 	const handleDragStart = (event: DragStartEvent) => {
 		setActiveId(event.active.id)
 	}
@@ -232,15 +239,15 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 
 		// Find which group the person is currently in (if any)
 		let sourceGroupIndex = -1
-		for (let i = 0; i < localPaymentGroups.length; i++) {
-			const index = localPaymentGroups[i].indexOf(activeId)
+		for (let i = 0; i < paymentGroups.length; i++) {
+			const index = paymentGroups[i].indexOf(activeId)
 			if (index !== -1) {
 				sourceGroupIndex = i
 				break
 			}
 		}
 
-		const updatedGroups = localPaymentGroups.map((group) => [...group])
+		const updatedGroups = paymentGroups.map((paymentGroup) => [...paymentGroup])
 
 		// Check if dropping on a group or unassigned
 		if (overId === 'unassigned') {
@@ -300,7 +307,6 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 			.map((paymentGroup) => paymentGroup.filter((id) => Boolean(id)))
 			.filter((paymentGroup) => paymentGroup.length > 0) as string[][]
 
-		setLocalPaymentGroups(normalizedGroups)
 		updatePaymentGroups({
 			groupId: group.id,
 			paymentGroups: normalizedGroups,
@@ -309,8 +315,7 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 
 	const handleCreateGroup = () => {
 		if (!group) return
-		const newGroups = [...localPaymentGroups, []] as string[][]
-		setLocalPaymentGroups(newGroups)
+		const newGroups = [...paymentGroups, []] as string[][]
 		updatePaymentGroups({
 			groupId: group.id,
 			paymentGroups: newGroups,
@@ -319,10 +324,9 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 
 	const handleRemoveGroup = (groupIndex: number) => {
 		if (!group) return
-		const newGroups = localPaymentGroups.filter(
+		const newGroups = paymentGroups.filter(
 			(_, i) => i !== groupIndex
 		) as string[][]
-		setLocalPaymentGroups(newGroups)
 		updatePaymentGroups({
 			groupId: group.id,
 			paymentGroups: newGroups,
@@ -422,7 +426,7 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 									</p>
 									<div className="space-y-4">
 										{/* Payment Groups */}
-										{localPaymentGroups.map((paymentGroup, index) => {
+										{paymentGroups.map((paymentGroup, index) => {
 											// Create a unique key based on group members
 											const groupKey = `group-${index}-${paymentGroup.join('-')}`
 											return (
