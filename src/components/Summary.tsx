@@ -367,17 +367,17 @@ export function Summary() {
 									<>
 										<div className="rounded-2xl bg-linear-to-r from-primary/10 via-ring/5 to-background/50 p-5 ring-1 ring-ring/50 ring-inset">
 											<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-												<div>
+												<div className="min-w-0 flex-1">
 													<p className="font-semibold text-muted-foreground text-xs uppercase tracking-[0.35em]">
 														{t('summary.grandTotal')}
 													</p>
-													<p className="mt-2 font-semibold text-3xl text-foreground">
+													<p className="wrap-break-words mt-2 font-semibold text-3xl text-foreground">
 														{currencyFormatter.format(
 															calculations.sumOfSharesWithTips
 														)}
 													</p>
 												</div>
-												<div className="grid gap-1 text-muted-foreground text-sm sm:text-right">
+												<div className="grid gap-1 text-muted-foreground text-sm sm:min-w-0 sm:shrink-0 sm:text-right">
 													<span>
 														{t('summary.expenses')}:{' '}
 														{currencyFormatter.format(
@@ -410,7 +410,7 @@ export function Summary() {
 											</div>
 										</div>
 										<div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
-											<div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-border border-b bg-muted px-4 py-3 font-semibold text-[0.68rem] text-muted-foreground uppercase tracking-[0.35em]">
+											<div className="hidden border-border border-b bg-muted px-4 py-3 font-semibold text-[0.68rem] text-muted-foreground uppercase tracking-[0.35em] sm:grid sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center sm:gap-3">
 												<span>{t('summary.person')}</span>
 												<span className="text-right">
 													{t('summary.amount')}
@@ -452,9 +452,9 @@ export function Summary() {
 													return (
 														<div
 															key={person.id}
-															className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-border border-t px-4 py-4 text-sm"
+															className="grid grid-cols-2 grid-rows-2 gap-3 border-border border-t px-4 py-4 text-sm sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:grid-rows-1 sm:items-center"
 														>
-															<div className="space-y-1">
+															<div className="flex-1 space-y-1">
 																<p className="font-medium text-foreground">
 																	{person.name}
 																</p>
@@ -467,41 +467,45 @@ export function Summary() {
 																	</p>
 																)}
 																{hasPaymentGroup && (
-																	<p className="text-muted-foreground text-xs">
+																	<p className="wrap-break-words text-muted-foreground text-xs">
 																		{t('summary.inGroupWith')}:{' '}
-																		{memberNames.join(', ')}
+																		<span className="font-medium">
+																			{memberNames.join(', ')}
+																		</span>
 																	</p>
 																)}
 															</div>
-															<div className="space-y-1 text-right">
-																<div
-																	className={`font-semibold text-base ${
-																		totalWithTip >= 0
-																			? 'text-primary'
-																			: 'text-emerald-600'
-																	}`}
-																>
-																	{currencyFormatter.format(
-																		Math.abs(totalWithTip)
-																	)}
-																	{totalWithTip < 0 && (
-																		<span className="ml-1 text-emerald-600 text-xs uppercase tracking-wide">
-																			{t('summary.credit')}
-																		</span>
+															<div className="row-start-2 flex items-center justify-between gap-4 sm:row-auto sm:flex-col sm:items-end sm:justify-center sm:gap-1">
+																<div className="flex-1 space-y-1 sm:flex-none sm:text-right">
+																	<div
+																		className={`font-semibold text-base ${
+																			totalWithTip >= 0
+																				? 'text-primary'
+																				: 'text-emerald-600'
+																		}`}
+																	>
+																		{currencyFormatter.format(
+																			Math.abs(totalWithTip)
+																		)}
+																		{totalWithTip < 0 && (
+																			<span className="ml-1 text-emerald-600 text-xs uppercase tracking-wide">
+																				{t('summary.credit')}
+																			</span>
+																		)}
+																	</div>
+																	{hasGroupedTotal && (
+																		<div className="wrap-break-words text-muted-foreground text-xs sm:text-right">
+																			{t('summary.groupedTotal')}:{' '}
+																			<span className="font-semibold">
+																				{currencyFormatter.format(
+																					Math.abs(groupedTotalWithTip)
+																				)}
+																			</span>
+																		</div>
 																	)}
 																</div>
-																{hasGroupedTotal && (
-																	<div className="text-muted-foreground text-xs">
-																		{t('summary.groupedTotal')}:{' '}
-																		<span className="font-semibold">
-																			{currencyFormatter.format(
-																				Math.abs(groupedTotalWithTip)
-																			)}
-																		</span>
-																	</div>
-																)}
 															</div>
-															<div className="flex items-center gap-1">
+															<div className="col-start-2 row-span-2 flex shrink-0 items-center justify-end gap-1 sm:col-auto sm:row-auto sm:justify-center">
 																{groupedTotalWithTip > 0 &&
 																	currency === 'BRL' && (
 																		<Button
