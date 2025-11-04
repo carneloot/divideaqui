@@ -3,7 +3,7 @@ import { Percent, PiggyBank, Receipt, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import {
 	Dialog,
 	DialogContent,
@@ -13,18 +13,17 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
 	currencyAtom,
 	deleteGroupAtom,
 	selectedGroupAtom,
 	updateGroupNameAtom,
-	updateGroupTipPercentageAtom,
 } from '../store/atoms'
 import { ItemForm } from './ItemForm'
 import { ItemsList } from './ItemsList'
 import { PeopleManager } from './PeopleManager'
 import { Summary } from './Summary'
+import { TipForm } from './TipForm'
 
 const groupStatsAtom = Atom.make((get) => {
 	const group = get(selectedGroupAtom)
@@ -60,15 +59,9 @@ export function GroupManager() {
 	const group = useAtomValue(selectedGroupAtom)
 	const deleteGroup = useAtomSet(deleteGroupAtom)
 	const updateGroupName = useAtomSet(updateGroupNameAtom)
-	const updateGroupTipPercentage = useAtomSet(updateGroupTipPercentageAtom)
 	const groupStats = useAtomValue(groupStatsAtom)
 
 	const [groupName, setGroupName] = useState(group?.name || '')
-	const [tipPercentage, setTipPercentage] = useState(
-		group?.tipPercentage && group.tipPercentage > 0
-			? group.tipPercentage.toString()
-			: ''
-	)
 	const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false)
 	const currency = useAtomValue(currencyAtom)
 	const currencyFormatter = useMemo(
@@ -84,11 +77,6 @@ export function GroupManager() {
 	useEffect(() => {
 		if (group) {
 			setGroupName(group.name)
-			setTipPercentage(
-				group.tipPercentage && group.tipPercentage > 0
-					? group.tipPercentage.toString()
-					: ''
-			)
 		}
 	}, [group])
 
@@ -109,25 +97,6 @@ export function GroupManager() {
 		if (groupName.trim()) {
 			updateGroupName({ id: group.id, name: groupName.trim() })
 		}
-	}
-
-	const handleUpdateTipPercentage = () => {
-		const trimmedValue = tipPercentage.trim()
-		if (trimmedValue === '') {
-			updateGroupTipPercentage({
-				id: group.id,
-				tipPercentage: undefined,
-			})
-			return
-		}
-		const tipValue = parseFloat(trimmedValue)
-		updateGroupTipPercentage({
-			id: group.id,
-			tipPercentage:
-				tipValue !== undefined && !Number.isNaN(tipValue) && tipValue > 0
-					? tipValue
-					: undefined,
-		})
 	}
 
 	const stats = [
@@ -211,61 +180,7 @@ export function GroupManager() {
 			<div className="grid grid-cols-1 gap-6 p-6 lg:grid-cols-[1.1fr,0.9fr]">
 				<div className="space-y-6">
 					<PeopleManager people={group.people} />
-					<Card className="border-none bg-card shadow-md ring-1 ring-ring">
-						<CardHeader className="space-y-1">
-							<CardTitle className="font-semibold text-foreground text-xl">
-								{t('tip.title')}
-							</CardTitle>
-							<p className="text-muted-foreground text-sm">
-								{t('tip.subtitle')}
-							</p>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="space-y-2">
-								<Label
-									htmlFor="tip-percentage"
-									className="font-medium text-foreground text-sm"
-								>
-									{t('tip.percentage')}
-								</Label>
-								<div className="flex flex-col gap-3 sm:flex-row">
-									<Input
-										id="tip-percentage"
-										type="number"
-										placeholder={t('tip.placeholder')}
-										value={tipPercentage}
-										onChange={(e) => setTipPercentage(e.target.value)}
-										onBlur={handleUpdateTipPercentage}
-										onKeyDown={(e) => {
-											if (e.key === 'Enter') {
-												handleUpdateTipPercentage()
-											}
-										}}
-										min="0"
-										max="100"
-										step="0.1"
-										className="flex-1 rounded-xl"
-									/>
-									{tipIsEnabled && (
-										<div className="flex items-center text-muted-foreground text-sm">
-											{totalTipAmount > 0 ? (
-												<span>
-													{t('tip.adds', {
-														amount: currencyFormatter.format(totalTipAmount),
-													})}
-												</span>
-											) : (
-												<span>{t('tip.notAdded')}</span>
-											)}
-										</div>
-									)}
-								</div>
-								<p className="text-muted-foreground text-xs leading-relaxed">
-									{t('tip.calculationHint')}
-								</p>
-							</div>
-						</CardContent>
-					</Card>
+					<TipForm />
 					<ItemForm people={group.people} />
 				</div>
 				<div className="space-y-6">
