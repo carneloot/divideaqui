@@ -11,15 +11,17 @@ import { useEffect } from 'react'
 export function PlausibleAnalytics() {
 	useEffect(() => {
 		const domain = import.meta.env.VITE_PLAUSIBLE_DOMAIN
+		const endpoint = import.meta.env.VITE_PLAUSIBLE_ENDPOINT
 
 		// Only initialize Plausible if domain is configured
-		if (!domain) {
+		if (!domain || !endpoint) {
 			return
 		}
 
 		// Initialize Plausible with automatic SPA pageview tracking
 		init({
 			domain,
+			endpoint,
 		})
 	}, [])
 
