@@ -1,6 +1,5 @@
 import { useAtom, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { X } from 'lucide-react'
-import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
 	Accordion,
@@ -10,13 +9,13 @@ import {
 } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter'
 import { cn } from '@/lib/utils'
 import { itemsAccordionStateAtom } from '../store/accordion'
 import {
 	removeItemFromGroupAtom,
 	selectedGroupAtom,
 } from '../store/expense-groups'
-import { currencyAtom } from '../store/settings'
 import type { Item, Person } from '../types'
 
 interface ItemsListProps {
@@ -25,19 +24,11 @@ interface ItemsListProps {
 }
 
 export function ItemsList({ items, people }: ItemsListProps) {
-	const { t, i18n } = useTranslation()
+	const { t } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
-	const currency = useAtomValue(currencyAtom)
 	const removeItem = useAtomSet(removeItemFromGroupAtom)
 	const [isAccordionOpen, setIsAccordionOpen] = useAtom(itemsAccordionStateAtom)
-	const currencyFormatter = useMemo(
-		() =>
-			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
-				style: 'currency',
-				currency,
-			}),
-		[currency, i18n.language]
-	)
+	const currencyFormatter = useCurrencyFormatter()
 
 	const handleRemove = (id: string) => {
 		if (group) {

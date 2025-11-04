@@ -5,7 +5,6 @@ import {
 	useAtomValue,
 } from '@effect-atom/atom-react'
 import { Eye, QrCode, Share2 } from 'lucide-react'
-import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
 	Accordion,
@@ -22,6 +21,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
+import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter'
 import { useMultiShare } from '@/hooks/useMultiShare'
 import { usePlausible } from '@/hooks/usePlausible'
 import { summaryAccordionStateAtom } from '../store/accordion'
@@ -245,23 +245,16 @@ const personRowItemAtom = Atom.family((personId: string) =>
 )
 
 function PersonRowItem({ person }: { person: Person }) {
-	const { t, i18n } = useTranslation()
-	const currency = useAtomValue(currencyAtom)
+	const { t } = useTranslation()
 	const breakdown = useAtomValue(personRowItemAtom(person.id))
 	const pixKey = useAtomValue(pixKeyAtom)
+	const currency = useAtomValue(currencyAtom)
 
 	const setShowPixError = useAtomSet(showPixErrorAtom)
 	const setPixPerson = useAtomSet(pixPersonAtom)
 	const setSelectedPerson = useAtomSet(selectedPersonAtom)
 
-	const currencyFormatter = useMemo(
-		() =>
-			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
-				style: 'currency',
-				currency,
-			}),
-		[currency, i18n.language]
-	)
+	const currencyFormatter = useCurrencyFormatter()
 
 	const handlePixClick = (person: Person, amount: number) => {
 		if (!pixKey) {
@@ -434,22 +427,14 @@ function PersonRowsList() {
 }
 
 export function Summary() {
-	const { t, i18n } = useTranslation()
+	const { t } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
 	const calculations = useAtomValue(groupCalculationsAtom)
-	const currency = useAtomValue(currencyAtom)
 	const [isAccordionOpen, setIsAccordionOpen] = useAtom(
 		summaryAccordionStateAtom
 	)
 
-	const currencyFormatter = useMemo(
-		() =>
-			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
-				style: 'currency',
-				currency,
-			}),
-		[currency, i18n.language]
-	)
+	const currencyFormatter = useCurrencyFormatter()
 
 	const { share: shareContent } = useMultiShare({
 		messages: {

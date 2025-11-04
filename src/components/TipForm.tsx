@@ -10,33 +10,24 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter'
 import { tipAccordionStateAtom } from '../store/accordion'
 import {
 	selectedGroupAtom,
 	updateGroupTipPercentageAtom,
 } from '../store/expense-groups'
-import { currencyAtom } from '../store/settings'
 
 export function TipForm() {
-	const { t, i18n } = useTranslation()
+	const { t } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
 	const updateGroupTipPercentage = useAtomSet(updateGroupTipPercentageAtom)
-	const currency = useAtomValue(currencyAtom)
 	const [isAccordionOpen, setIsAccordionOpen] = useAtom(tipAccordionStateAtom)
+	const currencyFormatter = useCurrencyFormatter()
 
 	const [tipPercentage, setTipPercentage] = useState(
 		group?.tipPercentage && group.tipPercentage > 0
 			? group.tipPercentage.toString()
 			: ''
-	)
-
-	const currencyFormatter = useMemo(
-		() =>
-			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
-				style: 'currency',
-				currency,
-			}),
-		[currency, i18n.language]
 	)
 
 	// Calculate tip stats

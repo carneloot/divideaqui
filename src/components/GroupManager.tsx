@@ -1,6 +1,6 @@
 import { Atom, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
 import { Percent, PiggyBank, Receipt, Trash2, Users } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
@@ -14,12 +14,12 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter'
 import {
 	deleteGroupAtom,
 	selectedGroupAtom,
 	updateGroupNameAtom,
 } from '../store/expense-groups'
-import { currencyAtom } from '../store/settings'
 
 import { ItemForm } from './ItemForm'
 import { ItemsList } from './ItemsList'
@@ -57,7 +57,7 @@ const groupStatsAtom = Atom.make((get) => {
 })
 
 export function GroupManager() {
-	const { t, i18n } = useTranslation()
+	const { t } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
 	const deleteGroup = useAtomSet(deleteGroupAtom)
 	const updateGroupName = useAtomSet(updateGroupNameAtom)
@@ -65,15 +65,7 @@ export function GroupManager() {
 
 	const [groupName, setGroupName] = useState(group?.name || '')
 	const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false)
-	const currency = useAtomValue(currencyAtom)
-	const currencyFormatter = useMemo(
-		() =>
-			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
-				style: 'currency',
-				currency,
-			}),
-		[currency, i18n.language]
-	)
+	const currencyFormatter = useCurrencyFormatter()
 
 	// Sync local state with group when it changes
 	useEffect(() => {

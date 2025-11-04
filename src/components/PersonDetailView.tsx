@@ -1,6 +1,5 @@
 import { Atom, useAtomValue } from '@effect-atom/atom-react'
 import { Share2 } from 'lucide-react'
-import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -10,10 +9,10 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
+import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter'
 import { useMultiShare } from '@/hooks/useMultiShare'
 import { usePlausible } from '@/hooks/usePlausible'
 import { selectedGroupAtom } from '../store/expense-groups'
-import { currencyAtom } from '../store/settings'
 import type { Item, Person } from '../types'
 
 interface PersonDetailViewProps {
@@ -99,18 +98,10 @@ export function PersonDetailView({
 	open,
 	onOpenChange,
 }: PersonDetailViewProps) {
-	const { t, i18n } = useTranslation()
+	const { t } = useTranslation()
 	const group = useAtomValue(selectedGroupAtom)
-	const currency = useAtomValue(currencyAtom)
 	const breakdown = useAtomValue(personBreakdownAtom(person.id))
-	const currencyFormatter = useMemo(
-		() =>
-			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
-				style: 'currency',
-				currency,
-			}),
-		[currency, i18n.language]
-	)
+	const currencyFormatter = useCurrencyFormatter()
 
 	const { share: shareContent } = useMultiShare({
 		messages: {

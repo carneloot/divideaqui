@@ -13,9 +13,10 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { useClipboard } from '@/hooks/useClipboard'
+import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter'
 import { usePlausible } from '@/hooks/usePlausible'
 import { selectedGroupAtom } from '../store/expense-groups'
-import { currencyAtom, pixKeyAtom } from '../store/settings'
+import { pixKeyAtom } from '../store/settings'
 import type { Person } from '../types'
 
 interface PixExportDialogProps {
@@ -31,22 +32,13 @@ export function PixExportDialog({
 	open,
 	onOpenChange,
 }: PixExportDialogProps) {
-	const { t, i18n } = useTranslation()
+	const { t } = useTranslation()
 	const pixKey = useAtomValue(pixKeyAtom)
-	const currency = useAtomValue(currencyAtom)
 	const group = useAtomValue(selectedGroupAtom)
 	const { copy: copyToClipboard, copied } = useClipboard()
 	const [qrCodeImage, setQrCodeImage] = useState<string | null>(null)
 	const trackEvent = usePlausible()
-
-	const currencyFormatter = useMemo(
-		() =>
-			new Intl.NumberFormat(i18n.language === 'en' ? 'en-US' : i18n.language, {
-				style: 'currency',
-				currency,
-			}),
-		[currency, i18n.language]
-	)
+	const currencyFormatter = useCurrencyFormatter()
 
 	// Generate PIX code
 	const pixData = useMemo(() => {
