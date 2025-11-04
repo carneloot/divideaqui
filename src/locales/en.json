@@ -39,7 +39,14 @@
 		"placeholder": "Enter a name (e.g. Alex)",
 		"addPerson": "Add person",
 		"empty": "No people added yet. Invite your crew to begin.",
-		"remove": "Remove {{name}}"
+		"remove": "Remove {{name}}",
+		"paymentGroups": {
+			"title": "Payment Groups",
+			"subtitle": "Create groups of people who share expenses. Drag people into groups or create new groups.",
+			"group": "Group",
+			"unassigned": "Unassigned",
+			"createGroup": "Create new group"
+		}
 	},
 	"tip": {
 		"title": "Tip settings",
@@ -99,6 +106,8 @@
 		"base": "Base",
 		"tip": "Tip",
 		"credit": "credit",
+		"inGroupWith": "In group with",
+		"groupedTotal": "Grouped total",
 		"generatePix": "Generate PIX for {{name}}",
 		"viewDetails": "View details for {{name}}",
 		"calculationMismatch": "⚠️ Calculation mismatch detected. Double-check your item splits.",

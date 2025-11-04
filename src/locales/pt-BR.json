@@ -39,7 +39,14 @@
 		"placeholder": "Digite um nome (ex. Alex)",
 		"addPerson": "Adicionar pessoa",
 		"empty": "Nenhuma pessoa adicionada ainda. Convide sua tripulação para começar.",
-		"remove": "Remover {{name}}"
+		"remove": "Remover {{name}}",
+		"paymentGroups": {
+			"title": "Grupos de Pagamento",
+			"subtitle": "Crie grupos de pessoas que compartilham despesas. Arraste pessoas para grupos ou crie novos grupos.",
+			"group": "Grupo",
+			"unassigned": "Não atribuído",
+			"createGroup": "Criar novo grupo"
+		}
 	},
 	"tip": {
 		"title": "Configurações de gorjeta",
@@ -99,6 +106,8 @@
 		"base": "Base",
 		"tip": "Gorjeta",
 		"credit": "crédito",
+		"inGroupWith": "Em grupo com",
+		"groupedTotal": "Total agrupado",
 		"generatePix": "Gerar PIX para {{name}}",
 		"viewDetails": "Ver detalhes para {{name}}",
 		"calculationMismatch": "⚠️ Divergência de cálculo detectada. Verifique novamente suas divisões de itens.",

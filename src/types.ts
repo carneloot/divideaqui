@@ -26,6 +26,7 @@ export class ExpenseGroupSchema extends Schema.Class<ExpenseGroupSchema>(
 	people: Schema.Array(PersonSchema),
 	items: Schema.Array(ItemSchema),
 	tipPercentage: Schema.optional(Schema.Number),
+	paymentGroups: Schema.optional(Schema.Array(Schema.Array(Schema.String))),
 }) {}
 
 export type ExpenseGroup = Schema.Schema.Type<typeof ExpenseGroupSchema>

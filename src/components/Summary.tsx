@@ -28,12 +28,18 @@ const groupCalculationsAtom = Atom.make((get) => {
 	const totals: Record<string, number> = {}
 	const tips: Record<string, number> = {}
 	const totalsWithTips: Record<string, number> = {}
+	const groupedTotals: Record<string, number> = {}
+	const groupedTips: Record<string, number> = {}
+	const groupedTotalsWithTips: Record<string, number> = {}
 
 	// Initialize all people with 0
 	group.people.forEach((person) => {
 		totals[person.id] = 0
 		tips[person.id] = 0
 		totalsWithTips[person.id] = 0
+		groupedTotals[person.id] = 0
+		groupedTips[person.id] = 0
+		groupedTotalsWithTips[person.id] = 0
 	})
 
 	// Calculate each person's share
@@ -50,6 +56,34 @@ const groupCalculationsAtom = Atom.make((get) => {
 		applicablePeople.forEach((person) => {
 			totals[person.id] = (totals[person.id] || 0) + perPerson
 		})
+	})
+
+	// Calculate grouped totals based on payment groups
+	const paymentGroups = group.paymentGroups || []
+
+	// Build a map of person ID to their payment group
+	const personToGroupMap: Record<string, string[]> = {}
+	paymentGroups.forEach((paymentGroup) => {
+		paymentGroup.forEach((personId: string) => {
+			personToGroupMap[personId] = paymentGroup as string[]
+		})
+	})
+
+	group.people.forEach((person) => {
+		// Start with their own total
+		groupedTotals[person.id] = totals[person.id] || 0
+
+		// If person is in a payment group, add totals of all other group members
+		const paymentGroup = personToGroupMap[person.id]
+		if (paymentGroup) {
+			paymentGroup.forEach((memberId: string) => {
+				if (memberId !== person.id) {
+					const memberTotal = totals[memberId] || 0
+					groupedTotals[person.id] =
+						(groupedTotals[person.id] || 0) + memberTotal
+				}
+			})
+		}
 	})
 
 	// Calculate totals for validation
@@ -84,12 +118,33 @@ const groupCalculationsAtom = Atom.make((get) => {
 			}
 		})
 
+		// Calculate grouped tips (tip on individual total + tips of all group members)
+		group.people.forEach((person) => {
+			const personTip = tips[person.id] || 0
+			groupedTips[person.id] = personTip
+
+			// Add tips of all other members in the payment group
+			const paymentGroup = personToGroupMap[person.id]
+			if (paymentGroup) {
+				paymentGroup.forEach((memberId: string) => {
+					if (memberId !== person.id) {
+						const memberTip = tips[memberId] || 0
+						groupedTips[person.id] = (groupedTips[person.id] || 0) + memberTip
+					}
+				})
+			}
+
+			groupedTotalsWithTips[person.id] =
+				groupedTotals[person.id] + groupedTips[person.id]
+		})
+
 		// Calculate total tip amount for display
 		totalTipAmount = Object.values(tips).reduce((sum, val) => sum + val, 0)
 	} else {
 		// No tip, so totalsWithTips equals totals
 		group.people.forEach((person) => {
 			totalsWithTips[person.id] = totals[person.id] || 0
+			groupedTotalsWithTips[person.id] = groupedTotals[person.id] || 0
 		})
 	}
 
@@ -99,10 +154,29 @@ const groupCalculationsAtom = Atom.make((get) => {
 		0
 	)
 
+	// Build a map of person to their group members (for display)
+	const personGroupMembers: Record<string, string[]> = {}
+	group.people.forEach((person) => {
+		const paymentGroup = personToGroupMap[person.id]
+		if (paymentGroup) {
+			// Get all other members in the group
+			personGroupMembers[person.id] = paymentGroup.filter(
+				(id: string) => id !== person.id
+			)
+		} else {
+			personGroupMembers[person.id] = []
+		}
+	})
+
 	return {
 		totals,
 		tips,
 		totalsWithTips,
+		groupedTotals,
+		groupedTips,
+		groupedTotalsWithTips,
+		personGroupMembers,
+		paymentGroups,
 		totalExpenses,
 		totalDiscounts,
 		netTotal,
@@ -331,11 +405,27 @@ export function Summary() {
 										const tip = calculations.tips[person.id] || 0
 										const totalWithTip =
 											calculations.totalsWithTips[person.id] || 0
+										const groupedTotalWithTip =
+											calculations.groupedTotalsWithTips[person.id] || 0
 										const hasTip =
 											tip > 0 &&
 											group.tipPercentage !== undefined &&
 											group.tipPercentage !== null &&
 											group.tipPercentage > 0
+
+										// Check if person is in a payment group
+										const groupMembers =
+											calculations.personGroupMembers[person.id] || []
+										const hasPaymentGroup = groupMembers.length > 0
+										const hasGroupedTotal = groupedTotalWithTip !== totalWithTip
+
+										// Get names of group members
+										const memberNames = groupMembers
+											.map(
+												(id: string) =>
+													group.people.find((p) => p.id === id)?.name
+											)
+											.filter(Boolean) as string[]
 
 										return (
 											<div
@@ -353,28 +443,46 @@ export function Summary() {
 															{t('summary.tip')} {currencyFormatter.format(tip)}
 														</p>
 													)}
+													{hasPaymentGroup && (
+														<p className="text-muted-foreground text-xs">
+															{t('summary.inGroupWith')}:{' '}
+															{memberNames.join(', ')}
+														</p>
+													)}
 												</div>
-												<div
-													className={`text-right font-semibold text-base ${
-														totalWithTip >= 0
-															? 'text-primary'
-															: 'text-emerald-600'
-													}`}
-												>
-													{currencyFormatter.format(Math.abs(totalWithTip))}
-													{totalWithTip < 0 && (
-														<span className="ml-1 text-emerald-600 text-xs uppercase tracking-wide">
-															{t('summary.credit')}
-														</span>
+												<div className="space-y-1 text-right">
+													<div
+														className={`font-semibold text-base ${
+															totalWithTip >= 0
+																? 'text-primary'
+																: 'text-emerald-600'
+														}`}
+													>
+														{currencyFormatter.format(Math.abs(totalWithTip))}
+														{totalWithTip < 0 && (
+															<span className="ml-1 text-emerald-600 text-xs uppercase tracking-wide">
+																{t('summary.credit')}
+															</span>
+														)}
+													</div>
+													{hasGroupedTotal && (
+														<div className="text-muted-foreground text-xs">
+															{t('summary.groupedTotal')}:{' '}
+															<span className="font-semibold">
+																{currencyFormatter.format(
+																	Math.abs(groupedTotalWithTip)
+																)}
+															</span>
+														</div>
 													)}
 												</div>
 												<div className="flex items-center gap-1">
-													{totalWithTip > 0 && currency === 'BRL' && (
+													{groupedTotalWithTip > 0 && currency === 'BRL' && (
 														<Button
 															variant="ghost"
 															size="icon"
 															onClick={() =>
-																handlePixClick(person, totalWithTip)
+																handlePixClick(person, groupedTotalWithTip)
 															}
 															aria-label={t('summary.generatePix', {
 																name: person.name,

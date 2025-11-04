@@ -191,11 +191,27 @@ export const removePersonFromGroupAtom = Atom.fnSync(
 			selectedPeople: item.selectedPeople.filter((id) => id !== input.personId),
 		}))
 
+		// Clean up payment groups - remove person from their payment group
+		const currentPaymentGroups = group.paymentGroups || []
+		const updatedPaymentGroups = currentPaymentGroups
+			.map((paymentGroup) =>
+				paymentGroup.filter((id: string) => id !== input.personId)
+			)
+			.filter((paymentGroup) => paymentGroup.length > 0) // Remove empty groups
+
 		get.set(
 			groupsAtom,
 			groups.map((g) =>
 				g.id === input.groupId
-					? { ...g, people: updatedPeople, items: updatedItems }
+					? {
+							...g,
+							people: updatedPeople,
+							items: updatedItems,
+							paymentGroups:
+								updatedPaymentGroups.length > 0
+									? updatedPaymentGroups
+									: undefined,
+						}
 					: g
 			)
 		)
@@ -222,6 +238,31 @@ export const removeItemFromGroupAtom = Atom.fnSync(
 			groups.map((g) =>
 				g.id === input.groupId
 					? { ...g, items: g.items.filter((item) => item.id !== input.itemId) }
+					: g
+			)
+		)
+	}
+)
+
+export const updatePaymentGroupsAtom = Atom.fnSync(
+	(
+		input: {
+			groupId: string
+			paymentGroups: string[][]
+		},
+		get
+	) => {
+		const groups = get(groupsAtom)
+		const normalizedGroups = input.paymentGroups.map((group) => [...group])
+		get.set(
+			groupsAtom,
+			groups.map((g) =>
+				g.id === input.groupId
+					? {
+							...g,
+							paymentGroups:
+								normalizedGroups.length > 0 ? normalizedGroups : undefined,
+						}
 					: g
 			)
 		)
