@@ -156,7 +156,7 @@ export function GroupManager() {
 						variant="ghost"
 						onClick={() => setShowDeleteConfirmDialog(true)}
 						aria-label={t('group.deleteGroup')}
-						className="h-11 rounded-lg border border-ring-foreground text-primary-foreground hover:border-transparent"
+						className="h-11 rounded-lg border border-primary-foreground text-primary-foreground hover:border-transparent"
 					>
 						<Trash2 className="mr-2 h-4 w-4" />
 						{t('group.deleteGroup')}
