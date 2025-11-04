@@ -14,6 +14,7 @@ import { GroupManager } from './components/GroupManager'
 import { LanguageSync } from './components/LanguageSync'
 import { SettingsModal } from './components/SettingsModal'
 import { ThemeSync } from './components/ThemeSync'
+import { usePlausible } from './hooks/usePlausible'
 import {
 	createNewGroupAtom,
 	groupsAtom,
@@ -27,6 +28,7 @@ function App() {
 	const [selectedGroupId, setSelectedGroupId] = useAtom(selectedGroupIdAtom)
 	const createNewGroup = useAtomSet(createNewGroupAtom)
 	const selectedGroup = useAtomValue(selectedGroupAtom)
+	const trackEvent = usePlausible()
 
 	// Initialize selectedGroupId with first group if groups exist and no selection
 	useEffect(() => {
@@ -37,6 +39,11 @@ function App() {
 
 	const handleCreateGroup = () => {
 		createNewGroup({ name: t('group.newGroup') })
+		trackEvent('group-created', {
+			props: {
+				totalGroups: String(groups.length + 1),
+			},
+		})
 	}
 
 	return (

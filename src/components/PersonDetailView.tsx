@@ -11,6 +11,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { useMultiShare } from '@/hooks/useMultiShare'
+import { usePlausible } from '@/hooks/usePlausible'
 import { currencyAtom, selectedGroupAtom } from '../store/atoms'
 import type { Person } from '../types'
 
@@ -47,6 +48,7 @@ export function PersonDetailView({
 			shareErrorDescription: t('personDetail.shareErrorDescription'),
 		},
 	})
+	const trackEvent = usePlausible()
 
 	if (!group) {
 		return null
@@ -168,6 +170,11 @@ export function PersonDetailView({
 		await shareContent({
 			text: summaryText,
 			title: t('personDetail.title', { name: person.name }),
+		})
+		trackEvent('data-shared', {
+			props: {
+				location: 'person-detail',
+			},
 		})
 	}
 

@@ -3,6 +3,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { PlausibleAnalytics } from './components/PlausibleAnalytics'
 import { ThemeToaster } from './components/ThemeToaster'
 import './lib/i18n'
 
@@ -10,6 +11,7 @@ import './lib/i18n'
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<RegistryProvider>
+			<PlausibleAnalytics />
 			<App />
 			<ThemeToaster />
 		</RegistryProvider>

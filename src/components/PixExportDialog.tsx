@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { useClipboard } from '@/hooks/useClipboard'
+import { usePlausible } from '@/hooks/usePlausible'
 import { currencyAtom, pixKeyAtom, selectedGroupAtom } from '../store/atoms'
 import type { Person } from '../types'
 
@@ -35,6 +36,7 @@ export function PixExportDialog({
 	const group = useAtomValue(selectedGroupAtom)
 	const { copy: copyToClipboard, copied } = useClipboard()
 	const [qrCodeImage, setQrCodeImage] = useState<string | null>(null)
+	const trackEvent = usePlausible()
 
 	const currencyFormatter = useMemo(
 		() =>
@@ -71,6 +73,14 @@ export function PixExportDialog({
 			return null
 		}
 	}, [pixKey, amount, group])
+
+	// Track when PIX dialog opens (only on transition from closed to open)
+	// biome-ignore lint/correctness/useExhaustiveDependencies: We don't need to track changes to currency
+	useEffect(() => {
+		if (open && pixKey) {
+			trackEvent('pix-opened')
+		}
+	}, [open])
 
 	// Generate QR code image asynchronously
 	useEffect(() => {

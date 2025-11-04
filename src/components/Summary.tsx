@@ -12,6 +12,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { useMultiShare } from '@/hooks/useMultiShare'
+import { usePlausible } from '@/hooks/usePlausible'
 import { currencyAtom, pixKeyAtom, selectedGroupAtom } from '../store/atoms'
 import type { Person } from '../types'
 import { PersonDetailView } from './PersonDetailView'
@@ -143,6 +144,7 @@ export function Summary() {
 			shareErrorDescription: t('summary.shareErrorDescription'),
 		},
 	})
+	const trackEvent = usePlausible()
 
 	const handlePixClick = (person: Person, amount: number) => {
 		if (!pixKey) {
@@ -231,6 +233,11 @@ export function Summary() {
 		await shareContent({
 			text: summaryText,
 			title: group?.name || t('summary.title'),
+		})
+		trackEvent('data-shared', {
+			props: {
+				location: 'summary',
+			},
 		})
 	}
 
