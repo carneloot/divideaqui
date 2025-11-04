@@ -485,6 +485,19 @@ export function Summary() {
 		}
 
 		lines.push('')
+		lines.push(t('itemsList.title'))
+		lines.push('─'.repeat(30))
+		group.items.forEach((item) => {
+			const itemType =
+				item.type === 'expense'
+					? t('itemsList.expense')
+					: t('itemsList.discount')
+			lines.push(
+				`${item.name} (${itemType}): ${currencyFormatter.format(item.price)}`
+			)
+		})
+
+		lines.push('')
 		lines.push(`${t('summary.person')} | ${t('summary.amount')}`)
 		lines.push('─'.repeat(30))
 
