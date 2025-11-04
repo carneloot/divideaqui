@@ -11,14 +11,25 @@ import {
 	useSensors,
 } from '@dnd-kit/core'
 
-import { Atom, useAtomSet, useAtomValue } from '@effect-atom/atom-react'
-import { ChevronDown, ChevronUp, GripVertical, Trash2, X } from 'lucide-react'
+import {
+	Atom,
+	useAtom,
+	useAtomSet,
+	useAtomValue,
+} from '@effect-atom/atom-react'
+import { ChevronUp, GripVertical, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { peopleAccordionStateAtom } from '../store/accordion'
 import {
 	addPersonToGroupAtom,
 	groupsAtom,
@@ -192,6 +203,9 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 	const otherGroupMemberNames = useAtomValue(otherGroupMemberNamesAtom)
 	const paymentGroups = useAtomValue(paymentGroupsAtom)
 	const unassignedPeople = useAtomValue(unassignedPeopleAtom)
+	const [isAccordionOpen, setIsAccordionOpen] = useAtom(
+		peopleAccordionStateAtom
+	)
 	const [name, setName] = useState('')
 	const [showPaymentGroups, setShowPaymentGroups] = useState(false)
 	const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
@@ -346,135 +360,154 @@ export function PeopleManager({ people }: PeopleManagerProps) {
 
 	return (
 		<Card className="border-none bg-card shadow-md ring-1 ring-ring backdrop-blur">
-			<CardHeader className="space-y-1">
-				<CardTitle className="font-semibold text-foreground text-xl">
-					{t('people.title')}
-				</CardTitle>
-				<p className="text-muted-foreground text-sm">{t('people.subtitle')}</p>
-			</CardHeader>
-			<CardContent className="space-y-5">
-				<div className="flex flex-col gap-3 sm:flex-row">
-					<AutocompleteInput
-						value={name}
-						onChange={setName}
-						suggestions={otherGroupMemberNames}
-						onEnter={handleAdd}
-						placeholder={t('people.placeholder')}
-						className="h-12 flex-1 rounded-xl border-input bg-background text-base"
-					/>
-					<Button
-						onClick={handleAdd}
-						className="h-12 rounded-xl bg-primary text-primary-foreground shadow-sm transition hover:bg-primary/90"
-					>
-						{t('people.addPerson')}
-					</Button>
-				</div>
-				<div className="space-y-2">
-					{people.length === 0 ? (
-						<p className="rounded-xl border border-border border-dashed bg-muted py-6 text-center font-medium text-muted-foreground text-sm">
-							{t('people.empty')}
-						</p>
-					) : (
-						[...people]
-							.sort((a, b) => a.name.localeCompare(b.name))
-							.map((person) => (
-								<div
-									key={person.id}
-									className="hover:-translate-y-0.5 flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-4 py-3 shadow-sm transition hover:shadow-md"
+			<Accordion
+				type="single"
+				collapsible
+				value={isAccordionOpen}
+				onValueChange={setIsAccordionOpen}
+				className="w-full"
+			>
+				<AccordionItem value="people" className="border-none">
+					<CardHeader className="space-y-1">
+						<AccordionTrigger className="py-0 hover:no-underline">
+							<div className="flex-1 text-left">
+								<CardTitle className="font-semibold text-foreground text-xl">
+									{t('people.title')}
+								</CardTitle>
+								<p className="text-muted-foreground text-sm">
+									{t('people.subtitle')}
+								</p>
+							</div>
+						</AccordionTrigger>
+					</CardHeader>
+					<AccordionContent className="px-6 pb-6">
+						<CardContent className="space-y-5 p-0">
+							<div className="flex flex-col gap-3 sm:flex-row">
+								<AutocompleteInput
+									value={name}
+									onChange={setName}
+									suggestions={otherGroupMemberNames}
+									onEnter={handleAdd}
+									placeholder={t('people.placeholder')}
+									className="h-12 flex-1 rounded-xl border-input bg-background text-base"
+								/>
+								<Button
+									onClick={handleAdd}
+									className="h-12 rounded-xl bg-primary text-primary-foreground shadow-sm transition hover:bg-primary/90"
 								>
-									<span className="font-medium text-foreground text-sm">
-										{person.name}
-									</span>
+									{t('people.addPerson')}
+								</Button>
+							</div>
+							<div className="space-y-2">
+								{people.length === 0 ? (
+									<p className="rounded-xl border border-border border-dashed bg-muted py-6 text-center font-medium text-muted-foreground text-sm">
+										{t('people.empty')}
+									</p>
+								) : (
+									[...people]
+										.sort((a, b) => a.name.localeCompare(b.name))
+										.map((person) => (
+											<div
+												key={person.id}
+												className="hover:-translate-y-0.5 flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-4 py-3 shadow-sm transition hover:shadow-md"
+											>
+												<span className="font-medium text-foreground text-sm">
+													{person.name}
+												</span>
+												<Button
+													variant="ghost"
+													size="icon"
+													onClick={() => handleRemove(person.id)}
+													aria-label={t('people.remove', { name: person.name })}
+													className="h-8 w-8 text-muted-foreground hover:text-destructive"
+												>
+													<X className="h-4 w-4" />
+												</Button>
+											</div>
+										))
+								)}
+							</div>
+							{people.length > 1 && (
+								<div className="space-y-3">
 									<Button
 										variant="ghost"
-										size="icon"
-										onClick={() => handleRemove(person.id)}
-										aria-label={t('people.remove', { name: person.name })}
-										className="h-8 w-8 text-muted-foreground hover:text-destructive"
+										onClick={() => setShowPaymentGroups(!showPaymentGroups)}
+										className="flex w-full items-center justify-between rounded-xl border border-border bg-muted px-4 py-3 text-left hover:bg-muted/80"
 									>
-										<X className="h-4 w-4" />
+										<span className="font-medium text-foreground text-sm">
+											{t('people.paymentGroups.title')}
+										</span>
+										<ChevronUp
+											className={`h-4 w-4 text-muted-foreground transition-transform ${showPaymentGroups ? '' : 'rotate-180'}`}
+										/>
 									</Button>
-								</div>
-							))
-					)}
-				</div>
-				{people.length > 1 && (
-					<div className="space-y-3">
-						<Button
-							variant="ghost"
-							onClick={() => setShowPaymentGroups(!showPaymentGroups)}
-							className="flex w-full items-center justify-between rounded-xl border border-border bg-muted px-4 py-3 text-left hover:bg-muted/80"
-						>
-							<span className="font-medium text-foreground text-sm">
-								{t('people.paymentGroups.title')}
-							</span>
-							{showPaymentGroups ? (
-								<ChevronUp className="h-4 w-4 text-muted-foreground" />
-							) : (
-								<ChevronDown className="h-4 w-4 text-muted-foreground" />
-							)}
-						</Button>
-						{showPaymentGroups && (
-							<DndContext
-								sensors={sensors}
-								onDragStart={handleDragStart}
-								onDragEnd={handleDragEnd}
-							>
-								<div className="space-y-4 rounded-xl border border-border bg-muted p-4">
-									<p className="text-muted-foreground text-xs">
-										{t('people.paymentGroups.subtitle')}
-									</p>
-									<div className="space-y-4">
-										{/* Payment Groups */}
-										{paymentGroups.map((paymentGroup, index) => {
-											// Create a unique key based on group members
-											const groupKey = `group-${index}-${paymentGroup.join('-')}`
-											return (
-												<div
-													key={groupKey}
-													className="rounded-lg border-2 border-primary/30 border-dashed p-2"
-												>
-													<PaymentGroup
-														groupIndex={index}
-														personIds={[...paymentGroup]}
-														people={people}
-														onRemoveGroup={() => handleRemoveGroup(index)}
-													/>
-												</div>
-											)
-										})}
-
-										{/* Unassigned People */}
-										<UnassignedDroppable>
-											<p className="font-medium text-foreground text-sm">
-												{t('people.paymentGroups.unassigned')}
-											</p>
-											<div className="space-y-2">
-												{unassignedPeople.map((person) => (
-													<DraggablePerson key={person.id} person={person} />
-												))}
-											</div>
-										</UnassignedDroppable>
-
-										{/* Create Group Button */}
-										<Button
-											onClick={handleCreateGroup}
-											variant="outline"
-											className="w-full"
+									{showPaymentGroups && (
+										<DndContext
+											sensors={sensors}
+											onDragStart={handleDragStart}
+											onDragEnd={handleDragEnd}
 										>
-											{t('people.paymentGroups.createGroup')}
-										</Button>
-									</div>
+											<div className="space-y-4 rounded-xl border border-border bg-muted p-4">
+												<p className="text-muted-foreground text-xs">
+													{t('people.paymentGroups.subtitle')}
+												</p>
+												<div className="space-y-4">
+													{/* Payment Groups */}
+													{paymentGroups.map((paymentGroup, index) => {
+														// Create a unique key based on group members
+														const groupKey = `group-${index}-${paymentGroup.join('-')}`
+														return (
+															<div
+																key={groupKey}
+																className="rounded-lg border-2 border-primary/30 border-dashed p-2"
+															>
+																<PaymentGroup
+																	groupIndex={index}
+																	personIds={[...paymentGroup]}
+																	people={people}
+																	onRemoveGroup={() => handleRemoveGroup(index)}
+																/>
+															</div>
+														)
+													})}
+
+													{/* Unassigned People */}
+													<UnassignedDroppable>
+														<p className="font-medium text-foreground text-sm">
+															{t('people.paymentGroups.unassigned')}
+														</p>
+														<div className="space-y-2">
+															{unassignedPeople.map((person) => (
+																<DraggablePerson
+																	key={person.id}
+																	person={person}
+																/>
+															))}
+														</div>
+													</UnassignedDroppable>
+
+													{/* Create Group Button */}
+													<Button
+														onClick={handleCreateGroup}
+														variant="outline"
+														className="w-full"
+													>
+														{t('people.paymentGroups.createGroup')}
+													</Button>
+												</div>
+											</div>
+											{createPortal(
+												<DragOverlay>{dragOverlayContent}</DragOverlay>,
+												document.body
+											)}
+										</DndContext>
+									)}
 								</div>
-								{createPortal(
-									<DragOverlay>{dragOverlayContent}</DragOverlay>,
-									document.body
-								)}
-							</DndContext>
-						)}
-					</div>
-				)}
-			</CardContent>
+							)}
+						</CardContent>
+					</AccordionContent>
+				</AccordionItem>
+			</Accordion>
 		</Card>
 	)
 }

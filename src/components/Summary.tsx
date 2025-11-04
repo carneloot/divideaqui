@@ -1,7 +1,13 @@
-import { Atom, useAtomValue } from '@effect-atom/atom-react'
+import { Atom, useAtom, useAtomValue } from '@effect-atom/atom-react'
 import { Eye, QrCode, Share2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -13,6 +19,7 @@ import {
 } from '@/components/ui/dialog'
 import { useMultiShare } from '@/hooks/useMultiShare'
 import { usePlausible } from '@/hooks/usePlausible'
+import { summaryAccordionStateAtom } from '../store/accordion'
 import { currencyAtom, pixKeyAtom, selectedGroupAtom } from '../store/atoms'
 import type { Person } from '../types'
 import { PersonDetailView } from './PersonDetailView'
@@ -193,6 +200,9 @@ export function Summary() {
 	const calculations = useAtomValue(groupCalculationsAtom)
 	const currency = useAtomValue(currencyAtom)
 	const pixKey = useAtomValue(pixKeyAtom)
+	const [isAccordionOpen, setIsAccordionOpen] = useAtom(
+		summaryAccordionStateAtom
+	)
 	const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
 	const [pixPerson, setPixPerson] = useState<{
 		person: Person
@@ -322,200 +332,237 @@ export function Summary() {
 	return (
 		<>
 			<Card className="border-none bg-card shadow-lg ring-1 ring-ring backdrop-blur">
-				<CardHeader className="space-y-1">
-					<div className="flex items-center justify-between">
-						<div>
-							<CardTitle className="font-semibold text-foreground text-xl">
-								{t('summary.title')}
-							</CardTitle>
-							<p className="text-muted-foreground text-sm">
-								{t('summary.subtitle')}
-							</p>
-						</div>
-						{group.people.length > 0 && group.items.length > 0 && (
-							<Button
-								variant="ghost"
-								size="icon"
-								onClick={handleShare}
-								aria-label={t('summary.share')}
-								className="h-10 w-10 rounded-xl text-foreground hover:bg-primary/10"
-							>
-								<Share2 className="h-5 w-5" />
-							</Button>
-						)}
-					</div>
-				</CardHeader>
-				<CardContent className="space-y-5">
-					{group.people.length === 0 ? (
-						<p className="rounded-2xl border border-border border-dashed bg-muted py-6 text-center font-medium text-muted-foreground text-sm">
-							{t('summary.addPeople')}
-						</p>
-					) : group.items.length === 0 ? (
-						<p className="rounded-2xl border border-border border-dashed bg-muted py-6 text-center font-medium text-muted-foreground text-sm">
-							{t('summary.addItems')}
-						</p>
-					) : (
-						<>
-							<div className="rounded-2xl bg-linear-to-r from-primary/10 via-ring/5 to-background/50 p-5 ring-1 ring-ring/50 ring-inset">
-								<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-									<div>
-										<p className="font-semibold text-muted-foreground text-xs uppercase tracking-[0.35em]">
-											{t('summary.grandTotal')}
-										</p>
-										<p className="mt-2 font-semibold text-3xl text-foreground">
-											{currencyFormatter.format(
-												calculations.sumOfSharesWithTips
-											)}
-										</p>
-									</div>
-									<div className="grid gap-1 text-muted-foreground text-sm sm:text-right">
-										<span>
-											{t('summary.expenses')}:{' '}
-											{currencyFormatter.format(calculations.totalExpenses)}
-										</span>
-										<span>
-											{t('summary.discounts')}:{' '}
-											{currencyFormatter.format(calculations.totalDiscounts)}
-										</span>
-										{calculations.totalTips > 0 && (
-											<>
-												<span>
-													{t('summary.netBeforeTip')}:{' '}
-													{currencyFormatter.format(calculations.netTotal)}
-												</span>
-												<span>
-													{t('summary.tipsAdded')}:{' '}
-													{currencyFormatter.format(calculations.totalTips)}
-												</span>
-											</>
-										)}
-									</div>
+				<Accordion
+					type="single"
+					collapsible
+					value={isAccordionOpen}
+					onValueChange={setIsAccordionOpen}
+					className="w-full"
+				>
+					<AccordionItem value="summary" className="border-none">
+						<CardHeader className="space-y-1">
+							<AccordionTrigger className="group py-0 hover:no-underline">
+								<div className="text-left">
+									<CardTitle className="font-semibold text-foreground text-xl">
+										{t('summary.title')}
+									</CardTitle>
+									<p className="text-muted-foreground text-sm">
+										{t('summary.subtitle')}
+									</p>
 								</div>
-							</div>
-							<div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
-								<div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-border border-b bg-muted px-4 py-3 font-semibold text-[0.68rem] text-muted-foreground uppercase tracking-[0.35em]">
-									<span>{t('summary.person')}</span>
-									<span className="text-right">{t('summary.amount')}</span>
-									<span className="text-right">{t('summary.actions')}</span>
-								</div>
-								{[...group.people]
-									.sort((a, b) => a.name.localeCompare(b.name))
-									.map((person) => {
-										const baseTotal = calculations.totals[person.id] || 0
-										const tip = calculations.tips[person.id] || 0
-										const totalWithTip =
-											calculations.totalsWithTips[person.id] || 0
-										const groupedTotalWithTip =
-											calculations.groupedTotalsWithTips[person.id] || 0
-										const hasTip =
-											tip > 0 &&
-											group.tipPercentage !== undefined &&
-											group.tipPercentage !== null &&
-											group.tipPercentage > 0
-
-										// Check if person is in a payment group
-										const groupMembers =
-											calculations.personGroupMembers[person.id] || []
-										const hasPaymentGroup = groupMembers.length > 0
-										const hasGroupedTotal = groupedTotalWithTip !== totalWithTip
-
-										// Get names of group members
-										const memberNames = groupMembers
-											.map(
-												(id: string) =>
-													group.people.find((p) => p.id === id)?.name
-											)
-											.filter(Boolean) as string[]
-
-										return (
-											<div
-												key={person.id}
-												className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-border border-t px-4 py-4 text-sm"
-											>
-												<div className="space-y-1">
-													<p className="font-medium text-foreground">
-														{person.name}
+							</AccordionTrigger>
+						</CardHeader>
+						<AccordionContent className="px-6 pb-6">
+							<CardContent className="space-y-5 p-0">
+								{group.people.length === 0 ? (
+									<p className="rounded-2xl border border-border border-dashed bg-muted py-6 text-center font-medium text-muted-foreground text-sm">
+										{t('summary.addPeople')}
+									</p>
+								) : group.items.length === 0 ? (
+									<p className="rounded-2xl border border-border border-dashed bg-muted py-6 text-center font-medium text-muted-foreground text-sm">
+										{t('summary.addItems')}
+									</p>
+								) : (
+									<>
+										<div className="rounded-2xl bg-linear-to-r from-primary/10 via-ring/5 to-background/50 p-5 ring-1 ring-ring/50 ring-inset">
+											<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+												<div>
+													<p className="font-semibold text-muted-foreground text-xs uppercase tracking-[0.35em]">
+														{t('summary.grandTotal')}
 													</p>
-													{hasTip && (
-														<p className="text-muted-foreground text-xs">
-															{t('summary.base')}{' '}
-															{currencyFormatter.format(baseTotal)} ·{' '}
-															{t('summary.tip')} {currencyFormatter.format(tip)}
-														</p>
-													)}
-													{hasPaymentGroup && (
-														<p className="text-muted-foreground text-xs">
-															{t('summary.inGroupWith')}:{' '}
-															{memberNames.join(', ')}
-														</p>
-													)}
-												</div>
-												<div className="space-y-1 text-right">
-													<div
-														className={`font-semibold text-base ${
-															totalWithTip >= 0
-																? 'text-primary'
-																: 'text-emerald-600'
-														}`}
-													>
-														{currencyFormatter.format(Math.abs(totalWithTip))}
-														{totalWithTip < 0 && (
-															<span className="ml-1 text-emerald-600 text-xs uppercase tracking-wide">
-																{t('summary.credit')}
-															</span>
+													<p className="mt-2 font-semibold text-3xl text-foreground">
+														{currencyFormatter.format(
+															calculations.sumOfSharesWithTips
 														)}
-													</div>
-													{hasGroupedTotal && (
-														<div className="text-muted-foreground text-xs">
-															{t('summary.groupedTotal')}:{' '}
-															<span className="font-semibold">
+													</p>
+												</div>
+												<div className="grid gap-1 text-muted-foreground text-sm sm:text-right">
+													<span>
+														{t('summary.expenses')}:{' '}
+														{currencyFormatter.format(
+															calculations.totalExpenses
+														)}
+													</span>
+													<span>
+														{t('summary.discounts')}:{' '}
+														{currencyFormatter.format(
+															calculations.totalDiscounts
+														)}
+													</span>
+													{calculations.totalTips > 0 && (
+														<>
+															<span>
+																{t('summary.netBeforeTip')}:{' '}
 																{currencyFormatter.format(
-																	Math.abs(groupedTotalWithTip)
+																	calculations.netTotal
 																)}
 															</span>
-														</div>
+															<span>
+																{t('summary.tipsAdded')}:{' '}
+																{currencyFormatter.format(
+																	calculations.totalTips
+																)}
+															</span>
+														</>
 													)}
-												</div>
-												<div className="flex items-center gap-1">
-													{groupedTotalWithTip > 0 && currency === 'BRL' && (
-														<Button
-															variant="ghost"
-															size="icon"
-															onClick={() =>
-																handlePixClick(person, groupedTotalWithTip)
-															}
-															aria-label={t('summary.generatePix', {
-																name: person.name,
-															})}
-															className="h-8 w-8 rounded-full text-muted-foreground transition hover:bg-accent hover:text-emerald-600"
-														>
-															<QrCode className="h-4 w-4" />
-														</Button>
-													)}
-													<Button
-														variant="ghost"
-														size="icon"
-														onClick={() => setSelectedPerson(person)}
-														aria-label={t('summary.viewDetails', {
-															name: person.name,
-														})}
-														className="h-8 w-8 rounded-full text-muted-foreground transition hover:bg-accent hover:text-primary"
-													>
-														<Eye className="h-4 w-4" />
-													</Button>
 												</div>
 											</div>
-										)
-									})}
-							</div>
-							{!calculations.isValid && (
-								<div className="rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 font-medium text-amber-700 text-sm">
-									⚠️ {t('summary.calculationMismatch')}
-								</div>
-							)}
-						</>
-					)}
-				</CardContent>
+										</div>
+										<div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
+											<div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-border border-b bg-muted px-4 py-3 font-semibold text-[0.68rem] text-muted-foreground uppercase tracking-[0.35em]">
+												<span>{t('summary.person')}</span>
+												<span className="text-right">
+													{t('summary.amount')}
+												</span>
+												<span className="text-right">
+													{t('summary.actions')}
+												</span>
+											</div>
+											{[...group.people]
+												.sort((a, b) => a.name.localeCompare(b.name))
+												.map((person) => {
+													const baseTotal = calculations.totals[person.id] || 0
+													const tip = calculations.tips[person.id] || 0
+													const totalWithTip =
+														calculations.totalsWithTips[person.id] || 0
+													const groupedTotalWithTip =
+														calculations.groupedTotalsWithTips[person.id] || 0
+													const hasTip =
+														tip > 0 &&
+														group.tipPercentage !== undefined &&
+														group.tipPercentage !== null &&
+														group.tipPercentage > 0
+
+													// Check if person is in a payment group
+													const groupMembers =
+														calculations.personGroupMembers[person.id] || []
+													const hasPaymentGroup = groupMembers.length > 0
+													const hasGroupedTotal =
+														groupedTotalWithTip !== totalWithTip
+
+													// Get names of group members
+													const memberNames = groupMembers
+														.map(
+															(id: string) =>
+																group.people.find((p) => p.id === id)?.name
+														)
+														.filter(Boolean) as string[]
+
+													return (
+														<div
+															key={person.id}
+															className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 border-border border-t px-4 py-4 text-sm"
+														>
+															<div className="space-y-1">
+																<p className="font-medium text-foreground">
+																	{person.name}
+																</p>
+																{hasTip && (
+																	<p className="text-muted-foreground text-xs">
+																		{t('summary.base')}{' '}
+																		{currencyFormatter.format(baseTotal)} ·{' '}
+																		{t('summary.tip')}{' '}
+																		{currencyFormatter.format(tip)}
+																	</p>
+																)}
+																{hasPaymentGroup && (
+																	<p className="text-muted-foreground text-xs">
+																		{t('summary.inGroupWith')}:{' '}
+																		{memberNames.join(', ')}
+																	</p>
+																)}
+															</div>
+															<div className="space-y-1 text-right">
+																<div
+																	className={`font-semibold text-base ${
+																		totalWithTip >= 0
+																			? 'text-primary'
+																			: 'text-emerald-600'
+																	}`}
+																>
+																	{currencyFormatter.format(
+																		Math.abs(totalWithTip)
+																	)}
+																	{totalWithTip < 0 && (
+																		<span className="ml-1 text-emerald-600 text-xs uppercase tracking-wide">
+																			{t('summary.credit')}
+																		</span>
+																	)}
+																</div>
+																{hasGroupedTotal && (
+																	<div className="text-muted-foreground text-xs">
+																		{t('summary.groupedTotal')}:{' '}
+																		<span className="font-semibold">
+																			{currencyFormatter.format(
+																				Math.abs(groupedTotalWithTip)
+																			)}
+																		</span>
+																	</div>
+																)}
+															</div>
+															<div className="flex items-center gap-1">
+																{groupedTotalWithTip > 0 &&
+																	currency === 'BRL' && (
+																		<Button
+																			variant="ghost"
+																			size="icon"
+																			onClick={() =>
+																				handlePixClick(
+																					person,
+																					groupedTotalWithTip
+																				)
+																			}
+																			aria-label={t('summary.generatePix', {
+																				name: person.name,
+																			})}
+																			className="h-8 w-8 rounded-full text-muted-foreground transition hover:bg-accent hover:text-emerald-600"
+																		>
+																			<QrCode className="h-4 w-4" />
+																		</Button>
+																	)}
+																<Button
+																	variant="ghost"
+																	size="icon"
+																	onClick={() => setSelectedPerson(person)}
+																	aria-label={t('summary.viewDetails', {
+																		name: person.name,
+																	})}
+																	className="h-8 w-8 rounded-full text-muted-foreground transition hover:bg-accent hover:text-primary"
+																>
+																	<Eye className="h-4 w-4" />
+																</Button>
+															</div>
+														</div>
+													)
+												})}
+										</div>
+										<div className="flex justify-end">
+											{group.people.length > 0 && group.items.length > 0 && (
+												<Button
+													variant="outline"
+													onClick={(e) => {
+														e.stopPropagation()
+														handleShare()
+													}}
+													aria-label={t('summary.share')}
+													className="rounded-xl text-foreground hover:bg-primary/10"
+												>
+													<Share2 className="h-5 w-5" />
+													{t('summary.share')}
+												</Button>
+											)}
+										</div>
+										{!calculations.isValid && (
+											<div className="rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 font-medium text-amber-700 text-sm">
+												⚠️ {t('summary.calculationMismatch')}
+											</div>
+										)}
+									</>
+								)}
+							</CardContent>
+						</AccordionContent>
+					</AccordionItem>
+				</Accordion>
 			</Card>
 			{selectedPerson && (
 				<PersonDetailView

@@ -1,23 +1,13 @@
-import { BrowserKeyValueStore } from '@effect/platform-browser'
 import { Atom } from '@effect-atom/atom-react'
-import { Effect, Layer, Schema } from 'effect'
+import { Effect, Schema } from 'effect'
 import { Compressor } from '../services/compressor'
-import { PakoCompressorLive } from '../services/pako-compressor'
 import {
 	type ExpenseGroup,
 	ExpenseGroupSchema,
 	type Item,
 	type Person,
 } from '../types'
-
-// Create atoms for managing expense groups
-// Merge all required layers for the runtime
-const runtimeLayer = Layer.merge(
-	BrowserKeyValueStore.layerLocalStorage,
-	PakoCompressorLive
-)
-
-const runtimeAtom = Atom.runtime(runtimeLayer)
+import { runtimeAtom } from './runtime'
 
 // Settings schema (includes pixKey which should not be exported)
 export const SettingsSchema = Schema.Struct({

@@ -110,7 +110,7 @@
 		"groupedTotal": "Total agrupado",
 		"generatePix": "Gerar PIX para {{name}}",
 		"viewDetails": "Ver detalhes para {{name}}",
-		"calculationMismatch": "⚠️ Divergência de cálculo detectada. Verifique novamente suas divisões de itens.",
+		"calculationMismatch": "Divergência de cálculo detectada. Verifique novamente suas divisões de itens.",
 		"share": "Compartilhar resumo",
 		"shareSuccess": "Resumo compartilhado",
 		"shareSuccessDescription": "O resumo foi compartilhado com sucesso",

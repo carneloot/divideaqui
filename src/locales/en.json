@@ -110,7 +110,7 @@
 		"groupedTotal": "Grouped total",
 		"generatePix": "Generate PIX for {{name}}",
 		"viewDetails": "View details for {{name}}",
-		"calculationMismatch": "⚠️ Calculation mismatch detected. Double-check your item splits.",
+		"calculationMismatch": "Calculation mismatch detected. Double-check your item splits.",
 		"share": "Share summary",
 		"shareSuccess": "Summary shared",
 		"shareSuccessDescription": "The summary has been shared successfully",
