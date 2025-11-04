@@ -1,6 +1,8 @@
 import { useAtomValue } from '@effect-atom/atom-react'
+import { Share2 } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
 	Dialog,
@@ -8,6 +10,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
+import { useMultiShare } from '@/hooks/useMultiShare'
 import { currencyAtom, selectedGroupAtom } from '../store/atoms'
 import type { Person } from '../types'
 
@@ -33,6 +36,17 @@ export function PersonDetailView({
 			}),
 		[currency, i18n.language]
 	)
+
+	const { share: shareContent } = useMultiShare({
+		messages: {
+			shareSuccess: t('personDetail.shareSuccess'),
+			shareSuccessDescription: t('personDetail.shareSuccessDescription'),
+			shareCopied: t('personDetail.shareCopied'),
+			shareCopiedDescription: t('personDetail.shareCopiedDescription'),
+			shareError: t('personDetail.shareError'),
+			shareErrorDescription: t('personDetail.shareErrorDescription'),
+		},
+	})
 
 	if (!group) {
 		return null
@@ -83,14 +97,101 @@ export function PersonDetailView({
 
 	const totalWithTip = baseTotal + tip
 
+	const generateSummaryText = () => {
+		if (!group) return ''
+
+		const lines: string[] = []
+		lines.push(t('personDetail.title', { name: person.name }))
+		lines.push('')
+		lines.push(`${t('personDetail.itemsBreakdown')}:`)
+		lines.push('')
+
+		applicableItems.forEach(({ item, applicablePeople, perPerson }) => {
+			const itemType =
+				item.type === 'expense'
+					? t('itemsList.expense')
+					: t('itemsList.discount')
+			const totalValue = item.amount * item.price
+			const sharedText = item.appliesToEveryone
+				? t('item.everyone')
+				: applicablePeople
+						.map((p) => (p.id === person.id ? t('personDetail.you') : p.name))
+						.sort((a, b) => {
+							if (a === t('personDetail.you')) return -1
+							if (b === t('personDetail.you')) return 1
+							return a.localeCompare(b)
+						})
+						.join(', ')
+
+			lines.push(`• ${item.name} (${itemType})`)
+			lines.push(
+				`  ${item.amount} × ${currencyFormatter.format(item.price)} = ${currencyFormatter.format(totalValue)}`
+			)
+			lines.push(
+				`  ${t('personDetail.sharedWith')} ${sharedText} (${t('personDetail.splitAmongPlural', { count: applicablePeople.length })})`
+			)
+			lines.push(
+				`  ${perPerson >= 0 ? '+' : '-'}${currencyFormatter.format(Math.abs(perPerson))}`
+			)
+			lines.push('')
+		})
+
+		lines.push(
+			`${t('personDetail.baseTotal')}: ${currencyFormatter.format(Math.abs(baseTotal))}`
+		)
+		if (baseTotal < 0) {
+			lines.push(`  ${t('summary.credit')}`)
+		}
+
+		if (tip > 0) {
+			lines.push(
+				`${t('personDetail.tipLabel', { percentage: group.tipPercentage })}: ${currencyFormatter.format(tip)}`
+			)
+		}
+
+		lines.push('')
+		lines.push(
+			`${t('personDetail.totalAmount')}: ${currencyFormatter.format(Math.abs(totalWithTip))}`
+		)
+		if (totalWithTip < 0) {
+			lines.push(`  ${t('summary.credit')}`)
+		}
+
+		return lines.join('\n')
+	}
+
+	const handleShare = async () => {
+		const summaryText = generateSummaryText()
+
+		if (!summaryText) return
+
+		await shareContent({
+			text: summaryText,
+			title: t('personDetail.title', { name: person.name }),
+		})
+	}
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-none bg-card p-0 shadow-2xl ring-1 ring-ring">
 				<div className="border-border border-b bg-linear-to-r from-primary/10 via-ring/5 to-accent/10 px-6 py-6">
 					<DialogHeader>
-						<DialogTitle className="font-semibold text-2xl text-foreground">
-							{t('personDetail.title', { name: person.name })}
-						</DialogTitle>
+						<div className="flex items-center gap-3">
+							{applicableItems.length > 0 && (
+								<Button
+									variant="ghost"
+									size="icon"
+									onClick={handleShare}
+									aria-label={t('personDetail.share')}
+									className="h-10 w-10 rounded-xl text-foreground hover:bg-primary/10"
+								>
+									<Share2 className="h-5 w-5" />
+								</Button>
+							)}
+							<DialogTitle className="font-semibold text-2xl text-foreground">
+								{t('personDetail.title', { name: person.name })}
+							</DialogTitle>
+						</div>
 					</DialogHeader>
 				</div>
 				<div className="space-y-6 px-6 py-6">
@@ -159,18 +260,20 @@ export function PersonDetailView({
 															<span className="font-medium text-foreground">
 																{t('personDetail.sharedWith')}
 															</span>
-															{applicablePeople
-																.map((p) =>
-																	p.id === person.id
-																		? t('personDetail.you')
-																		: p.name
-																)
-																.sort((a, b) => {
-																	if (a === t('personDetail.you')) return -1
-																	if (b === t('personDetail.you')) return 1
-																	return a.localeCompare(b)
-																})
-																.join(', ')}
+															{item.appliesToEveryone
+																? t('item.everyone')
+																: applicablePeople
+																		.map((p) =>
+																			p.id === person.id
+																				? t('personDetail.you')
+																				: p.name
+																		)
+																		.sort((a, b) => {
+																			if (a === t('personDetail.you')) return -1
+																			if (b === t('personDetail.you')) return 1
+																			return a.localeCompare(b)
+																		})
+																		.join(', ')}
 														</div>
 													)}
 												</CardContent>

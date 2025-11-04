@@ -1,5 +1,5 @@
 import { Atom, useAtomValue } from '@effect-atom/atom-react'
-import { Eye, QrCode } from 'lucide-react'
+import { Eye, QrCode, Share2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
+import { useMultiShare } from '@/hooks/useMultiShare'
 import { currencyAtom, pixKeyAtom, selectedGroupAtom } from '../store/atoms'
 import type { Person } from '../types'
 import { PersonDetailView } from './PersonDetailView'
@@ -132,12 +133,105 @@ export function Summary() {
 		[currency, i18n.language]
 	)
 
+	const { share: shareContent } = useMultiShare({
+		messages: {
+			shareSuccess: t('summary.shareSuccess'),
+			shareSuccessDescription: t('summary.shareSuccessDescription'),
+			shareCopied: t('summary.shareCopied'),
+			shareCopiedDescription: t('summary.shareCopiedDescription'),
+			shareError: t('summary.shareError'),
+			shareErrorDescription: t('summary.shareErrorDescription'),
+		},
+	})
+
 	const handlePixClick = (person: Person, amount: number) => {
 		if (!pixKey) {
 			setShowPixError(true)
 			return
 		}
 		setPixPerson({ person, amount })
+	}
+
+	const generateSummaryText = () => {
+		if (!group || !calculations) return ''
+
+		const lines: string[] = []
+		lines.push(group.name || t('summary.title'))
+		lines.push('')
+		lines.push(
+			t('summary.grandTotal') +
+				': ' +
+				currencyFormatter.format(calculations.sumOfSharesWithTips)
+		)
+		lines.push('')
+		lines.push(
+			t('summary.expenses') +
+				': ' +
+				currencyFormatter.format(calculations.totalExpenses)
+		)
+		lines.push(
+			t('summary.discounts') +
+				': ' +
+				currencyFormatter.format(calculations.totalDiscounts)
+		)
+
+		if (calculations.totalTips > 0) {
+			lines.push(
+				t('summary.netBeforeTip') +
+					': ' +
+					currencyFormatter.format(calculations.netTotal)
+			)
+			lines.push(
+				t('summary.tipsAdded') +
+					': ' +
+					currencyFormatter.format(calculations.totalTips)
+			)
+		}
+
+		lines.push('')
+		lines.push(`${t('summary.person')} | ${t('summary.amount')}`)
+		lines.push('─'.repeat(30))
+
+		const sortedPeople = [...group.people].sort((a, b) =>
+			a.name.localeCompare(b.name)
+		)
+
+		sortedPeople.forEach((person) => {
+			const baseTotal = calculations.totals[person.id] || 0
+			const tip = calculations.tips[person.id] || 0
+			const totalWithTip = calculations.totalsWithTips[person.id] || 0
+			const hasTip =
+				tip > 0 &&
+				group.tipPercentage !== undefined &&
+				group.tipPercentage !== null &&
+				group.tipPercentage > 0
+
+			let personLine = `${person.name}: ${currencyFormatter.format(Math.abs(totalWithTip))}`
+			if (totalWithTip < 0) {
+				personLine += ` (${t('summary.credit')})`
+			}
+			if (hasTip) {
+				personLine += ` [${t('summary.base')}: ${currencyFormatter.format(baseTotal)}, ${t('summary.tip')}: ${currencyFormatter.format(tip)}]`
+			}
+			lines.push(personLine)
+		})
+
+		if (!calculations.isValid) {
+			lines.push('')
+			lines.push(`⚠️ ${t('summary.calculationMismatch')}`)
+		}
+
+		return lines.join('\n')
+	}
+
+	const handleShare = async () => {
+		const summaryText = generateSummaryText()
+		if (!summaryText) return
+
+		await shareContent({
+			text: summaryText,
+			title: group?.name || t('summary.title'),
+		})
 	}
 
 	if (!group || !calculations) {
@@ -148,12 +242,27 @@ export function Summary() {
 		<>
 			<Card className="border-none bg-card shadow-lg ring-1 ring-ring backdrop-blur">
 				<CardHeader className="space-y-1">
-					<CardTitle className="font-semibold text-foreground text-xl">
-						{t('summary.title')}
-					</CardTitle>
-					<p className="text-muted-foreground text-sm">
-						{t('summary.subtitle')}
-					</p>
+					<div className="flex items-center justify-between">
+						<div>
+							<CardTitle className="font-semibold text-foreground text-xl">
+								{t('summary.title')}
+							</CardTitle>
+							<p className="text-muted-foreground text-sm">
+								{t('summary.subtitle')}
+							</p>
+						</div>
+						{group.people.length > 0 && group.items.length > 0 && (
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={handleShare}
+								aria-label={t('summary.share')}
+								className="h-10 w-10 rounded-xl text-foreground hover:bg-primary/10"
+							>
+								<Share2 className="h-5 w-5" />
+							</Button>
+						)}
+					</div>
 				</CardHeader>
 				<CardContent className="space-y-5">
 					{group.people.length === 0 ? (

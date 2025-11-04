@@ -101,7 +101,14 @@
 		"credit": "credit",
 		"generatePix": "Generate PIX for {{name}}",
 		"viewDetails": "View details for {{name}}",
-		"calculationMismatch": "⚠️ Calculation mismatch detected. Double-check your item splits."
+		"calculationMismatch": "⚠️ Calculation mismatch detected. Double-check your item splits.",
+		"share": "Share summary",
+		"shareSuccess": "Summary shared",
+		"shareSuccessDescription": "The summary has been shared successfully",
+		"shareCopied": "Summary copied",
+		"shareCopiedDescription": "The summary has been copied to your clipboard",
+		"shareError": "Failed to share",
+		"shareErrorDescription": "Unable to share or copy the summary. Please try again."
 	},
 	"personDetail": {
 		"title": "{{name}}'s cost breakdown",
@@ -113,7 +120,14 @@
 		"you": "you",
 		"baseTotal": "Base total (items)",
 		"tipLabel": "Tip ({{percentage}}%)",
-		"totalAmount": "Total amount"
+		"totalAmount": "Total amount",
+		"share": "Share summary",
+		"shareSuccess": "Summary shared",
+		"shareSuccessDescription": "The summary has been shared successfully",
+		"shareCopied": "Summary copied",
+		"shareCopiedDescription": "The summary has been copied to your clipboard",
+		"shareError": "Failed to share",
+		"shareErrorDescription": "Unable to share or copy the summary. Please try again."
 	},
 	"pix": {
 		"paymentFor": "PIX Payment for {{name}}",

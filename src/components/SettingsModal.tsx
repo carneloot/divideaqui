@@ -28,6 +28,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
+import { useClipboard } from '@/hooks/useClipboard'
 import {
 	currencyAtom,
 	exportDataAtom,
@@ -72,7 +73,7 @@ export function SettingsModal() {
 	const [pixKey, setPixKey] = useAtom(pixKeyAtom)
 	const [open, setOpen] = useState(false)
 	const [importText, setImportText] = useState<string>('')
-	const [copied, setCopied] = useState(false)
+	const { copy: copyToClipboard, copied } = useClipboard()
 
 	const [exportDataResult, exportData] = useAtom(exportDataAtom)
 	const [importDataResult, importData] = useAtom(importDataAtom)
@@ -193,16 +194,14 @@ export function SettingsModal() {
 		}
 	}
 
-	const copyToClipboard = async () => {
+	const handleCopyToClipboard = async () => {
 		if (!Result.isSuccess(exportDataResult)) return
-		try {
-			await navigator.clipboard.writeText(exportDataResult.value)
-			setCopied(true)
-			setTimeout(() => setCopied(false), 2000)
+		const success = await copyToClipboard(exportDataResult.value)
+		if (success) {
 			toast.success(t('settings.copiedToClipboard'), {
 				description: t('settings.exportTextCopied'),
 			})
-		} catch {
+		} else {
 			console.error('Failed to copy export text to clipboard')
 		}
 	}
@@ -358,7 +357,7 @@ export function SettingsModal() {
 												{t('settings.exportText')}
 											</Label>
 											<Button
-												onClick={copyToClipboard}
+												onClick={handleCopyToClipboard}
 												size="sm"
 												variant="ghost"
 												className="h-8 text-xs"

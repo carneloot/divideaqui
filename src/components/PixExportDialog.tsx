@@ -12,6 +12,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import { useClipboard } from '@/hooks/useClipboard'
 import { currencyAtom, pixKeyAtom, selectedGroupAtom } from '../store/atoms'
 import type { Person } from '../types'
 
@@ -32,7 +33,7 @@ export function PixExportDialog({
 	const pixKey = useAtomValue(pixKeyAtom)
 	const currency = useAtomValue(currencyAtom)
 	const group = useAtomValue(selectedGroupAtom)
-	const [copied, setCopied] = useState(false)
+	const { copy: copyToClipboard, copied } = useClipboard()
 	const [qrCodeImage, setQrCodeImage] = useState<string | null>(null)
 
 	const currencyFormatter = useMemo(
@@ -93,11 +94,8 @@ export function PixExportDialog({
 
 	const copyBrCode = async () => {
 		if (!pixData?.brCode) return
-		try {
-			await navigator.clipboard.writeText(pixData.brCode)
-			setCopied(true)
-			setTimeout(() => setCopied(false), 2000)
-		} catch {
+		const success = await copyToClipboard(pixData.brCode)
+		if (!success) {
 			console.error('Failed to copy PIX code to clipboard')
 		}
 	}

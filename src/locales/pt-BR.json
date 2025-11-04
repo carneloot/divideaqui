@@ -101,7 +101,14 @@
 		"credit": "crédito",
 		"generatePix": "Gerar PIX para {{name}}",
 		"viewDetails": "Ver detalhes para {{name}}",
-		"calculationMismatch": "⚠️ Divergência de cálculo detectada. Verifique novamente suas divisões de itens."
+		"calculationMismatch": "⚠️ Divergência de cálculo detectada. Verifique novamente suas divisões de itens.",
+		"share": "Compartilhar resumo",
+		"shareSuccess": "Resumo compartilhado",
+		"shareSuccessDescription": "O resumo foi compartilhado com sucesso",
+		"shareCopied": "Resumo copiado",
+		"shareCopiedDescription": "O resumo foi copiado para a área de transferência",
+		"shareError": "Falha ao compartilhar",
+		"shareErrorDescription": "Não foi possível compartilhar ou copiar o resumo. Por favor, tente novamente."
 	},
 	"personDetail": {
 		"title": "Detalhamento de custos de {{name}}",
@@ -113,7 +120,14 @@
 		"you": "você",
 		"baseTotal": "Total base (itens)",
 		"tipLabel": "Gorjeta ({{percentage}}%)",
-		"totalAmount": "Valor total"
+		"totalAmount": "Valor total",
+		"share": "Compartilhar resumo",
+		"shareSuccess": "Resumo compartilhado",
+		"shareSuccessDescription": "O resumo foi compartilhado com sucesso",
+		"shareCopied": "Resumo copiado",
+		"shareCopiedDescription": "O resumo foi copiado para a área de transferência",
+		"shareError": "Falha ao compartilhar",
+		"shareErrorDescription": "Não foi possível compartilhar ou copiar o resumo. Por favor, tente novamente."
 	},
 	"pix": {
 		"paymentFor": "Pagamento PIX para {{name}}",
