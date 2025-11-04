@@ -19,11 +19,11 @@ const accordionStateAtom = Atom.kvs({
 	key: 'accordion-states',
 	schema: AccordionStateSchema,
 	defaultValue: (): AccordionState => ({
-		people: false,
-		tip: false,
-		item: false,
-		items: false,
-		summary: false,
+		people: true,
+		tip: true,
+		item: true,
+		items: true,
+		summary: true,
 	}),
 })
 
