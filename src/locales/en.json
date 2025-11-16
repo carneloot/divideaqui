@@ -195,6 +195,53 @@
 		"pixKeySaved": "PIX key saved",
 		"pixKeyCleared": "PIX key cleared"
 	},
+	"instructions": {
+		"title": "How it works?",
+		"subtitle": "Learn how to use Divide Aqui to split expenses with your group",
+		"features": {
+			"createGroups": {
+				"title": "Create Groups",
+				"description": "Start by creating a group for your expense-sharing session. You can create multiple groups for different occasions (e.g., dinner crew, weekend trip). Groups can be renamed and reused anytime."
+			},
+			"addPeople": {
+				"title": "Add People",
+				"description": "Add friends and family members to your group. Each person can be assigned to payment groups for shared expenses, making it easy to track who owes what."
+			},
+			"addExpenses": {
+				"title": "Add Expenses & Discounts",
+				"description": "Log every expense or discount with item name, price, and quantity. Choose who should pay - split evenly among everyone or select specific people for custom splits."
+			},
+			"setTips": {
+				"title": "Set Tips",
+				"description": "Apply a tip percentage that will be automatically distributed fairly across everyone based on their individual payments."
+			},
+			"paymentGroups": {
+				"title": "Payment Groups",
+				"description": "Create groups of people who share expenses together. Drag and drop people into groups to organize shared costs efficiently."
+			},
+			"viewSummary": {
+				"title": "View Summary",
+				"description": "See a complete breakdown of who owes what, including expenses, discounts, and tip adjustments. View individual details for each person."
+			},
+			"shareSummary": {
+				"title": "Share Summary",
+				"description": "Share expense summaries with your group. Use the share button in the summary section to share the complete breakdown, or share individual person details from their detail view. Summaries can be copied to clipboard or shared via native sharing."
+			},
+			"generatePix": {
+				"title": "Generate PIX Payments",
+				"description": "Generate PIX payment requests with QR codes for easy payment collection. Configure your PIX key in settings first."
+			},
+			"exportImport": {
+				"title": "Export & Import Data",
+				"description": "Export your data as a compressed text string to backup or transfer between devices. Import previously exported data anytime."
+			}
+		},
+		"privacy": {
+			"title": "Your Privacy Matters",
+			"description": "Everything is stored locally on your browser. Your data is never sent to any servers. All groups, people, expenses, and calculations remain private and secure on your device. You have complete control over your data."
+		},
+		"help": "Help"
+	},
 	"footer": {
 		"copyright": "Matheus Carnelutt",
 		"license": "Licensed under MIT",

@@ -195,6 +195,53 @@
 		"pixKeySaved": "Chave PIX salva",
 		"pixKeyCleared": "Chave PIX limpa"
 	},
+	"instructions": {
+		"title": "Como funciona?",
+		"subtitle": "Aprenda como usar o Divide Aqui para dividir despesas com seu grupo",
+		"features": {
+			"createGroups": {
+				"title": "Criar Grupos",
+				"description": "Comece criando um grupo para sua sessão de divisão de despesas. Você pode criar vários grupos para diferentes ocasiões (ex: grupo de jantar, viagem de fim de semana). Os grupos podem ser renomeados e reutilizados a qualquer momento."
+			},
+			"addPeople": {
+				"title": "Adicionar Pessoas",
+				"description": "Adicione amigos e familiares ao seu grupo. Cada pessoa pode ser atribuída a grupos de pagamento para despesas compartilhadas, facilitando o acompanhamento de quem deve o quê."
+			},
+			"addExpenses": {
+				"title": "Adicionar Despesas e Descontos",
+				"description": "Registre cada despesa ou desconto com nome do item, preço e quantidade. Escolha quem deve pagar - divida igualmente entre todos ou selecione pessoas específicas para divisões personalizadas."
+			},
+			"setTips": {
+				"title": "Configurar Gorjetas",
+				"description": "Aplique uma porcentagem de gorjeta que será automaticamente distribuída de forma justa entre todos com base em seus pagamentos individuais."
+			},
+			"paymentGroups": {
+				"title": "Grupos de Pagamento",
+				"description": "Crie grupos de pessoas que compartilham despesas juntas. Arraste e solte pessoas em grupos para organizar custos compartilhados com eficiência."
+			},
+			"viewSummary": {
+				"title": "Ver Resumo",
+				"description": "Veja um detalhamento completo de quem deve o quê, incluindo despesas, descontos e ajustes de gorjeta. Visualize detalhes individuais para cada pessoa."
+			},
+			"shareSummary": {
+				"title": "Compartilhar Resumo",
+				"description": "Compartilhe resumos de despesas com seu grupo. Use o botão de compartilhar na seção de resumo para compartilhar o detalhamento completo, ou compartilhe detalhes individuais de cada pessoa na visualização de detalhes. Os resumos podem ser copiados para a área de transferência ou compartilhados via compartilhamento nativo."
+			},
+			"generatePix": {
+				"title": "Gerar Pagamentos PIX",
+				"description": "Gere solicitações de pagamento PIX com códigos QR para facilitar a cobrança. Configure sua chave PIX nas configurações primeiro."
+			},
+			"exportImport": {
+				"title": "Exportar e Importar Dados",
+				"description": "Exporte seus dados como uma string de texto compactada para backup ou transferência entre dispositivos. Importe dados previamente exportados a qualquer momento."
+			}
+		},
+		"privacy": {
+			"title": "Sua Privacidade Importa",
+			"description": "Tudo é armazenado localmente no seu navegador. Seus dados nunca são enviados para nenhum servidor. Todos os grupos, pessoas, despesas e cálculos permanecem privados e seguros no seu dispositivo. Você tem controle total sobre seus dados."
+		},
+		"help": "Ajuda"
+	},
 	"footer": {
 		"copyright": "Matheus Carnelutt",
 		"license": "Licenciado sob MIT",
