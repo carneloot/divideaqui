@@ -35,6 +35,9 @@ interface PersonBreakdown {
 	totalWithTip: number
 	hasTip: boolean
 	tipPercentage?: number
+	paymentGroupIndex?: number
+	paymentGroupTotal?: number
+	paymentGroupMembers?: Person[]
 }
 
 const personBreakdownAtom = Atom.family((personId: string) =>
@@ -82,6 +85,47 @@ const personBreakdownAtom = Atom.family((personId: string) =>
 				: 0
 		const totalWithTip = baseTotal + tip
 
+		// Calculate payment group info
+		let paymentGroupIndex: number | undefined
+		let paymentGroupMembers: Person[] = []
+		let paymentGroupTotal: number | undefined
+
+		const paymentGroups = group.paymentGroups || []
+		paymentGroups.forEach((pgIds, index) => {
+			if (pgIds.includes(personId)) {
+				paymentGroupIndex = index
+				paymentGroupMembers = group.people.filter((p) => pgIds.includes(p.id))
+				// Calculate total for this payment group
+				paymentGroupTotal = pgIds.reduce((sum, memberId) => {
+					const memberItems = group.items
+						.map((item) => {
+							const applicablePeople = item.appliesToEveryone
+								? group.people
+								: group.people.filter((p) => item.selectedPeople.includes(p.id))
+
+							if (!applicablePeople.some((p) => p.id === memberId)) {
+								return 0
+							}
+
+							const totalValue = item.amount * item.price
+							const amount = item.type === 'expense' ? totalValue : -totalValue
+							const perPerson = amount / applicablePeople.length
+
+							return perPerson
+						})
+						.reduce((itemSum, val) => itemSum + val, 0)
+
+					// Add member's share of tips
+					let memberTip = 0
+					if (hasTip && memberItems > 0 && tipPercentage !== undefined) {
+						memberTip = memberItems * (tipPercentage / 100)
+					}
+
+					return sum + memberItems + memberTip
+				}, 0)
+			}
+		})
+
 		return {
 			applicableItems,
 			baseTotal,
@@ -89,6 +133,9 @@ const personBreakdownAtom = Atom.family((personId: string) =>
 			totalWithTip,
 			hasTip,
 			tipPercentage,
+			paymentGroupIndex,
+			paymentGroupTotal,
+			paymentGroupMembers,
 		}
 	})
 )
@@ -127,6 +174,26 @@ export function PersonDetailView({
 		const lines: string[] = []
 		lines.push(t('personDetail.title', { name: person.name }))
 		lines.push('')
+
+		if (breakdown?.paymentGroupIndex !== undefined) {
+			lines.push(
+				`${t('people.paymentGroups.group')} ${breakdown.paymentGroupIndex + 1}`
+			)
+			lines.push(
+				`${t('summary.grandTotal')}: ${currencyFormatter.format(breakdown.paymentGroupTotal || 0)}`
+			)
+			if (
+				breakdown.paymentGroupMembers &&
+				breakdown.paymentGroupMembers.length > 1
+			) {
+				const memberNames = breakdown.paymentGroupMembers
+					.map((m) => m.name)
+					.join(', ')
+				lines.push(`${t('summary.inGroupWith')}: ${memberNames}`)
+			}
+			lines.push('')
+		}
+
 		lines.push(`${t('personDetail.itemsBreakdown')}:`)
 		lines.push('')
 

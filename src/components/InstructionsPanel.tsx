@@ -6,63 +6,63 @@ import {
 	Receipt,
 	Share2,
 	Users,
-} from "lucide-react";
-import { useTranslation } from "react-i18next";
+} from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/accordion'
+import { Card, CardContent } from '@/components/ui/card'
 
 interface InstructionsPanelProps {
-	useAccordion?: boolean;
+	useAccordion?: boolean
 }
 
 const FEATURES = [
 	{
-		key: "createGroups",
+		key: 'createGroups',
 		icon: Users,
 	},
 	{
-		key: "addPeople",
+		key: 'addPeople',
 		icon: Users,
 	},
 	{
-		key: "paymentGroups",
+		key: 'paymentGroups',
 		icon: Share2,
 	},
 	{
-		key: "addExpenses",
+		key: 'addExpenses',
 		icon: Receipt,
 	},
 	{
-		key: "setTips",
+		key: 'setTips',
 		icon: Percent,
 	},
 	{
-		key: "viewSummary",
+		key: 'viewSummary',
 		icon: DollarSign,
 	},
 	{
-		key: "shareSummary",
+		key: 'shareSummary',
 		icon: Share2,
 	},
 	{
-		key: "generatePix",
+		key: 'generatePix',
 		icon: DollarSign,
 	},
 	{
-		key: "exportImport",
+		key: 'exportImport',
 		icon: Download,
 	},
-] as const;
+] as const
 
 export function InstructionsPanel({
 	useAccordion = false,
 }: InstructionsPanelProps) {
-	const { t } = useTranslation();
+	const { t } = useTranslation()
 
 	const featuresContent = (
 		<div className="space-y-4">
@@ -85,7 +85,7 @@ export function InstructionsPanel({
 				</div>
 			))}
 		</div>
-	);
+	)
 
 	const privacySection = (
 		<Card className="border-primary/20 bg-primary/5">
@@ -94,28 +94,28 @@ export function InstructionsPanel({
 					<Lock className="h-6 w-6" />
 				</div>
 				<div className="flex-1 space-y-2">
-					<h3 className="font-semibold text-foreground text-base">
-						{t("instructions.privacy.title")}
+					<h3 className="font-semibold text-base text-foreground">
+						{t('instructions.privacy.title')}
 					</h3>
 					<p className="text-muted-foreground text-sm">
-						{t("instructions.privacy.description")}
+						{t('instructions.privacy.description')}
 					</p>
 				</div>
 			</CardContent>
 		</Card>
-	);
+	)
 
 	if (useAccordion) {
 		return (
 			<Accordion type="single" collapsible className="w-full">
 				<AccordionItem value="instructions" className="border-none">
 					<AccordionTrigger className="rounded-xl border border-border bg-card px-6 py-4 text-left font-semibold text-base text-foreground hover:no-underline">
-						{t("instructions.title")}
+						{t('instructions.title')}
 					</AccordionTrigger>
 					<AccordionContent className="pt-6">
 						<div className="space-y-6">
 							<p className="text-muted-foreground text-sm">
-								{t("instructions.subtitle")}
+								{t('instructions.subtitle')}
 							</p>
 							{featuresContent}
 							{privacySection}
@@ -123,7 +123,7 @@ export function InstructionsPanel({
 					</AccordionContent>
 				</AccordionItem>
 			</Accordion>
-		);
+		)
 	}
 
 	return (
@@ -131,5 +131,5 @@ export function InstructionsPanel({
 			{featuresContent}
 			{privacySection}
 		</div>
-	);
+	)
 }

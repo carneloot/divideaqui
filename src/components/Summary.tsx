@@ -509,6 +509,10 @@ export function Summary() {
 			const baseTotal = calculations.totals[person.id] || 0
 			const tip = calculations.tips[person.id] || 0
 			const totalWithTip = calculations.totalsWithTips[person.id] || 0
+			const groupedTotalWithTip =
+				calculations.groupedTotalsWithTips[person.id] || 0
+			const memberNames = calculations.personGroupMembers[person.id] || []
+			const hasPaymentGroup = memberNames.length > 0
 			const hasTip =
 				tip > 0 &&
 				group.tipPercentage !== undefined &&
@@ -521,6 +525,9 @@ export function Summary() {
 			}
 			if (hasTip) {
 				personLine += ` [${t('summary.base')}: ${currencyFormatter.format(baseTotal)}, ${t('summary.tip')}: ${currencyFormatter.format(tip)}]`
+			}
+			if (hasPaymentGroup) {
+				personLine += ` {${t('summary.groupedTotal')}: ${currencyFormatter.format(Math.abs(groupedTotalWithTip))}}`
 			}
 			lines.push(personLine)
 		})
